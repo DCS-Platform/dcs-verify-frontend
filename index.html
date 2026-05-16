@@ -345,6 +345,8 @@
       // Day 7 v3 · public cert download button. Shows after a verified
       // result lights up. Clicking opens the PDF in a new tab — same
       // origin sends the user to api.storage.trdn.io/api/storage/cert/chain.
+      // Z142 · receipt chain JSON export button (raw signed envelopes for
+      //  machine-readable auditor handoff, alongside the PDF).
       const _certHtml = (rows.length > 0)
         ? '<div style="margin:1rem 0 1.4rem;display:flex;gap:0.6rem;flex-wrap:wrap;align-items:center">' +
             '<a href="https://api.storage.trdn.io/api/storage/cert/chain/' +
@@ -354,7 +356,14 @@
               'border-radius:8px;color:#ffb450;text-decoration:none;font-size:13px;font-weight:500">' +
               '📄 Download cert PDF' +
             '</a>' +
-            '<span style="font-size:11.5px;color:var(--muted)">Single-page tamper-evident receipt chain summary</span>' +
+            '<button id="result-json-export" ' +
+              'style="display:inline-flex;align-items:center;gap:0.5rem;padding:0.5rem 1rem;' +
+              'background:rgba(124,200,255,0.1);border:1px solid rgba(124,200,255,0.35);' +
+              'border-radius:8px;color:#7cc4ff;font-size:13px;font-weight:500;cursor:pointer;' +
+              'font-family:inherit">' +
+              '{ } Download chain JSON' +
+            '</button>' +
+            '<span style="font-size:11.5px;color:var(--muted)">Tamper-evident PDF or raw signed envelopes</span>' +
           '</div>'
         : '';
       // Insert before result-stats (we'll prepend it via outerHTML manipulation)
@@ -365,6 +374,31 @@
       certWrap.id = certWrapId;
       certWrap.innerHTML = _certHtml;
       $('result-stats').parentNode.insertBefore(certWrap, $('result-stats'));
+
+      // Z142 · wire the JSON export button — turn the current `receipts`
+      // array into a downloadable .json file (raw signed envelopes plus
+      // the verify metadata so anyone can re-validate offline).
+      const _jsonBtn = document.getElementById('result-json-export');
+      if (_jsonBtn) {
+        _jsonBtn.addEventListener('click', () => {
+          const payload = {
+            session_id: id,
+            generated_at: new Date().toISOString(),
+            public_key_url: 'https://trdn.io/keys/trd-receipt-key-2026.public.pem',
+            verifier_url: 'https://verify.trdn.io',
+            receipt_count: receipts.length,
+            receipts: receipts,
+          };
+          const blob = new Blob([JSON.stringify(payload, null, 2)], { type: 'application/json' });
+          const url = URL.createObjectURL(blob);
+          const a = document.createElement('a');
+          a.href = url;
+          a.download = 'trd-receipts-' + id.slice(0,8) + '.json';
+          document.body.appendChild(a);
+          a.click();
+          setTimeout(() => { URL.revokeObjectURL(url); a.remove(); }, 1000);
+        });
+      }
 
       $('result-stats').innerHTML = [
         '<div class="stat"><div class="stat-label">RECEIPTS</div><div class="stat-value">' + receipts.length + '</div></div>',
