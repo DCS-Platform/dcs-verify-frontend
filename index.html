@@ -130,7 +130,13 @@
 
     <div class="card">
       <label for="session-id">SESSION ID OR REQUEST ID</label>
-      <input type="text" id="session-id" placeholder="3129cfce-a79c-4066-9dcb-9a5ce9b7be9f or er_xxx">
+      <input type="text" id="session-id" placeholder="3129cfce-a79c-4066-9dcb-9a5ce9b7be9f or er_xxx" autocomplete="off">
+      <!-- Z149 · recent session id autocomplete (localStorage, last 5) -->
+      <div id="recent-ids" style="display:none;margin-top:0.5rem;font-size:11px;color:var(--muted);letter-spacing:0.04em">
+        <span style="text-transform:uppercase;font-weight:500;margin-right:.4rem">Recent:</span>
+        <span id="recent-ids-list"></span>
+        <button id="recent-ids-clear" style="margin-left:.6rem;background:none;border:none;color:var(--muted);font-size:10.5px;cursor:pointer;text-decoration:underline;padding:0;font-family:inherit">clear</button>
+      </div>
       <button id="verify-btn">Verify chain →</button>
     </div>
 
@@ -250,9 +256,61 @@
       }
     }
 
+    // Z149 · recent session ids in localStorage (last 5, no duplicates)
+    const REC_KEY = 'trdn.verify.recent.v1';
+    function getRecentIds() {
+      try {
+        const raw = localStorage.getItem(REC_KEY);
+        if (!raw) return [];
+        const arr = JSON.parse(raw);
+        return Array.isArray(arr) ? arr.filter(x => typeof x === 'string') : [];
+      } catch { return []; }
+    }
+    function pushRecentId(id) {
+      if (!id || !/^[0-9a-f-]{36}$/i.test(id.trim())) return;
+      const norm = id.trim().toLowerCase();
+      try {
+        const arr = getRecentIds().filter(x => x !== norm);
+        arr.unshift(norm);
+        localStorage.setItem(REC_KEY, JSON.stringify(arr.slice(0, 5)));
+      } catch { /* ignore quota errors */ }
+    }
+    function renderRecentIds() {
+      const wrap = $('recent-ids');
+      const list = $('recent-ids-list');
+      if (!wrap || !list) return;
+      const arr = getRecentIds();
+      if (arr.length === 0) { wrap.style.display = 'none'; return; }
+      wrap.style.display = 'block';
+      list.innerHTML = arr.map((id, i) =>
+        '<button data-id="' + id + '" style="background:none;border:none;color:var(--accent);text-decoration:none;font-family:ui-monospace,monospace;font-size:11px;cursor:pointer;padding:2px 6px;margin-right:4px;border-radius:4px;font-weight:500">' +
+        id.slice(0, 8) + '…' +
+        '</button>' + (i < arr.length - 1 ? '<span style="color:var(--border)">·</span>' : '')
+      ).join('');
+      list.querySelectorAll('button[data-id]').forEach(b => {
+        b.addEventListener('click', () => {
+          input.value = b.getAttribute('data-id');
+          doVerify();
+        });
+        b.addEventListener('mouseenter', () => { b.style.background = 'rgba(0,144,255,0.08)'; });
+        b.addEventListener('mouseleave', () => { b.style.background = 'none'; });
+      });
+    }
+    // Initial render on page load
+    renderRecentIds();
+    if ($('recent-ids-clear')) {
+      $('recent-ids-clear').addEventListener('click', () => {
+        try { localStorage.removeItem(REC_KEY); } catch {}
+        renderRecentIds();
+      });
+    }
+
     async function doVerify() {
       const id = input.value.trim();
       if (!id) return;
+      // Z149 · remember this id for next time (only valid UUIDs)
+      pushRecentId(id);
+      renderRecentIds();
       btn.disabled = true; btn.textContent = 'Verifying…';
       $('result-card').style.display = 'block';
       $('result-text').textContent = 'Fetching receipt chain…';
