@@ -104,6 +104,20 @@
   </style>
 </head>
 <body>
+  <!-- HF10 · top nav -->
+  <nav class="trd-topnav" style="position:sticky;top:0;z-index:50;backdrop-filter:blur(12px);background:rgba(8,9,16,0.85);border-bottom:1px solid rgba(255,255,255,0.06);padding:0.75rem 1.5rem;display:flex;align-items:center;justify-content:space-between;gap:1rem;flex-wrap:wrap;font-size:13px">
+    <a href="https://trdn.io" style="color:#fff;text-decoration:none;font-weight:600;letter-spacing:-0.01em">TRD Network</a>
+    <div style="display:flex;gap:1.1rem;flex-wrap:wrap;align-items:center">
+      <a href="https://trdn.io" style="color:#9aa0b4;text-decoration:none">Home</a>
+      <a href="https://sovereign.trdn.io" style="color:#9aa0b4;text-decoration:none">Sovereign</a>
+      <a href="https://pilot.trdn.io" style="color:#9aa0b4;text-decoration:none">Pilot</a>
+      <a href="https://compute.trdn.io" style="color:#9aa0b4;text-decoration:none">Compute</a>
+      <a href="https://storage.trdn.io" style="color:#9aa0b4;text-decoration:none">Storage</a>
+      <a href="https://os.trdn.io" style="color:#9aa0b4;text-decoration:none">OS</a>
+      <span style="color:#7cffaa;font-weight:600;border:1px solid #7cffaa33;padding:0.2rem 0.6rem;border-radius:99px;font-size:11px">★ Verify</span>
+    </div>
+  </nav>
+  <!-- /HF10 -->
   <div class="container">
     <header>
       <div class="pill"><span style="width:6px;height:6px;background:var(--accent);border-radius:50%"></span>VERIFY.TRDN.IO · PUBLIC VERIFIER</div>
@@ -145,10 +159,40 @@
     </div>
   </div>
 
-  <div data-verify-compliance-footer-link="1" style="text-align:center;padding:1rem;font-size:12px;color:#7a8295;border-top:1px solid #1f1f29">Compliance: <a href="https://sovereign.trdn.io/compliance/readiness/" target="_blank" rel="noopener" style="color:#0090ff">EU AI Act + ISO 42001 readiness</a> · <a href="https://trdn.io/keys/trd-receipt-key-2026.public.pem" target="_blank" rel="noopener" style="color:#0090ff">Public verification key</a></div>
-<footer>
-    TRD Network · Public receipt verifier · <a href="https://trdn.io">trdn.io</a> · DCS AI Technologies L.L.C
-  </footer>
+  <!-- HF10 · expanded footer matching sovereign/compute pattern -->
+<footer style="border-top:1px solid rgba(255,255,255,0.06);margin-top:3rem;padding:2.5rem 1.5rem 1.5rem;background:rgba(8,9,16,0.4)">
+  <div style="max-width:1100px;margin:0 auto;display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:2rem;margin-bottom:2rem">
+    <div>
+      <h5 style="color:#fff;font-size:13px;letter-spacing:0.04em;text-transform:uppercase;margin:0 0 0.8rem">Verify</h5>
+      <p style="margin:0;color:#7a8295;font-size:13px;line-height:1.6">Paste any TRD Network session ID and validate ed25519 signatures + hash chain integrity client-side. No trust in our servers required.</p>
+    </div>
+    <div>
+      <h5 style="color:#fff;font-size:13px;letter-spacing:0.04em;text-transform:uppercase;margin:0 0 0.8rem">TRD Network</h5>
+      <a href="https://trdn.io" style="display:block;color:#7a8295;font-size:13px;text-decoration:none;margin-bottom:0.4rem">trdn.io</a>
+      <a href="https://trdn.io/app22" style="display:block;color:#7a8295;font-size:13px;text-decoration:none;margin-bottom:0.4rem">Build a site</a>
+      <a href="https://compute.trdn.io" style="display:block;color:#7a8295;font-size:13px;text-decoration:none;margin-bottom:0.4rem">Compute ↗</a>
+      <a href="https://storage.trdn.io" style="display:block;color:#7a8295;font-size:13px;text-decoration:none;margin-bottom:0.4rem">Storage ↗</a>
+      <a href="https://sovereign.trdn.io" style="display:block;color:#7a8295;font-size:13px;text-decoration:none;margin-bottom:0.4rem">Sovereign ↗</a>
+    </div>
+    <div>
+      <h5 style="color:#fff;font-size:13px;letter-spacing:0.04em;text-transform:uppercase;margin:0 0 0.8rem">Trust &amp; Compliance</h5>
+      <a href="https://sovereign.trdn.io/compliance/readiness/" style="display:block;color:#7a8295;font-size:13px;text-decoration:none;margin-bottom:0.4rem">EU AI Act + ISO 42001</a>
+      <a href="https://trdn.io/keys/trd-receipt-key-2026.public.pem" target="_blank" rel="noopener" style="display:block;color:#7a8295;font-size:13px;text-decoration:none;margin-bottom:0.4rem">Public verification key</a>
+      <a href="https://trdn.io/privacy" style="display:block;color:#7a8295;font-size:13px;text-decoration:none;margin-bottom:0.4rem">Privacy</a>
+      <a href="https://trdn.io/terms" style="display:block;color:#7a8295;font-size:13px;text-decoration:none;margin-bottom:0.4rem">Terms</a>
+    </div>
+    <div>
+      <h5 style="color:#fff;font-size:13px;letter-spacing:0.04em;text-transform:uppercase;margin:0 0 0.8rem">Resources</h5>
+      <a href="https://trdn.io/contact" style="display:block;color:#7a8295;font-size:13px;text-decoration:none;margin-bottom:0.4rem">Contact</a>
+      <a href="https://trdn.io" style="display:block;color:#7a8295;font-size:13px;text-decoration:none;margin-bottom:0.4rem">← back to trdn.io</a>
+    </div>
+  </div>
+  <div style="max-width:1100px;margin:0 auto;padding-top:1.5rem;border-top:1px solid rgba(255,255,255,0.04);display:flex;justify-content:space-between;flex-wrap:wrap;gap:1rem;color:#5a6080;font-size:12px">
+    <div>© 2026 TRD Network · a product of DCS AI Technologies L.L.C · Public receipt verifier</div>
+    <div>Built in Dubai, UAE · Sovereign by design</div>
+  </div>
+</footer>
+<!-- /HF10 -->
 
   <script>
   (function(){
