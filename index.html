@@ -349,11 +349,52 @@
         '<div class="stat"><div class="stat-label">CHAIN</div><div class="stat-value" style="color:' + (chainOk ? 'var(--ok)' : 'var(--err)') + '">' + (chainOk ? '✓' : '✗') + '</div></div>',
       ].join('');
 
-      $('result-receipts').innerHTML = '<div style="font-size:11px;color:var(--muted);letter-spacing:1px;margin:1rem 0 .6rem">RECEIPT CHAIN</div>' + rows.map(({ receipt, status }) => {
+      // Z135 · trust substrate emitter breakdown
+      // Aggregate emitter breakdown for the cross-product trust story.
+      const _emitterCounts = {};
+      rows.forEach(({ receipt }) => {
+        const e = receipt.emitter_service || 'unknown';
+        _emitterCounts[e] = (_emitterCounts[e] || 0) + 1;
+      });
+      const _emitterBadgeColor = (svc) => {
+        if (svc.includes('cn-backend') || svc.includes('compute')) return '#7cc4ff';
+        if (svc.includes('storage')) return '#ffb450';
+        if (svc.includes('backend-clean') || svc.includes('orchestrat')) return '#7cffaa';
+        return '#9aa0b4';
+      };
+      const _emitterSummary = Object.entries(_emitterCounts)
+        .map(([svc, n]) => '<span style="color:' + _emitterBadgeColor(svc) + ';font-family:ui-monospace,monospace;font-size:11px;padding:2px 8px;border-radius:99px;border:1px solid ' + _emitterBadgeColor(svc) + '33;background:' + _emitterBadgeColor(svc) + '0d">' + svc + ' · ' + n + '</span>')
+        .join(' ');
+
+      $('result-receipts').innerHTML =
+        '<div style="font-size:11px;color:var(--muted);letter-spacing:1px;margin:1rem 0 .4rem">TRUST SUBSTRATE · emitters</div>' +
+        '<div style="display:flex;gap:.4rem;flex-wrap:wrap;margin-bottom:1rem">' + _emitterSummary + '</div>' +
+        '<div style="font-size:11px;color:var(--muted);letter-spacing:1px;margin:.6rem 0 .6rem">RECEIPT CHAIN</div>' +
+        rows.map(({ receipt, status }) => {
         const checkClass = status === 'ok' ? 'ok' : (status === 'fail' ? 'err' : 'warn');
         const checkChar = status === 'ok' ? '✓' : (status === 'fail' ? '✗' : '○');
+        const ps = receipt.payload_summary || receipt.payload || {};
+        const agent = ps.agent_slug || ps.worker_id || ps.build_id || '—';
+        const model = ps.model || '—';
+        const ms = ps.duration_ms;
+        const dur = (typeof ms === 'number')
+          ? (ms >= 1000 ? (ms / 1000).toFixed(1) + 's' : ms + 'ms')
+          : null;
+        const co2 = (typeof receipt.carbon_co2_g === 'number')
+          ? receipt.carbon_co2_g.toFixed(2) + 'g CO₂'
+          : null;
+        const meta = [agent, model, dur, co2].filter(Boolean).join(' · ');
+        const idShort = (receipt.id || receipt.receipt_id || '').slice(0, 24);
+        const emitter = receipt.emitter_service || 'unknown';
+        const emitColor = _emitterBadgeColor(emitter);
         return '<div class="receipt-row"><span class="check ' + checkClass + '">' + checkChar + '</span>' +
-               '<div><div class="kind">' + (receipt.kind || 'unknown') + '</div><div class="id">' + (receipt.id || '?').slice(0, 32) + '</div></div>' +
+               '<div style="flex:1">' +
+                 '<div class="kind">' + (receipt.kind || 'unknown') +
+                   ' <span style="font-size:10px;color:' + emitColor + ';font-family:ui-monospace,monospace;font-weight:500;padding:1px 6px;border-radius:99px;border:1px solid ' + emitColor + '33;margin-left:6px">' + emitter + '</span>' +
+                 '</div>' +
+                 '<div class="id" style="color:var(--text);opacity:.85">' + meta + '</div>' +
+                 (idShort ? '<div class="id" style="font-size:10.5px;opacity:.5;margin-top:2px">' + idShort + '…</div>' : '') +
+               '</div>' +
                '<div class="id">' + new Date(receipt.emitted_at || 0).toLocaleString() + '</div></div>';
       }).join('');
 
