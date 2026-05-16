@@ -387,20 +387,29 @@
         totalKwh += Number(r.carbon_kwh || (r.carbon && r.carbon.kwh) || 0);
       }
 
-      // Z156 · Day 10 v3 · empty-state branch.
-      // Without this, an unknown / empty session falls through to the
-      // success branch because failCount===0 && chainOk===true are both
-      // trivially satisfied with zero receipts. That renders the nonsense
-      // line "All 0 signatures valid. Hash chain intact." Fix is to short
-      // circuit on receipts.length === 0 BEFORE the success branch.
+      // Z156 v2 · Day 10 v3 · honest branch precedence.
+      // The original conditional was lying because failCount===0 && chainOk
+      // are both trivially true when every receipt is UNSIGNED (no sig field
+      // present in payload). That made an entirely-unsigned chain render as
+      // "✓ VERIFIED · All 0 signatures valid" which is nonsense.
+      //
+      // Correct precedence (most specific failure first):
+      //   1. empty                       → ○ NO RECEIPTS
+      //   2. no public key loaded        → ⚠ KEY UNAVAILABLE
+      //   3. any signature failed        → ✗ TAMPERED
+      //   4. hash chain broken           → ⚠ CHAIN BROKEN
+      //   5. all receipts unsigned       → ⚠ UNSIGNED  (Bug I deferred — chain
+      //                                     pending sign-on-emit rollout)
+      //   6. some signed, some unsigned  → ⚠ PARTIAL
+      //   7. all signed and valid        → ✓ VERIFIED
       if (receipts.length === 0) {
         $('result-pill').textContent = '○ NO RECEIPTS';
         $('result-pill').className = 'result-pill warn';
         $('result-text').innerHTML = '<strong>No receipts for this session.</strong> Either the session ID is wrong, the session is brand-new, or no builds / inferences have been emitted yet. Double-check the ID — it should be a UUID copied from the OS dashboard.';
-      } else if (failCount === 0 && chainOk && publicKey) {
-        $('result-pill').textContent = '✓ VERIFIED';
-        $('result-pill').className = 'result-pill ok';
-        $('result-text').innerHTML = '<strong>All ' + okCount + ' signatures valid. Hash chain intact.</strong> This receipt chain is cryptographically authentic.';
+      } else if (!publicKey) {
+        $('result-pill').textContent = '⚠ KEY UNAVAILABLE';
+        $('result-pill').className = 'result-pill warn';
+        $('result-text').innerHTML = '<strong>Could not load public key</strong> from trdn.io/keys/. Cannot verify signatures.';
       } else if (failCount > 0) {
         $('result-pill').textContent = '✗ TAMPERED';
         $('result-pill').className = 'result-pill err';
@@ -409,10 +418,18 @@
         $('result-pill').textContent = '⚠ CHAIN BROKEN';
         $('result-pill').className = 'result-pill warn';
         $('result-text').innerHTML = '<strong>Hash chain integrity violated.</strong> Receipts are not properly linked.';
-      } else if (!publicKey) {
-        $('result-pill').textContent = '⚠ KEY UNAVAILABLE';
+      } else if (unsignedCount === receipts.length) {
+        $('result-pill').textContent = '⚠ UNSIGNED';
         $('result-pill').className = 'result-pill warn';
-        $('result-text').innerHTML = '<strong>Could not load public key</strong> from trdn.io/keys/. Cannot verify signatures.';
+        $('result-text').innerHTML = '<strong>' + receipts.length + ' receipts present but no signatures attached yet.</strong> Receipts exist on the chain — but signatures are still being rolled out (Bug I). The chain head CID and content are correct; cryptographic attestation will appear on next sign-on-emit deploy.';
+      } else if (unsignedCount > 0) {
+        $('result-pill').textContent = '⚠ PARTIAL';
+        $('result-pill').className = 'result-pill warn';
+        $('result-text').innerHTML = '<strong>' + okCount + ' of ' + receipts.length + ' receipts signed (' + unsignedCount + ' pending).</strong> Signed portion validates correctly. Unsigned portion will fill in as the sign-on-emit pipeline catches up.';
+      } else {
+        $('result-pill').textContent = '✓ VERIFIED';
+        $('result-pill').className = 'result-pill ok';
+        $('result-text').innerHTML = '<strong>All ' + okCount + ' signatures valid. Hash chain intact.</strong> This receipt chain is cryptographically authentic.';
       }
 
       // Day 7 v3 · public cert download button. Shows after a verified
@@ -428,20 +445,31 @@
                        'font-weight:500;text-decoration:none;cursor:pointer;' +
                        'font-family:inherit;line-height:1.25;box-sizing:border-box;' +
                        'border-width:1px;border-style:solid;height:38px;';
+      // Z156 v2 · cert PDF only shown when at least one signature actually
+      // validated. Showing a "Tamper-evident PDF" download on a chain with
+      // zero valid signatures would be a lie. Chain JSON is fine to expose
+      // even unsigned (it's just the raw envelopes for inspection).
+      const _hasSignedReceipts = okCount > 0;
       const _certHtml = (rows.length > 0)
         ? '<div style="margin:1rem 0 1.4rem;display:flex;gap:0.6rem;flex-wrap:wrap;align-items:center">' +
-            '<a href="https://api.storage.trdn.io/api/storage/cert/chain/' +
-              encodeURIComponent(id) + '" target="_blank" rel="noopener" ' +
-              'style="' + _btnBase + 'background:rgba(255,180,80,0.1);' +
-              'border-color:rgba(255,180,80,0.35);color:#ffb450">' +
-              '📄 Download cert PDF' +
-            '</a>' +
+            (_hasSignedReceipts
+              ? '<a href="https://api.storage.trdn.io/api/storage/cert/chain/' +
+                encodeURIComponent(id) + '" target="_blank" rel="noopener" ' +
+                'style="' + _btnBase + 'background:rgba(255,180,80,0.1);' +
+                'border-color:rgba(255,180,80,0.35);color:#ffb450">' +
+                '📄 Download cert PDF' +
+              '</a>'
+              : '') +
             '<button id="result-json-export" type="button" ' +
               'style="' + _btnBase + 'background:rgba(124,200,255,0.1);' +
               'border-color:rgba(124,200,255,0.35);color:#7cc4ff">' +
               '{ } Download chain JSON' +
             '</button>' +
-            '<span style="font-size:11.5px;color:var(--muted)">Tamper-evident PDF or raw signed envelopes</span>' +
+            '<span style="font-size:11.5px;color:var(--muted)">' +
+              (_hasSignedReceipts
+                ? 'Tamper-evident PDF or raw signed envelopes'
+                : 'Raw chain envelopes — signatures pending') +
+            '</span>' +
           '</div>'
         : '';
       // Insert before result-stats (we'll prepend it via outerHTML manipulation)
@@ -478,10 +506,15 @@
         });
       }
 
-      // Z156 · stat colors must not lie when the session is empty.
-      // Zero receipts → all values neutral, CHAIN shows em dash not ✓.
+      // Z156 v2 · stat colors must not lie.
+      //   Empty session   → all values neutral, CHAIN shows em dash.
+      //   Unsigned chain  → VERIFIED column muted (0 in green is a lie).
+      //   Tampered chain  → VERIFIED column red.
+      //   Verified chain  → VERIFIED column green.
       const _isEmpty = receipts.length === 0;
-      const _okColor = _isEmpty ? 'var(--muted)' : 'var(--ok)';
+      const _okColor = _isEmpty || okCount === 0
+        ? 'var(--muted)'
+        : (failCount > 0 ? 'var(--err)' : 'var(--ok)');
       const _chainSym = _isEmpty ? '—' : (chainOk ? '✓' : '✗');
       const _chainColor = _isEmpty ? 'var(--muted)' : (chainOk ? 'var(--ok)' : 'var(--err)');
       $('result-stats').innerHTML = [
