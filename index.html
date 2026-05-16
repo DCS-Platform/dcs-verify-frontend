@@ -347,20 +347,25 @@
       // origin sends the user to api.storage.trdn.io/api/storage/cert/chain.
       // Z142 · receipt chain JSON export button (raw signed envelopes for
       //  machine-readable auditor handoff, alongside the PDF).
+      // Z142 follow-up · normalize button heights between <a> and <button>.
+      // Shared inline style ensures the PDF link and JSON button render
+      // identically: same box-sizing, padding, line-height, border, font.
+      const _btnBase = 'display:inline-flex;align-items:center;gap:0.5rem;' +
+                       'padding:0.55rem 1rem;border-radius:8px;font-size:13px;' +
+                       'font-weight:500;text-decoration:none;cursor:pointer;' +
+                       'font-family:inherit;line-height:1.25;box-sizing:border-box;' +
+                       'border-width:1px;border-style:solid;height:38px;';
       const _certHtml = (rows.length > 0)
         ? '<div style="margin:1rem 0 1.4rem;display:flex;gap:0.6rem;flex-wrap:wrap;align-items:center">' +
             '<a href="https://api.storage.trdn.io/api/storage/cert/chain/' +
               encodeURIComponent(id) + '" target="_blank" rel="noopener" ' +
-              'style="display:inline-flex;align-items:center;gap:0.5rem;padding:0.5rem 1rem;' +
-              'background:rgba(255,180,80,0.1);border:1px solid rgba(255,180,80,0.35);' +
-              'border-radius:8px;color:#ffb450;text-decoration:none;font-size:13px;font-weight:500">' +
+              'style="' + _btnBase + 'background:rgba(255,180,80,0.1);' +
+              'border-color:rgba(255,180,80,0.35);color:#ffb450">' +
               '📄 Download cert PDF' +
             '</a>' +
-            '<button id="result-json-export" ' +
-              'style="display:inline-flex;align-items:center;gap:0.5rem;padding:0.5rem 1rem;' +
-              'background:rgba(124,200,255,0.1);border:1px solid rgba(124,200,255,0.35);' +
-              'border-radius:8px;color:#7cc4ff;font-size:13px;font-weight:500;cursor:pointer;' +
-              'font-family:inherit">' +
+            '<button id="result-json-export" type="button" ' +
+              'style="' + _btnBase + 'background:rgba(124,200,255,0.1);' +
+              'border-color:rgba(124,200,255,0.35);color:#7cc4ff">' +
               '{ } Download chain JSON' +
             '</button>' +
             '<span style="font-size:11.5px;color:var(--muted)">Tamper-evident PDF or raw signed envelopes</span>' +
