@@ -342,6 +342,30 @@
         $('result-text').innerHTML = '<strong>Could not load public key</strong> from trdn.io/keys/. Cannot verify signatures.';
       }
 
+      // Day 7 v3 · public cert download button. Shows after a verified
+      // result lights up. Clicking opens the PDF in a new tab — same
+      // origin sends the user to api.storage.trdn.io/api/storage/cert/chain.
+      const _certHtml = (rows.length > 0)
+        ? '<div style="margin:1rem 0 1.4rem;display:flex;gap:0.6rem;flex-wrap:wrap;align-items:center">' +
+            '<a href="https://api.storage.trdn.io/api/storage/cert/chain/' +
+              encodeURIComponent(id) + '" target="_blank" rel="noopener" ' +
+              'style="display:inline-flex;align-items:center;gap:0.5rem;padding:0.5rem 1rem;' +
+              'background:rgba(255,180,80,0.1);border:1px solid rgba(255,180,80,0.35);' +
+              'border-radius:8px;color:#ffb450;text-decoration:none;font-size:13px;font-weight:500">' +
+              '📄 Download cert PDF' +
+            '</a>' +
+            '<span style="font-size:11.5px;color:var(--muted)">Single-page tamper-evident receipt chain summary</span>' +
+          '</div>'
+        : '';
+      // Insert before result-stats (we'll prepend it via outerHTML manipulation)
+      const certWrapId = 'result-cert-link';
+      let certWrap = document.getElementById(certWrapId);
+      if (certWrap) certWrap.remove();
+      certWrap = document.createElement('div');
+      certWrap.id = certWrapId;
+      certWrap.innerHTML = _certHtml;
+      $('result-stats').parentNode.insertBefore(certWrap, $('result-stats'));
+
       $('result-stats').innerHTML = [
         '<div class="stat"><div class="stat-label">RECEIPTS</div><div class="stat-value">' + receipts.length + '</div></div>',
         '<div class="stat"><div class="stat-label">VERIFIED</div><div class="stat-value" style="color:var(--ok)">' + okCount + '</div></div>',
