@@ -387,7 +387,17 @@
         totalKwh += Number(r.carbon_kwh || (r.carbon && r.carbon.kwh) || 0);
       }
 
-      if (failCount === 0 && chainOk && publicKey) {
+      // Z156 · Day 10 v3 · empty-state branch.
+      // Without this, an unknown / empty session falls through to the
+      // success branch because failCount===0 && chainOk===true are both
+      // trivially satisfied with zero receipts. That renders the nonsense
+      // line "All 0 signatures valid. Hash chain intact." Fix is to short
+      // circuit on receipts.length === 0 BEFORE the success branch.
+      if (receipts.length === 0) {
+        $('result-pill').textContent = '○ NO RECEIPTS';
+        $('result-pill').className = 'result-pill warn';
+        $('result-text').innerHTML = '<strong>No receipts for this session.</strong> Either the session ID is wrong, the session is brand-new, or no builds / inferences have been emitted yet. Double-check the ID — it should be a UUID copied from the OS dashboard.';
+      } else if (failCount === 0 && chainOk && publicKey) {
         $('result-pill').textContent = '✓ VERIFIED';
         $('result-pill').className = 'result-pill ok';
         $('result-text').innerHTML = '<strong>All ' + okCount + ' signatures valid. Hash chain intact.</strong> This receipt chain is cryptographically authentic.';
@@ -468,11 +478,17 @@
         });
       }
 
+      // Z156 · stat colors must not lie when the session is empty.
+      // Zero receipts → all values neutral, CHAIN shows em dash not ✓.
+      const _isEmpty = receipts.length === 0;
+      const _okColor = _isEmpty ? 'var(--muted)' : 'var(--ok)';
+      const _chainSym = _isEmpty ? '—' : (chainOk ? '✓' : '✗');
+      const _chainColor = _isEmpty ? 'var(--muted)' : (chainOk ? 'var(--ok)' : 'var(--err)');
       $('result-stats').innerHTML = [
         '<div class="stat"><div class="stat-label">RECEIPTS</div><div class="stat-value">' + receipts.length + '</div></div>',
-        '<div class="stat"><div class="stat-label">VERIFIED</div><div class="stat-value" style="color:var(--ok)">' + okCount + '</div></div>',
+        '<div class="stat"><div class="stat-label">VERIFIED</div><div class="stat-value" style="color:' + _okColor + '">' + okCount + '</div></div>',
         '<div class="stat"><div class="stat-label">CARBON</div><div class="stat-value">' + totalCo2.toFixed(2) + ' g</div></div>',
-        '<div class="stat"><div class="stat-label">CHAIN</div><div class="stat-value" style="color:' + (chainOk ? 'var(--ok)' : 'var(--err)') + '">' + (chainOk ? '✓' : '✗') + '</div></div>',
+        '<div class="stat"><div class="stat-label">CHAIN</div><div class="stat-value" style="color:' + _chainColor + '">' + _chainSym + '</div></div>',
       ].join('');
 
       // Z135 · trust substrate emitter breakdown
