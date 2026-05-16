@@ -375,7 +375,10 @@
         const checkChar = status === 'ok' ? '✓' : (status === 'fail' ? '✗' : '○');
         const ps = receipt.payload_summary || receipt.payload || {};
         const agent = ps.agent_slug || ps.worker_id || ps.build_id || '—';
-        const model = ps.model || '—';
+        // Decision A · prefer model_class (premium / fast / fallback) over
+        // raw model string. Backend masks at the GET endpoint; older
+        // receipts may still have raw model so fall back.
+        const model = ps.model_class || ps.model || '—';
         const ms = ps.duration_ms;
         const dur = (typeof ms === 'number')
           ? (ms >= 1000 ? (ms / 1000).toFixed(1) + 's' : ms + 'ms')
