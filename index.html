@@ -1,0 +1,339 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>TRD Verify — Public Cryptographic Receipt Verifier</title>
+  <meta name="description" content="Verify any TRD Network receipt chain. Paste a session ID and check ed25519 signatures + hash chain integrity against our published public key. Runs entirely in your browser.">
+  <meta name="theme-color" content="#0a0a0f">
+  <meta property="og:title" content="TRD Verify — Public Receipt Verifier">
+  <meta property="og:description" content="Cryptographically verify any TRD Network receipt chain. Browser-side ed25519 + hash chain validation. Zero trust in our servers required.">
+  <meta property="og:url" content="https://verify.trdn.io/">
+  <link rel="canonical" href="https://verify.trdn.io/">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Geist:wght@400..700&family=Geist+Mono:wght@400..600&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #0a0a0f;
+      --surface: #13131a;
+      --border: #1f1f29;
+      --text: #e8e8ec;
+      --muted: #7a8295;
+      --accent: #0090ff;
+      --ok: #7cffaa;
+      --warn: #fbbf24;
+      --err: #d4385a;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0; padding: 0;
+      background: var(--bg); color: var(--text);
+      font-family: 'Geist', -apple-system, BlinkMacSystemFont, sans-serif;
+      min-height: 100vh;
+      line-height: 1.5;
+    }
+    .container { max-width: 760px; margin: 0 auto; padding: 3rem 1.5rem; }
+    header { text-align: center; margin-bottom: 2.5rem; }
+    .pill {
+      display: inline-flex; align-items: center; gap: .5rem;
+      padding: .35rem .9rem; border-radius: 99px;
+      background: rgba(0,144,255,0.08); border: 1px solid rgba(0,144,255,0.2);
+      color: var(--accent); font-size: 11px; font-weight: 600; letter-spacing: 1px;
+      text-transform: uppercase; margin-bottom: 1rem;
+    }
+    h1 { font-size: 2rem; line-height: 1.2; margin: 0 0 .5rem; font-weight: 700; }
+    h1 em { font-style: normal; color: var(--accent); font-weight: 700; }
+    .sub { color: var(--muted); font-size: 1rem; max-width: 540px; margin: 0 auto; }
+    .card {
+      background: var(--surface); border: 1px solid var(--border);
+      border-radius: 12px; padding: 1.5rem; margin-bottom: 1.2rem;
+    }
+    label {
+      display: block; font-size: 11px; letter-spacing: 1.2px;
+      color: var(--muted); font-weight: 600; margin-bottom: .5rem;
+    }
+    input[type="text"] {
+      width: 100%; padding: .8rem 1rem;
+      background: rgba(255,255,255,0.04); border: 1px solid var(--border);
+      border-radius: 8px; color: var(--text);
+      font-family: 'Geist Mono', ui-monospace, monospace; font-size: 13px;
+    }
+    input:focus { outline: none; border-color: var(--accent); }
+    button {
+      padding: .7rem 1.4rem; background: var(--accent); color: #fff;
+      border: none; border-radius: 8px; font-weight: 600; font-size: 14px;
+      cursor: pointer; margin-top: 1rem;
+    }
+    button:hover { opacity: 0.9; }
+    button:disabled { opacity: 0.5; cursor: wait; }
+    .result-pill {
+      display: inline-block; padding: .4rem 1rem; border-radius: 99px;
+      font-weight: 700; font-size: .85rem; margin-bottom: 1rem;
+    }
+    .result-pill.ok { background: rgba(124,255,170,0.1); color: var(--ok); border: 1px solid rgba(124,255,170,0.3); }
+    .result-pill.err { background: rgba(212,56,90,0.1); color: var(--err); border: 1px solid rgba(212,56,90,0.3); }
+    .result-pill.warn { background: rgba(251,191,36,0.1); color: var(--warn); border: 1px solid rgba(251,191,36,0.3); }
+    .stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 1rem; margin-top: 1rem; }
+    .stat { padding: .8rem; background: rgba(255,255,255,0.02); border-radius: 8px; }
+    .stat-label { font-size: 10px; letter-spacing: 1.2px; color: var(--muted); font-weight: 600; margin-bottom: .3rem; }
+    .stat-value { font-size: 1.2rem; font-weight: 700; }
+    .receipt-row {
+      display: grid; grid-template-columns: 20px 1fr auto;
+      gap: .8rem; padding: .8rem; align-items: center;
+      background: rgba(255,255,255,0.02); border-radius: 8px; margin-bottom: .5rem;
+      font-family: 'Geist Mono', ui-monospace, monospace; font-size: 12px;
+    }
+    .check.ok { color: var(--ok); }
+    .check.err { color: var(--err); }
+    .check.warn { color: var(--warn); }
+    .kind { color: var(--text); font-weight: 600; }
+    .id { color: var(--muted); font-size: 11px; }
+    code { background: rgba(255,255,255,0.04); padding: 2px 6px; border-radius: 4px; font-size: 0.9em; }
+    a { color: var(--accent); }
+    footer { text-align: center; padding: 2rem 1rem; color: var(--muted); font-size: 12px; border-top: 1px solid var(--border); margin-top: 3rem; }
+    .raw-toggle { color: var(--muted); cursor: pointer; user-select: none; font-size: 12px; margin-top: 1rem; }
+    .raw-out { background: #06060a; border: 1px solid var(--border); border-radius: 8px; padding: 1rem; font-family: 'Geist Mono', monospace; font-size: 11px; color: var(--muted); white-space: pre-wrap; word-break: break-all; max-height: 400px; overflow: auto; margin-top: .8rem; }
+    .product-links { display: flex; flex-wrap: wrap; gap: .5rem; margin-top: .8rem; }
+    .product-link {
+      padding: .3rem .7rem; background: rgba(255,255,255,0.04);
+      border: 1px solid var(--border); border-radius: 99px;
+      font-size: 11px; color: var(--muted); text-decoration: none;
+    }
+    .product-link:hover { color: var(--accent); border-color: var(--accent); }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <header>
+      <div class="pill"><span style="width:6px;height:6px;background:var(--accent);border-radius:50%"></span>VERIFY.TRDN.IO · PUBLIC VERIFIER</div>
+      <h1>Verify any <em>TRD Network</em> receipt chain</h1>
+      <p class="sub">Paste a session ID or erasure request ID. We fetch the receipt chain from <code>api.storage.trdn.io</code> and verify every ed25519 signature client-side against our published public key.</p>
+    </header>
+
+    <div class="card">
+      <label for="session-id">SESSION ID OR REQUEST ID</label>
+      <input type="text" id="session-id" placeholder="3129cfce-a79c-4066-9dcb-9a5ce9b7be9f or er_xxx">
+      <button id="verify-btn">Verify chain →</button>
+    </div>
+
+    <div id="result-card" class="card" style="display:none">
+      <div id="result-pill" class="result-pill"></div>
+      <div id="result-text" style="margin-bottom:1rem"></div>
+      <div id="result-stats" class="stats"></div>
+      <div id="result-receipts" style="margin-top:1.2rem"></div>
+      <div class="raw-toggle" id="raw-toggle">▸ Show raw chain data</div>
+      <div class="raw-out" id="raw-out" style="display:none"></div>
+    </div>
+
+    <div class="card" style="background:rgba(0,144,255,0.04);border-color:rgba(0,144,255,0.2)">
+      <h3 style="margin:0 0 .6rem;font-size:1rem">How verification works</h3>
+      <p style="margin:0;color:var(--muted);font-size:.92rem;line-height:1.6">
+        Each receipt is canonicalized (sorted JSON, no whitespace) and signed with our ed25519 key
+        <code>trd-receipt-key-2026</code>. The public key is published at
+        <a href="https://trdn.io/keys/trd-receipt-key-2026.public.pem" target="_blank">trdn.io/keys/trd-receipt-key-2026.public.pem</a>.
+        Receipts hash-chain via <code>prev_receipt_cid</code> pointing at the previous receipt's hash. Any tampering breaks the signature
+        or the chain, and is publicly detectable. This verifier runs entirely in your browser — no trust in our servers required.
+      </p>
+      <div class="product-links">
+        <a class="product-link" href="https://trdn.io">trdn.io</a>
+        <a class="product-link" href="https://os.trdn.io">os.trdn.io</a>
+        <a class="product-link" href="https://sovereign.trdn.io">sovereign.trdn.io</a>
+        <a class="product-link" href="https://storage.trdn.io">storage.trdn.io</a>
+        <a class="product-link" href="https://pilot.trdn.io">pilot.trdn.io</a>
+      </div>
+    </div>
+  </div>
+
+  <footer>
+    TRD Network · Public receipt verifier · <a href="https://trdn.io">trdn.io</a> · DCS AI Technologies L.L.C
+  </footer>
+
+  <script>
+  (function(){
+    const STORAGE_URL = 'https://api.storage.trdn.io';
+    const STORAGE_URL_FALLBACK = 'https://trd-storage-production.up.railway.app';
+    const PUB_KEY_URL = 'https://trdn.io/keys/trd-receipt-key-2026.public.pem';
+
+    const $ = (id) => document.getElementById(id);
+    const btn = $('verify-btn');
+    const input = $('session-id');
+
+    function canonicalize(obj) {
+      if (obj === null || typeof obj !== 'object') return JSON.stringify(obj);
+      if (Array.isArray(obj)) return '[' + obj.map(canonicalize).join(',') + ']';
+      const keys = Object.keys(obj).sort();
+      return '{' + keys.map(k => JSON.stringify(k) + ':' + canonicalize(obj[k])).join(',') + '}';
+    }
+
+    function pemToBuffer(pem) {
+      const b64 = pem.replace(/-----[^-]+-----/g, '').replace(/\s+/g, '');
+      const bin = atob(b64);
+      const buf = new Uint8Array(bin.length);
+      for (let i = 0; i < bin.length; i++) buf[i] = bin.charCodeAt(i);
+      return buf.buffer;
+    }
+
+    function base64ToBuffer(b64) {
+      const bin = atob(b64);
+      const buf = new Uint8Array(bin.length);
+      for (let i = 0; i < bin.length; i++) buf[i] = bin.charCodeAt(i);
+      return buf.buffer;
+    }
+
+    async function importEd25519PublicKey(pem) {
+      const spkiBuf = pemToBuffer(pem);
+      return crypto.subtle.importKey('spki', spkiBuf, { name: 'Ed25519' }, true, ['verify']);
+    }
+
+    async function verifyReceipt(receipt, publicKey) {
+      if (!receipt.signature || !receipt.signature.value) return null;
+      const unsigned = JSON.parse(JSON.stringify(receipt));
+      delete unsigned.signature;
+      delete unsigned.this_cid;
+      const canonical = canonicalize(unsigned);
+      const dataBuf = new TextEncoder().encode(canonical);
+      const sigBuf = base64ToBuffer(receipt.signature.value);
+      try {
+        return await crypto.subtle.verify('Ed25519', publicKey, sigBuf, dataBuf);
+      } catch (e) {
+        console.warn('verify error', e);
+        return false;
+      }
+    }
+
+    async function doVerify() {
+      const id = input.value.trim();
+      if (!id) return;
+      btn.disabled = true; btn.textContent = 'Verifying…';
+      $('result-card').style.display = 'block';
+      $('result-text').textContent = 'Fetching receipt chain…';
+      $('result-pill').textContent = ''; $('result-pill').className = 'result-pill';
+      $('result-stats').innerHTML = ''; $('result-receipts').innerHTML = '';
+      $('raw-out').style.display = 'none';
+
+      let receipts = null;
+      for (const baseUrl of [STORAGE_URL, STORAGE_URL_FALLBACK]) {
+        try {
+          const r = await fetch(baseUrl + '/api/storage/receipts/' + encodeURIComponent(id));
+          if (r.ok) {
+            const body = await r.json();
+            receipts = body.receipts || body || [];
+            break;
+          }
+        } catch (e) { continue; }
+      }
+
+      if (!receipts || !Array.isArray(receipts)) {
+        $('result-pill').textContent = 'Not found';
+        $('result-pill').className = 'result-pill err';
+        $('result-text').textContent = 'No receipt chain found for this ID, or the storage endpoint is unreachable.';
+        btn.disabled = false; btn.textContent = 'Verify chain →';
+        return;
+      }
+
+      if (receipts.length === 0) {
+        $('result-pill').textContent = 'Empty chain';
+        $('result-pill').className = 'result-pill warn';
+        $('result-text').textContent = 'No receipts have been emitted for this ID yet.';
+        btn.disabled = false; btn.textContent = 'Verify chain →';
+        return;
+      }
+
+      let publicKey = null;
+      try {
+        const r = await fetch(PUB_KEY_URL);
+        if (r.ok) {
+          const pem = await r.text();
+          publicKey = await importEd25519PublicKey(pem);
+        }
+      } catch (e) { console.warn('public key fetch failed', e); }
+
+      let okCount = 0, failCount = 0, unsignedCount = 0;
+      const rows = [];
+      for (const r of receipts) {
+        let status;
+        if (!publicKey) {
+          status = 'no-key';
+        } else {
+          const result = await verifyReceipt(r, publicKey);
+          if (result === null) { status = 'unsigned'; unsignedCount++; }
+          else if (result === true) { status = 'ok'; okCount++; }
+          else { status = 'fail'; failCount++; }
+        }
+        rows.push({ receipt: r, status });
+      }
+
+      const sorted = [...receipts].sort((a, b) => new Date(a.emitted_at) - new Date(b.emitted_at));
+      let chainOk = true;
+      for (let i = 1; i < sorted.length; i++) {
+        if (sorted[i].prev_receipt_cid && sorted[i].prev_receipt_cid !== sorted[i-1].this_cid) {
+          chainOk = false;
+          break;
+        }
+      }
+
+      let totalCo2 = 0, totalKwh = 0;
+      for (const r of receipts) {
+        totalCo2 += Number(r.carbon_co2_g || (r.carbon && r.carbon.co2_grams) || 0);
+        totalKwh += Number(r.carbon_kwh || (r.carbon && r.carbon.kwh) || 0);
+      }
+
+      if (failCount === 0 && chainOk && publicKey) {
+        $('result-pill').textContent = '✓ VERIFIED';
+        $('result-pill').className = 'result-pill ok';
+        $('result-text').innerHTML = '<strong>All ' + okCount + ' signatures valid. Hash chain intact.</strong> This receipt chain is cryptographically authentic.';
+      } else if (failCount > 0) {
+        $('result-pill').textContent = '✗ TAMPERED';
+        $('result-pill').className = 'result-pill err';
+        $('result-text').innerHTML = '<strong>' + failCount + ' signature(s) failed.</strong> This receipt chain has been modified.';
+      } else if (!chainOk) {
+        $('result-pill').textContent = '⚠ CHAIN BROKEN';
+        $('result-pill').className = 'result-pill warn';
+        $('result-text').innerHTML = '<strong>Hash chain integrity violated.</strong> Receipts are not properly linked.';
+      } else if (!publicKey) {
+        $('result-pill').textContent = '⚠ KEY UNAVAILABLE';
+        $('result-pill').className = 'result-pill warn';
+        $('result-text').innerHTML = '<strong>Could not load public key</strong> from trdn.io/keys/. Cannot verify signatures.';
+      }
+
+      $('result-stats').innerHTML = [
+        '<div class="stat"><div class="stat-label">RECEIPTS</div><div class="stat-value">' + receipts.length + '</div></div>',
+        '<div class="stat"><div class="stat-label">VERIFIED</div><div class="stat-value" style="color:var(--ok)">' + okCount + '</div></div>',
+        '<div class="stat"><div class="stat-label">CARBON</div><div class="stat-value">' + totalCo2.toFixed(2) + ' g</div></div>',
+        '<div class="stat"><div class="stat-label">CHAIN</div><div class="stat-value" style="color:' + (chainOk ? 'var(--ok)' : 'var(--err)') + '">' + (chainOk ? '✓' : '✗') + '</div></div>',
+      ].join('');
+
+      $('result-receipts').innerHTML = '<div style="font-size:11px;color:var(--muted);letter-spacing:1px;margin:1rem 0 .6rem">RECEIPT CHAIN</div>' + rows.map(({ receipt, status }) => {
+        const checkClass = status === 'ok' ? 'ok' : (status === 'fail' ? 'err' : 'warn');
+        const checkChar = status === 'ok' ? '✓' : (status === 'fail' ? '✗' : '○');
+        return '<div class="receipt-row"><span class="check ' + checkClass + '">' + checkChar + '</span>' +
+               '<div><div class="kind">' + (receipt.kind || 'unknown') + '</div><div class="id">' + (receipt.id || '?').slice(0, 32) + '</div></div>' +
+               '<div class="id">' + new Date(receipt.emitted_at || 0).toLocaleString() + '</div></div>';
+      }).join('');
+
+      $('raw-out').textContent = JSON.stringify(receipts, null, 2);
+      $('raw-toggle').onclick = () => {
+        const out = $('raw-out');
+        out.style.display = out.style.display === 'none' ? 'block' : 'none';
+        $('raw-toggle').textContent = (out.style.display === 'block' ? '▾' : '▸') + ' Show raw chain data';
+      };
+
+      btn.disabled = false;
+      btn.textContent = 'Verify another →';
+    }
+
+    btn.addEventListener('click', doVerify);
+    input.addEventListener('keypress', (e) => { if (e.key === 'Enter') doVerify(); });
+
+    // Auto-populate from ?id=... query param (deep-linkable verification)
+    const urlParams = new URLSearchParams(window.location.search);
+    const preId = urlParams.get('id') || urlParams.get('session_id') || urlParams.get('request_id');
+    if (preId) {
+      input.value = preId;
+      doVerify();
+    }
+  })();
+  </script>
+</body>
+</html>
