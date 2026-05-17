@@ -469,27 +469,33 @@
       // validated. Showing a "Tamper-evident PDF" download on a chain with
       // zero valid signatures would be a lie. Chain JSON is fine to expose
       // even unsigned (it's just the raw envelopes for inspection).
+      //
+      // Day 11 v3 · caption layout fix · move caption BELOW the buttons
+      // instead of inline beside them. Inline competed for space on narrow
+      // viewports and pushed the chain JSON button off the wrap.
       const _hasSignedReceipts = okCount > 0;
       const _certHtml = (rows.length > 0)
-        ? '<div style="margin:1rem 0 1.4rem;display:flex;gap:0.6rem;flex-wrap:wrap;align-items:center">' +
-            (_hasSignedReceipts
-              ? '<a href="https://api.storage.trdn.io/api/storage/cert/chain/' +
-                encodeURIComponent(id) + '" target="_blank" rel="noopener" ' +
-                'style="' + _btnBase + 'background:rgba(255,180,80,0.1);' +
-                'border-color:rgba(255,180,80,0.35);color:#ffb450">' +
-                '📄 Download cert PDF' +
-              '</a>'
-              : '') +
-            '<button id="result-json-export" type="button" ' +
-              'style="' + _btnBase + 'background:rgba(124,200,255,0.1);' +
-              'border-color:rgba(124,200,255,0.35);color:#7cc4ff">' +
-              '{ } Download chain JSON' +
-            '</button>' +
-            '<span style="font-size:11.5px;color:var(--muted)">' +
+        ? '<div style="margin:1rem 0 1.4rem">' +
+            '<div style="display:flex;gap:0.6rem;flex-wrap:wrap;align-items:center">' +
               (_hasSignedReceipts
-                ? 'Tamper-evident PDF or raw signed envelopes'
-                : 'Raw chain envelopes — signatures pending') +
-            '</span>' +
+                ? '<a href="https://api.storage.trdn.io/api/storage/cert/chain/' +
+                  encodeURIComponent(id) + '" target="_blank" rel="noopener" ' +
+                  'style="' + _btnBase + 'background:rgba(255,180,80,0.1);' +
+                  'border-color:rgba(255,180,80,0.35);color:#ffb450">' +
+                  '📄 Download cert PDF' +
+                '</a>'
+                : '') +
+              '<button id="result-json-export" type="button" ' +
+                'style="' + _btnBase + 'background:rgba(124,200,255,0.1);' +
+                'border-color:rgba(124,200,255,0.35);color:#7cc4ff">' +
+                '{ } Download chain JSON' +
+              '</button>' +
+            '</div>' +
+            '<div style="font-size:11.5px;color:var(--muted);margin-top:0.55rem">' +
+              (_hasSignedReceipts
+                ? 'Tamper-evident PDF or raw signed envelopes — both verifiable client-side against the published public key.'
+                : 'Raw chain envelopes — signatures pending Z151 deploy. Cert PDF will appear when chain is signed.') +
+            '</div>' +
           '</div>'
         : '';
       // Insert before result-stats (we'll prepend it via outerHTML manipulation)
