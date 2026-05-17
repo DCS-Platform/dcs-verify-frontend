@@ -242,9 +242,17 @@
       return crypto.subtle.importKey('spki', spkiBuf, { name: 'Ed25519' }, true, ['verify']);
     }
 
+    // Z151 · Day 11 v3 · verify against the ORIGINAL signed envelope
+    // (storage GET now returns envelope_jsonb verbatim so we can recompute
+    // the exact canonical bytes the signer signed; flat columns can't).
+    // Pre-Z151 receipts have envelope:null — return null (unsigned status)
+    // even if signature_value exists, because we can't reconstruct bytes.
     async function verifyReceipt(receipt, publicKey) {
       if (!receipt.signature || !receipt.signature.value) return null;
-      const unsigned = JSON.parse(JSON.stringify(receipt));
+      // Z151 · require envelope (verbatim signed bytes) — pre-Z151 receipts
+      // can't be cryptographically validated.
+      if (!receipt.envelope) return null;
+      const unsigned = JSON.parse(JSON.stringify(receipt.envelope));
       delete unsigned.signature;
       delete unsigned.this_cid;
       const canonical = canonicalize(unsigned);
@@ -372,11 +380,23 @@
         rows.push({ receipt: r, status });
       }
 
+      // Z151 · Day 11 v3 · honest chain check.
+      // Each receipt's prev_receipt_cid (committed in signed bytes at sign
+      // time) must equal the previous receipt's Filecoin cid. The cid is
+      // the column value returned by storage GET (real Filecoin CID, not
+      // the local sha256 this_cid). Genesis receipt has prev=null which
+      // is always valid (chain starts).
       const sorted = [...receipts].sort((a, b) => new Date(a.emitted_at) - new Date(b.emitted_at));
       let chainOk = true;
       for (let i = 1; i < sorted.length; i++) {
-        if (sorted[i].prev_receipt_cid && sorted[i].prev_receipt_cid !== sorted[i-1].this_cid) {
+        const expected = sorted[i-1].cid;
+        const actual = sorted[i].prev_receipt_cid;
+        // Only enforce when BOTH sides are populated (pre-Z151 rows have
+        // prev_receipt_cid=null; those receipts will be flagged as
+        // 'unsigned' separately by verifyReceipt() returning null).
+        if (actual && expected && actual !== expected) {
           chainOk = false;
+          console.warn('[verify] chain break at index', i, 'expected', expected.slice(0,20), 'got', actual.slice(0,20));
           break;
         }
       }
