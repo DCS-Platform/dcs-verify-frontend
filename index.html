@@ -1,635 +1,888 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>TRD Verify — Public Cryptographic Receipt Verifier</title>
-  <meta name="description" content="Verify any TRD Network receipt chain. Paste a session ID and check ed25519 signatures + hash chain integrity against our published public key. Runs entirely in your browser.">
-  <meta name="theme-color" content="#0a0a0f">
-  <meta property="og:title" content="TRD Verify — Public Receipt Verifier">
-  <meta property="og:description" content="Cryptographically verify any TRD Network receipt chain. Browser-side ed25519 + hash chain validation. Zero trust in our servers required.">
-  <meta property="og:url" content="https://verify.trdn.io/">
-  <link rel="canonical" href="https://verify.trdn.io/">
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Geist:wght@400..700&family=Geist+Mono:wght@400..600&display=swap" rel="stylesheet">
-  <style>
-    :root {
-      --bg: #0a0a0f;
-      --surface: #13131a;
-      --border: #1f1f29;
-      --text: #e8e8ec;
-      --muted: #7a8295;
-      --accent: #0090ff;
-      --ok: #7cffaa;
-      --warn: #fbbf24;
-      --err: #d4385a;
-    }
-    * { box-sizing: border-box; }
-    body {
-      margin: 0; padding: 0;
-      background: var(--bg); color: var(--text);
-      font-family: 'Geist', -apple-system, BlinkMacSystemFont, sans-serif;
-      min-height: 100vh;
-      line-height: 1.5;
-    }
-    .container { max-width: 760px; margin: 0 auto; padding: 3rem 1.5rem; }
-    header { text-align: center; margin-bottom: 2.5rem; }
-    .pill {
-      display: inline-flex; align-items: center; gap: .5rem;
-      padding: .35rem .9rem; border-radius: 99px;
-      background: rgba(0,144,255,0.08); border: 1px solid rgba(0,144,255,0.2);
-      color: var(--accent); font-size: 11px; font-weight: 600; letter-spacing: 1px;
-      text-transform: uppercase; margin-bottom: 1rem;
-    }
-    h1 { font-size: 2rem; line-height: 1.2; margin: 0 0 .5rem; font-weight: 700; }
-    h1 em { font-style: normal; color: var(--accent); font-weight: 700; }
-    .sub { color: var(--muted); font-size: 1rem; max-width: 540px; margin: 0 auto; }
-    .card {
-      background: var(--surface); border: 1px solid var(--border);
-      border-radius: 12px; padding: 1.5rem; margin-bottom: 1.2rem;
-    }
-    label {
-      display: block; font-size: 11px; letter-spacing: 1.2px;
-      color: var(--muted); font-weight: 600; margin-bottom: .5rem;
-    }
-    input[type="text"] {
-      width: 100%; padding: .8rem 1rem;
-      background: rgba(255,255,255,0.04); border: 1px solid var(--border);
-      border-radius: 8px; color: var(--text);
-      font-family: 'Geist Mono', ui-monospace, monospace; font-size: 13px;
-    }
-    input:focus { outline: none; border-color: var(--accent); }
-    button {
-      padding: .7rem 1.4rem; background: var(--accent); color: #fff;
-      border: none; border-radius: 8px; font-weight: 600; font-size: 14px;
-      cursor: pointer; margin-top: 1rem;
-    }
-    button:hover { opacity: 0.9; }
-    button:disabled { opacity: 0.5; cursor: wait; }
-    .result-pill {
-      display: inline-block; padding: .4rem 1rem; border-radius: 99px;
-      font-weight: 700; font-size: .85rem; margin-bottom: 1rem;
-    }
-    .result-pill.ok { background: rgba(124,255,170,0.1); color: var(--ok); border: 1px solid rgba(124,255,170,0.3); }
-    .result-pill.err { background: rgba(212,56,90,0.1); color: var(--err); border: 1px solid rgba(212,56,90,0.3); }
-    .result-pill.warn { background: rgba(251,191,36,0.1); color: var(--warn); border: 1px solid rgba(251,191,36,0.3); }
-    .stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 1rem; margin-top: 1rem; }
-    .stat { padding: .8rem; background: rgba(255,255,255,0.02); border-radius: 8px; }
-    .stat-label { font-size: 10px; letter-spacing: 1.2px; color: var(--muted); font-weight: 600; margin-bottom: .3rem; }
-    .stat-value { font-size: 1.2rem; font-weight: 700; }
-    .receipt-row {
-      display: grid; grid-template-columns: 20px 1fr auto;
-      gap: .8rem; padding: .8rem; align-items: center;
-      background: rgba(255,255,255,0.02); border-radius: 8px; margin-bottom: .5rem;
-      font-family: 'Geist Mono', ui-monospace, monospace; font-size: 12px;
-    }
-    .check.ok { color: var(--ok); }
-    .check.err { color: var(--err); }
-    .check.warn { color: var(--warn); }
-    .kind { color: var(--text); font-weight: 600; }
-    .id { color: var(--muted); font-size: 11px; }
-    code { background: rgba(255,255,255,0.04); padding: 2px 6px; border-radius: 4px; font-size: 0.9em; }
-    a { color: var(--accent); }
-    footer { text-align: center; padding: 2rem 1rem; color: var(--muted); font-size: 12px; border-top: 1px solid var(--border); margin-top: 3rem; }
-    .raw-toggle { color: var(--muted); cursor: pointer; user-select: none; font-size: 12px; margin-top: 1rem; }
-    .raw-out { background: #06060a; border: 1px solid var(--border); border-radius: 8px; padding: 1rem; font-family: 'Geist Mono', monospace; font-size: 11px; color: var(--muted); white-space: pre-wrap; word-break: break-all; max-height: 400px; overflow: auto; margin-top: .8rem; }
-    .product-links { display: flex; flex-wrap: wrap; gap: .5rem; margin-top: .8rem; }
-    .product-link {
-      padding: .3rem .7rem; background: rgba(255,255,255,0.04);
-      border: 1px solid var(--border); border-radius: 99px;
-      font-size: 11px; color: var(--muted); text-decoration: none;
-    }
-    .product-link:hover { color: var(--accent); border-color: var(--accent); }
-  </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Verify — every DCS receipt chain, in your browser</title>
+<style>
+  :root{
+    --blue:#2f6fed; --blue-dark:#1e4fb0; --blue-deep:#0c2c63;
+    --tint:#eef4fe; --tint2:#f6f9ff; --tint3:#e3edfd;
+    --ink:#1b2333; --muted:#5d6675; --line:#dbe5fb; --line2:#c7d8f6;
+    --radius:14px; --shadow:0 1px 2px rgba(20,30,55,.04),0 8px 24px rgba(20,30,55,.06);
+    --shadow-h:0 2px 6px rgba(20,30,55,.06),0 14px 38px rgba(20,30,55,.11);
+    --ok:#1a7a44; --okbg:#e6f4ec;
+    --warn:#9a6111; --warnbg:#fdf1de;
+  }
+  *{box-sizing:border-box;margin:0;padding:0;}
+  html{scroll-behavior:smooth;}
+  body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Inter,Roboto,Helvetica,Arial,sans-serif;
+    color:var(--ink);background:#fff;line-height:1.5;-webkit-font-smoothing:antialiased;font-size:14px;}
+  a{color:inherit;text-decoration:none;}
+  .wrap{max-width:1480px;margin:0 auto;padding:0 48px;}
+  .btn{display:inline-flex;align-items:center;gap:7px;font-size:14px;font-weight:600;
+    padding:11px 20px;border-radius:9px;border:1px solid transparent;cursor:pointer;transition:.15s;}
+  .btn-primary{background:var(--blue);color:#fff;}
+  .btn-primary:hover{background:var(--blue-dark);}
+  .btn-ghost{background:#fff;color:var(--ink);border-color:var(--line2);}
+  .btn-ghost:hover{border-color:var(--blue);color:var(--blue);}
+  .btn-lg{padding:14px 26px;font-size:15px;}
+  .proto{background:#fff4d6;border-bottom:1px solid #f0d98b;color:#7a5b12;font-size:12px;
+    text-align:center;padding:7px;font-weight:600;}
+
+  header{position:sticky;top:0;z-index:50;background:rgba(255,255,255,.95);
+    backdrop-filter:saturate(180%) blur(8px);border-bottom:1px solid var(--line);}
+  .nav{display:flex;align-items:center;height:64px;gap:6px;}
+  .logo{display:flex;align-items:center;gap:9px;font-weight:800;font-size:19px;letter-spacing:-.3px;margin-right:18px;}
+  .logo .mark{width:26px;height:26px;border-radius:7px;background:linear-gradient(135deg,var(--blue),#5d97ff);
+    display:grid;place-items:center;color:#fff;font-size:13px;font-weight:800;}
+  .navlinks{display:flex;align-items:center;gap:2px;flex:1;}
+  .navright{display:flex;align-items:center;gap:6px;}
+  .signin{font-size:14.5px;font-weight:500;padding:9px 13px;border-radius:8px;}
+  .signin:hover{background:var(--tint);}
+  .prod-label{font-size:15px;font-weight:800;color:var(--blue-dark);letter-spacing:-.2px;
+    padding-left:13px;border-left:1.5px solid var(--line2);margin-right:12px;}
+  .pnav{position:relative;}
+  .pnav>button,.pnav>a{display:flex;align-items:center;gap:6px;background:none;border:none;font:inherit;
+    font-size:14px;font-weight:500;color:var(--ink);padding:9px 12px;border-radius:8px;cursor:pointer;}
+  .pnav>button:hover,.pnav>a:hover{background:var(--tint);color:var(--blue);}
+  .pnav .caret{width:8px;height:8px;border-right:2px solid currentColor;border-bottom:2px solid currentColor;
+    transform:rotate(45deg);margin-top:-3px;opacity:.55;}
+  .pnav.open .caret{transform:rotate(-135deg);margin-top:2px;}
+  .pmenu{position:absolute;top:46px;left:0;min-width:260px;background:#fff;border:1px solid var(--line);
+    border-radius:12px;box-shadow:0 18px 44px rgba(20,30,55,.17);padding:8px;display:none;z-index:60;}
+  .pnav.open .pmenu{display:block;animation:pdrop .15s ease;}
+  @keyframes pdrop{from{opacity:0;transform:translateY(-6px);}to{opacity:1;transform:translateY(0);}}
+  .pmenu a{display:block;font-size:13.5px;font-weight:500;color:var(--ink);padding:9px 12px;border-radius:8px;}
+  .pmenu a:hover{background:var(--tint);color:var(--blue);}
+  .pmenu a span{display:block;font-size:11.5px;font-weight:400;color:var(--muted);margin-top:1px;}
+  .alldcs{font-size:13.5px;font-weight:500;color:var(--muted);padding:9px 11px;border-radius:8px;}
+  .alldcs:hover{background:var(--tint);color:var(--blue);}
+
+  .phero{background:linear-gradient(180deg,var(--tint2),#fff);border-bottom:1px solid var(--line);padding:54px 0 40px;}
+  .phero h1{font-size:42px;line-height:1.1;letter-spacing:-1.2px;font-weight:800;margin-bottom:14px;
+    text-align:center;max-width:920px;margin-left:auto;margin-right:auto;}
+  .phero .lead{font-size:16px;color:var(--muted);text-align:center;max-width:760px;margin:0 auto 28px;}
+  .crumb{font-size:12.5px;color:var(--muted);text-align:center;margin-bottom:14px;}
+  .eyebrow{display:inline-flex;align-items:center;gap:8px;font-size:12px;font-weight:700;color:var(--blue);
+    background:var(--tint);border:1px solid var(--tint3);padding:6px 14px;border-radius:999px;margin:0 auto 18px;
+    text-transform:uppercase;letter-spacing:.6px;}
+  .eyewrap{text-align:center;}
+
+  /* the verifier */
+  .vfy{max-width:980px;margin:0 auto;background:#fff;border:1px solid var(--line2);border-radius:20px;
+    box-shadow:var(--shadow-h);overflow:hidden;}
+  .vfy-input{padding:24px 26px;border-bottom:1px solid var(--line);background:linear-gradient(170deg,#fff,var(--tint2));}
+  .vfy-row{display:flex;gap:10px;align-items:center;}
+  .vfy-row input{flex:1;background:#fff;border:1.5px solid var(--line2);border-radius:11px;
+    padding:14px 16px;font:inherit;font-size:14px;font-family:ui-monospace,Menlo,monospace;
+    color:var(--ink);}
+  .vfy-row input:focus{outline:none;border-color:var(--blue);box-shadow:0 0 0 4px rgba(47,111,237,.15);}
+  .vfy-row button{background:var(--blue);color:#fff;border:none;border-radius:11px;
+    padding:14px 26px;font-size:14px;font-weight:700;cursor:pointer;flex-shrink:0;
+    transition:.15s;}
+  .vfy-row button:hover{background:var(--blue-dark);}
+  .vfy-row button:disabled{background:var(--line2);cursor:not-allowed;}
+  .vfy-hint{font-size:11.5px;color:var(--muted);margin-top:10px;}
+  .vfy-hint b{color:var(--blue-dark);font-family:ui-monospace,Menlo,monospace;}
+  .vfy-body{padding:24px 26px;}
+  .vfy-steps{display:grid;grid-template-columns:repeat(5,1fr);gap:0;margin-bottom:24px;
+    position:relative;}
+  .vstep{position:relative;text-align:center;padding:0 10px;}
+  .vstep::before{content:"";position:absolute;left:50%;right:-50%;top:18px;height:2px;
+    background:var(--line2);z-index:0;}
+  .vstep:last-child::before{display:none;}
+  .vstep .vdot{width:36px;height:36px;border-radius:50%;background:#fff;border:2px solid var(--line2);
+    display:grid;place-items:center;font-size:13px;font-weight:800;color:var(--muted);
+    margin:0 auto;position:relative;z-index:1;transition:.3s;font-family:ui-monospace,Menlo,monospace;}
+  .vstep.run .vdot{border-color:var(--blue);color:var(--blue);background:var(--tint);
+    animation:vpulse 1.2s ease-in-out infinite;}
+  @keyframes vpulse{50%{box-shadow:0 0 0 8px rgba(47,111,237,0);}0%,100%{box-shadow:0 0 0 0 rgba(47,111,237,.5);}}
+  .vstep.done .vdot{background:var(--ok);border-color:var(--ok);color:#fff;}
+  .vstep.fail .vdot{background:#c0392b;border-color:#c0392b;color:#fff;}
+  .vstep.done .vdot::after{content:"\2713";}
+  .vstep .vl{font-size:11px;font-weight:700;color:var(--muted);margin-top:8px;letter-spacing:.3px;}
+  .vstep.run .vl,.vstep.done .vl{color:var(--ink);}
+  .vfy-log{background:#fcfdff;border:1px solid var(--line);border-radius:11px;padding:16px 18px;
+    font-family:ui-monospace,Menlo,monospace;font-size:12.5px;line-height:1.95;
+    min-height:170px;max-height:240px;overflow:auto;}
+  .vlog-line{display:block;opacity:0;transform:translateY(4px);transition:.25s;}
+  .vlog-line.show{opacity:1;transform:translateY(0);}
+  .vlog-line .lt{color:#7b6ef0;font-weight:700;}
+  .vlog-line .ld{color:#8b94a6;}
+  .vlog-line .ls{color:#1a7a44;}
+  .vlog-line .lp{color:#aab2c0;}
+  .vfy-verdict{margin-top:16px;border-radius:12px;padding:18px 22px;font-weight:700;
+    display:flex;align-items:center;gap:14px;opacity:0;transition:.3s;}
+  .vfy-verdict.show{opacity:1;}
+  .vfy-verdict.ok{background:var(--okbg);color:var(--ok);}
+  .vfy-verdict .vbig{font-size:24px;font-weight:800;letter-spacing:-.5px;}
+  .vfy-verdict .vsub{font-size:12.5px;font-weight:500;opacity:.78;display:block;margin-top:2px;}
+  .vfy-tabs{display:flex;gap:6px;margin-bottom:14px;}
+  .vfy-tab{background:var(--tint2);border:1px solid var(--line2);border-radius:9px;
+    padding:6px 13px;font-size:12px;font-weight:600;cursor:pointer;}
+  .vfy-tab.active{background:var(--blue);color:#fff;border-color:var(--blue);}
+
+  /* how it works */
+  .how-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:18px;}
+  .how{background:#fff;border:1px solid var(--line);border-radius:14px;padding:22px 20px;transition:.16s;}
+  .how:hover{border-color:var(--blue);transform:translateY(-3px);box-shadow:var(--shadow);}
+  .how .hn{font-size:32px;font-weight:800;letter-spacing:-1px;color:var(--blue);
+    font-family:ui-monospace,Menlo,monospace;line-height:1;margin-bottom:11px;}
+  .how h3{font-size:15.5px;margin-bottom:7px;}
+  .how p{font-size:12.7px;color:var(--muted);line-height:1.55;}
+
+  /* what gets checked */
+  .check-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:18px;}
+  .check{background:#fff;border:1px solid var(--line);border-radius:14px;padding:22px;display:grid;
+    grid-template-columns:50px 1fr;gap:18px;align-items:flex-start;transition:.16s;}
+  .check:hover{border-color:var(--blue);transform:translateY(-3px);box-shadow:var(--shadow);}
+  .check .ci{width:48px;height:48px;border-radius:11px;background:linear-gradient(135deg,var(--blue),#5d97ff);
+    display:grid;place-items:center;font-size:22px;color:#fff;}
+  .check h3{font-size:15.5px;margin-bottom:6px;}
+  .check p{font-size:12.8px;color:var(--muted);line-height:1.55;}
+
+  /* keys / contracts */
+  .keys-wrap{background:#fff;border:1px solid var(--line);border-radius:15px;overflow:hidden;
+    box-shadow:var(--shadow);max-width:1000px;margin:0 auto;}
+  .keys-head{background:var(--tint2);border-bottom:1px solid var(--line);padding:14px 22px;
+    font-size:12.5px;font-weight:800;color:var(--muted);letter-spacing:.5px;text-transform:uppercase;}
+  .key-row{display:grid;grid-template-columns:200px 1fr auto;align-items:center;gap:16px;
+    padding:14px 22px;border-bottom:1px solid var(--line);}
+  .key-row:last-child{border-bottom:none;}
+  .key-row .klab{font-size:12.5px;font-weight:700;color:var(--ink);}
+  .key-row .klab span{display:block;font-size:11px;color:var(--muted);font-weight:500;margin-top:2px;}
+  .key-row .kval{font-family:ui-monospace,Menlo,monospace;font-size:11.5px;color:var(--blue-dark);
+    word-break:break-all;background:var(--tint2);border-radius:7px;padding:8px 12px;}
+  .key-row .kbtn{font-size:11px;font-weight:700;color:var(--blue);background:var(--tint);
+    border:1px solid var(--tint3);border-radius:7px;padding:6px 12px;cursor:pointer;flex-shrink:0;}
+  .key-row .kbtn:hover{background:var(--blue);color:#fff;}
+
+  /* code samples */
+  .code{background:var(--tint);border:1px solid var(--line2);border-radius:13px;overflow:hidden;}
+  .code-top{display:flex;justify-content:space-between;align-items:center;padding:10px 14px;
+    border-bottom:1px solid var(--line2);font-size:12px;color:var(--muted);font-weight:600;}
+  .code-top .fname{font-family:ui-monospace,Menlo,monospace;}
+  .code-body{padding:15px 17px;font-family:ui-monospace,SFMono-Regular,Menlo,monospace;
+    font-size:12.5px;line-height:1.8;color:#2c3855;white-space:pre;overflow:auto;}
+  .code-body .k{color:var(--blue);font-weight:600;}
+  .code-body .s{color:#1a8a4f;}
+  .code-body .c{color:#9aa3b2;}
+  .code-body .f{color:#7b6ef0;font-weight:600;}
+  .code-res{display:flex;align-items:center;gap:9px;padding:11px 15px;
+    background:linear-gradient(90deg,var(--blue),#5d97ff);color:#fff;
+    border-top:1px solid var(--line2);font-size:12px;font-weight:700;font-family:ui-monospace,Menlo,monospace;}
+  .code-res .cdot{width:7px;height:7px;border-radius:50%;background:#bff5d4;flex-shrink:0;}
+
+  .band{display:grid;grid-template-columns:1fr 1fr;gap:60px;align-items:center;padding:60px 0;}
+  .band+.band{border-top:1px solid var(--line);}
+  .band-kicker{font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:.9px;
+    color:var(--blue);margin-bottom:12px;}
+  .band-text h2{font-size:28px;line-height:1.2;letter-spacing:-.7px;font-weight:800;margin-bottom:13px;}
+  .band-text p{font-size:15px;color:var(--muted);margin-bottom:14px;}
+  .band-list{list-style:none;}
+  .band-list li{display:flex;gap:9px;font-size:13.5px;color:var(--ink);padding:5px 0;}
+  .band-list li::before{content:"\2713";color:var(--blue);font-weight:800;flex-shrink:0;}
+
+  .specs{background:var(--tint2);border-top:1px solid var(--line);border-bottom:1px solid var(--line);padding:54px 0;}
+  .specs-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:20px;text-align:center;}
+  .spec b{font-size:23px;font-weight:800;letter-spacing:-.6px;color:var(--blue);display:block;}
+  .spec span{font-size:12.5px;color:var(--muted);}
+
+  .sec-head{text-align:center;max-width:680px;margin:0 auto 36px;}
+  .sec-head .kicker{font-size:11.5px;font-weight:700;text-transform:uppercase;letter-spacing:.9px;
+    color:var(--blue);margin-bottom:9px;}
+  .sec-head h2{font-size:30px;letter-spacing:-.8px;font-weight:800;margin-bottom:11px;}
+  .sec-head p{font-size:15px;color:var(--muted);}
+  section{padding:60px 0;}
+  .sec-tint{background:var(--tint2);border-top:1px solid var(--line);border-bottom:1px solid var(--line);}
+
+  .rel-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:18px;}
+  .rel{background:#fff;border:1px solid var(--line);border-radius:var(--radius);padding:20px;transition:.16s;cursor:pointer;}
+  .rel:hover{border-color:var(--blue);transform:translateY(-4px);box-shadow:var(--shadow-h);}
+  .rel .ri{width:40px;height:40px;border-radius:10px;background:var(--tint);display:grid;
+    place-items:center;font-size:19px;margin-bottom:12px;}
+  .rel h3{font-size:15px;margin-bottom:5px;}
+  .rel p{font-size:12.5px;color:var(--muted);}
+
+  /* FAQ */
+  .faq{max-width:920px;margin:0 auto;}
+  .faq details{background:#fff;border:1px solid var(--line);border-radius:11px;padding:0;margin-bottom:10px;transition:.15s;}
+  .faq details[open]{border-color:var(--blue);box-shadow:var(--shadow);}
+  .faq summary{padding:16px 22px;font-size:14.5px;font-weight:600;cursor:pointer;list-style:none;
+    display:flex;justify-content:space-between;align-items:center;gap:12px;}
+  .faq summary::-webkit-details-marker{display:none;}
+  .faq summary::after{content:"+";font-size:22px;font-weight:300;color:var(--blue);transition:.2s;}
+  .faq details[open] summary::after{transform:rotate(45deg);}
+  .faq .fa{padding:0 22px 18px;font-size:13.5px;color:var(--muted);line-height:1.6;}
+
+  .cta-final{padding:64px 0;}
+  .cta-box{background:linear-gradient(125deg,var(--blue-deep),var(--blue));border-radius:24px;
+    padding:54px 40px;color:#fff;text-align:center;}
+  .cta-box h2{font-size:29px;letter-spacing:-.7px;margin-bottom:11px;}
+  .cta-box p{font-size:15px;color:rgba(255,255,255,.9);margin-bottom:24px;}
+  .cta-box .btn-primary{background:#fff;color:var(--blue-dark);}
+  .cta-box .btn-ghost{background:transparent;color:#fff;border-color:rgba(255,255,255,.5);}
+
+  footer{background:#fff;border-top:1px solid var(--line);padding:46px 0 30px;}
+  .footgrid{display:grid;grid-template-columns:1.6fr repeat(4,1fr);gap:28px;}
+  .footbrand .logo{margin-bottom:12px;}
+  .footbrand p{font-size:13px;color:var(--muted);max-width:250px;}
+  .footcol h5{font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:.6px;margin-bottom:12px;}
+  .footcol a{display:block;font-size:13px;color:var(--muted);padding:4px 0;}
+  .footcol a:hover{color:var(--blue);}
+  .footbase{border-top:1px solid var(--line);margin-top:36px;padding-top:22px;
+    display:flex;justify-content:space-between;flex-wrap:wrap;gap:12px;font-size:12.5px;color:var(--muted);}
+
+  /* Portfolio + Explore DCS mega menus */
+  .pnav.mega-host{position:static;}
+  .pmega{position:absolute;right:36px;top:60px;width:920px;max-width:calc(100vw - 80px);background:#fff;
+    border:1px solid var(--line);border-radius:14px;box-shadow:0 18px 44px rgba(20,30,55,.17);
+    padding:24px;display:none;z-index:60;}
+  .pmega.wide{width:1180px;}
+  .pnav.open .pmega{display:block;animation:pdrop .15s ease;}
+  .pmega-grid{display:grid;gap:22px 26px;}
+  .pmega-grid.g3{grid-template-columns:repeat(3,1fr);}
+  .pmega-grid.g6{grid-template-columns:repeat(6,1fr);}
+  .pmega-col h5{font-size:10.5px;font-weight:800;color:var(--blue);letter-spacing:.6px;
+    text-transform:uppercase;margin-bottom:10px;display:flex;align-items:center;gap:8px;}
+  .pmega-col h5 .pmi{font-size:14px;}
+  .pmega-col a{display:block;font-size:13px;font-weight:500;color:var(--ink);padding:5px 0;}
+  .pmega-col a:hover{color:var(--blue);}
+  .pmega-col a span{display:block;font-size:10.5px;font-weight:400;color:var(--muted);margin-top:1px;}
+  .pmega-foot{margin-top:18px;padding-top:14px;border-top:1px solid var(--line);
+    display:flex;justify-content:space-between;align-items:center;font-size:12.5px;color:var(--muted);}
+  .pmega-foot a{color:var(--blue);font-weight:700;}
+
+  @media(max-width:1000px){
+    .phero h1{font-size:32px;}
+    .navlinks{display:none;}
+    .vfy-row{flex-direction:column;}
+    .vfy-row input,.vfy-row button{width:100%;}
+    .vfy-steps{grid-template-columns:repeat(5,1fr);font-size:9.5px;}
+    .vstep .vl{font-size:9px;}
+    .how-grid,.check-grid,.band{grid-template-columns:1fr;}
+    .key-row{grid-template-columns:1fr;gap:6px;}
+    .specs-grid,.rel-grid,.footgrid{grid-template-columns:repeat(2,1fr);}
+  }
+</style>
 </head>
 <body>
-  <!-- HF10 · top nav -->
-  <nav class="trd-topnav" style="position:sticky;top:0;z-index:50;backdrop-filter:blur(12px);background:rgba(8,9,16,0.85);border-bottom:1px solid rgba(255,255,255,0.06);padding:0.75rem 1.5rem;display:flex;align-items:center;justify-content:space-between;gap:1rem;flex-wrap:wrap;font-size:13px">
-    <a href="https://trdn.io" style="color:#fff;text-decoration:none;font-weight:600;letter-spacing:-0.01em">TRD Network</a>
-    <div style="display:flex;gap:1.1rem;flex-wrap:wrap;align-items:center">
-      <a href="https://trdn.io" style="color:#9aa0b4;text-decoration:none">Home</a>
-      <a href="https://sovereign.trdn.io" style="color:#9aa0b4;text-decoration:none">Sovereign</a>
-      <a href="https://pilot.trdn.io" style="color:#9aa0b4;text-decoration:none">Pilot</a>
-      <a href="https://compute.trdn.io" style="color:#9aa0b4;text-decoration:none">Compute</a>
-      <a href="https://storage.trdn.io" style="color:#9aa0b4;text-decoration:none">Storage</a>
-      <a href="https://os.trdn.io" style="color:#9aa0b4;text-decoration:none">OS</a>
-      <a href="https://trdn.io/stats" style="color:#9aa0b4;text-decoration:none">Stats</a>
-      <a href="https://trdn.io/badge" style="color:#9aa0b4;text-decoration:none">Badge</a>
-      <a href="https://trdn.io/docs" style="color:#9aa0b4;text-decoration:none">Docs</a>
-      <a href="https://trdn.io/status" style="color:#9aa0b4;text-decoration:none">Status</a>
-      <a href="https://trdn.io/press" style="color:#9aa0b4;text-decoration:none">Press</a>
-      <span style="color:#7cffaa;font-weight:600;border:1px solid #7cffaa33;padding:0.2rem 0.6rem;border-radius:99px;font-size:11px">★ Verify</span>
-    </div>
-  </nav>
-  <!-- /HF10 -->
-  <div class="container">
-    <header>
-      <div class="pill"><span style="width:6px;height:6px;background:var(--accent);border-radius:50%"></span>VERIFY.TRDN.IO · PUBLIC VERIFIER</div>
-      <h1>Verify any <em>TRD Network</em> receipt chain</h1>
-      <p class="sub">Paste a session ID or erasure request ID. We fetch the receipt chain from <code>api.storage.trdn.io</code> and verify every ed25519 signature client-side against our published public key.</p>
-      <p style="margin-top:1rem;padding:0.65rem 0.9rem;background:rgba(124,255,170,0.06);border:1px solid rgba(124,255,170,0.25);border-radius:8px;font-size:13px;color:#cfe9d8;line-height:1.55">
-        <span style="font-family:ui-monospace,monospace;font-size:11px;letter-spacing:0.08em;text-transform:uppercase;color:#7cffaa;font-weight:600">Latest ·</span>
-        F1 Reputation SBT live on Base mainnet — contract
-        <a href="https://basescan.org/address/0xbDd1f5fC349D9a8EfCEb07Edbd491233b2540f5F" target="_blank" rel="noopener" style="color:#7cffaa;font-family:ui-monospace,monospace;font-size:12px;word-break:break-all">0xbDd1f5fC349D9a8EfCEb07Edbd491233b2540f5F</a>.
-        First mint executed. Operator reputation now anchored on-chain alongside the receipt chain you verify here.
-      </p>
-    </header>
 
-    <div class="card">
-      <label for="session-id">SESSION ID OR REQUEST ID</label>
-      <input type="text" id="session-id" placeholder="3129cfce-a79c-4066-9dcb-9a5ce9b7be9f or er_xxx" autocomplete="off">
-      <!-- Z149 · recent session id autocomplete (localStorage, last 5) -->
-      <div id="recent-ids" style="display:none;margin-top:0.5rem;font-size:11px;color:var(--muted);letter-spacing:0.04em">
-        <span style="text-transform:uppercase;font-weight:500;margin-right:.4rem">Recent:</span>
-        <span id="recent-ids-list"></span>
-        <button id="recent-ids-clear" style="margin-left:.6rem;background:none;border:none;color:var(--muted);font-size:10.5px;cursor:pointer;text-decoration:underline;padding:0;font-family:inherit">clear</button>
+<div class="proto">PROTOTYPE &mdash; verify.dcsai.ai concept &middot; 26 May 2026 &middot; for review, not deployed</div>
+
+<header>
+  <div class="wrap">
+    <nav class="nav">
+      <a class="logo" href="index.html"><span class="mark">D</span> DCS</a>
+      <span class="prod-label">Verify</span>
+      <div class="navlinks">
+        <div class="pnav" data-menu="about">
+          <button>About Verify <i class="caret"></i></button>
+          <div class="pmenu">
+            <a href="verify.html">Overview</a>
+            <a href="#how">How it works</a>
+            <a href="#what">What gets checked</a>
+            <a href="#keys">Public keys &amp; contracts</a>
+          </div>
+        </div>
+        <div class="pnav" data-menu="layers">
+          <button>R-Series layers <i class="caret"></i></button>
+          <div class="pmenu">
+            <a href="standards.html#r2">R+2 Provenance <span>Per-action signed receipts</span></a>
+            <a href="standards.html#r3">R+3 Audit Export <span>Merkle bundles</span></a>
+            <a href="standards.html#r4">R+4 ZK Verification <span>Groth16 / BN254</span></a>
+            <a href="standards.html#pq">Post-quantum co-signature</a>
+          </div>
+        </div>
+        <div class="pnav" data-menu="dev">
+          <button>For developers <i class="caret"></i></button>
+          <div class="pmenu">
+            <a href="#code">npm: @dcslabs/r2-verify</a>
+            <a href="#code">CLI quick start</a>
+            <a href="dcslabs.html">DCS Labs <span>Specs &amp; research</span></a>
+          </div>
+        </div>
+        <div class="pnav"><a href="#faq">FAQ</a></div>
       </div>
-      <button id="verify-btn">Verify chain →</button>
-    </div>
+      <div class="navright">
+        <div class="pnav mega-host" data-menu="portfolio">
+          <button>Portfolio <i class="caret"></i></button>
+          <div class="pmega" role="menu">
+            <div class="pmega-grid g3">
+              <div class="pmega-col">
+                <h5><span class="pmi">&#128421;</span> Compute &amp; Infrastructure</h5>
+                <a href="compute.html">Compute &mdash; GPU cloud</a>
+                <a href="compute.html#earn">GPU / Earn</a>
+                <a href="compute.html#rent">VM &mdash; instances</a>
+                <a href="#">Inference</a>
+                <a href="sovereign.html">Sovereign AI</a>
+                <a href="storage.html">Storage</a>
+              </div>
+              <div class="pmega-col">
+                <h5><span class="pmi">&#9881;</span> Build &amp; Agents</h5>
+                <a href="platform.html">Platform</a>
+                <a href="#">Agent Studio</a>
+                <a href="#">Agents API</a>
+                <a href="#">SaaS Builder</a>
+                <a href="#">Visual Editor</a>
+                <a href="#">Edit &mdash; chat</a>
+              </div>
+              <div class="pmega-col">
+                <h5><span class="pmi">&#129504;</span> AI &amp; Workspace</h5>
+                <a href="os.html">OS &mdash; workspace</a>
+                <a href="#">Cowork &mdash; messaging</a>
+                <a href="#">Memory</a>
+                <a href="#">Image Bank</a>
+                <a href="#">Assistant</a>
+                <a href="#">Analytics</a>
+              </div>
+              <div class="pmega-col">
+                <h5><span class="pmi">&#128737;</span> Trust &amp; Standards</h5>
+                <a href="standards.html#r2">Provenance (R+2)</a>
+                <a href="standards.html#r3">Audit Export (R+3)</a>
+                <a href="standards.html#r4">ZK Verification (R+4)</a>
+                <a href="standards.html#trust">Trust SKU / Verified</a>
+                <a href="standards.html#federation">Federation</a>
+                <a href="standards.html">A2A &amp; Economy</a>
+              </div>
+              <div class="pmega-col">
+                <h5><span class="pmi">&#128295;</span> Tools</h5>
+                <a href="verify.html">Verify &mdash; receipt verifier</a>
+                <a href="#">ROI Calculator</a>
+                <a href="dcslabs.html#code">MCP Server</a>
+                <a href="#">Connector Library</a>
+                <a href="#">Domains</a>
+                <a href="#">Sentinel &mdash; build quality</a>
+              </div>
+              <div class="pmega-col">
+                <h5><span class="pmi">&#127919;</span> Solutions</h5>
+                <a href="#">Government</a>
+                <a href="#">Healthcare</a>
+                <a href="#">Finance</a>
+                <a href="#">Agencies</a>
+                <a href="sovereign.html">Sovereign &amp; regulated</a>
+                <a href="#">Startups &amp; Enterprise</a>
+              </div>
+            </div>
+            <div class="pmega-foot">
+              <span>Six families &middot; every product reachable in a click</span>
+              <a href="index.html#catalogue">View the full portfolio &rarr;</a>
+            </div>
+          </div>
+        </div>
+        <div class="pnav mega-host" data-menu="explore">
+          <button>Explore DCS <i class="caret"></i></button>
+          <div class="pmega wide" role="menu">
+            <div class="pmega-grid g6">
+              <div class="pmega-col">
+                <h5>Products</h5>
+                <a href="platform.html">Platform</a>
+                <a href="compute.html">Compute</a>
+                <a href="os.html">OS</a>
+                <a href="storage.html">Storage</a>
+                <a href="sovereign.html">Sovereign</a>
+                <a href="#">Image Bank</a>
+                <a href="index.html#catalogue">All products</a>
+              </div>
+              <div class="pmega-col">
+                <h5>Build &amp; Run</h5>
+                <a href="#">Agent Studio</a>
+                <a href="#">SaaS Builder</a>
+                <a href="compute.html#rent">VM &mdash; instances</a>
+                <a href="#">Inference</a>
+                <a href="sovereign.html">Sovereign AI</a>
+                <a href="#">Memory</a>
+              </div>
+              <div class="pmega-col">
+                <h5>Trust &amp; Standards</h5>
+                <a href="standards.html#r2">Provenance (R+2)</a>
+                <a href="standards.html#r3">Audit Export (R+3)</a>
+                <a href="standards.html#r4">ZK Verification (R+4)</a>
+                <a href="standards.html#trust">Trust SKU</a>
+                <a href="standards.html#federation">Federation</a>
+                <a href="verify.html">Verify</a>
+              </div>
+              <div class="pmega-col">
+                <h5>Solutions</h5>
+                <a href="#">Government</a>
+                <a href="#">Healthcare</a>
+                <a href="#">Finance</a>
+                <a href="#">Agencies</a>
+                <a href="sovereign.html">Sovereign &amp; regulated</a>
+                <a href="#">Enterprise</a>
+              </div>
+              <div class="pmega-col">
+                <h5>Developers</h5>
+                <a href="dcslabs.html">DCS Labs</a>
+                <a href="#">Docs</a>
+                <a href="#">API reference</a>
+                <a href="dcslabs.html#code">MCP server</a>
+                <a href="#">Changelog</a>
+                <a href="status.html">Status</a>
+              </div>
+              <div class="pmega-col">
+                <h5>Company</h5>
+                <a href="#">About</a>
+                <a href="#">Careers</a>
+                <a href="#">Blog</a>
+                <a href="#">Press</a>
+                <a href="#">Contact</a>
+                <a href="pilot.html">Pilot</a>
+              </div>
+            </div>
+            <div class="pmega-foot">
+              <span>Everything on dcsai.ai &mdash; products, solutions, standards and company</span>
+              <a href="#">View full sitemap &rarr;</a>
+            </div>
+          </div>
+        </div>
+        <a href="dcslabs.html" class="signin">DCS Labs</a>
+        <a href="#verifier" class="btn btn-primary">Verify a chain</a>
+      </div>
+    </nav>
+  </div>
+</header>
 
-    <div id="result-card" class="card" style="display:none">
-      <div id="result-pill" class="result-pill"></div>
-      <div id="result-text" style="margin-bottom:1rem"></div>
-      <div id="result-stats" class="stats"></div>
-      <div id="result-receipts" style="margin-top:1.2rem"></div>
-      <div class="raw-toggle" id="raw-toggle">▸ Show raw chain data</div>
-      <div class="raw-out" id="raw-out" style="display:none"></div>
-    </div>
+<div class="phero">
+  <div class="wrap">
+    <p class="crumb"><a href="index.html">Home</a> &nbsp;/&nbsp; <a href="dcslabs.html">DCS Labs</a> &nbsp;/&nbsp; Verify</p>
+    <div class="eyewrap"><span class="eyebrow">&#9989; Client-side cryptographic verifier</span></div>
+    <h1>Verify any DCS receipt chain &mdash; in your browser.</h1>
+    <p class="lead">Paste a session ID or erasure-request ID. We fetch the receipt chain from
+      <code>api.dcsai.ai</code> and verify every Ed25519 signature and the SHA-256 hash chain
+      <b>client-side</b>, against our published public key. No trust in DCS's servers required.</p>
 
-    <div class="card" style="background:rgba(0,144,255,0.04);border-color:rgba(0,144,255,0.2)">
-      <h3 style="margin:0 0 .6rem;font-size:1rem">How verification works</h3>
-      <p style="margin:0;color:var(--muted);font-size:.92rem;line-height:1.6">
-        Each receipt is canonicalized (sorted JSON, no whitespace) and signed with our ed25519 key
-        <code>trd-receipt-key-2026</code>. The public key is published at
-        <a href="https://trdn.io/keys/trd-receipt-key-2026.public.pem" target="_blank">trdn.io/keys/trd-receipt-key-2026.public.pem</a>.
-        Receipts hash-chain via <code>prev_receipt_cid</code> pointing at the previous receipt's hash. Any tampering breaks the signature
-        or the chain, and is publicly detectable. This verifier runs entirely in your browser — no trust in our servers required.
-      </p>
-      <div class="product-links">
-        <a class="product-link" href="https://trdn.io">trdn.io</a>
-        <a class="product-link" href="https://os.trdn.io">os.trdn.io</a>
-        <a class="product-link" href="https://sovereign.trdn.io">sovereign.trdn.io</a>
-        <a class="product-link" href="https://storage.trdn.io">storage.trdn.io</a>
-        <a class="product-link" href="https://pilot.trdn.io">pilot.trdn.io</a>
+    <!-- THE VERIFIER -->
+    <div class="vfy" id="verifier">
+      <div class="vfy-input">
+        <div class="vfy-tabs">
+          <button class="vfy-tab active" data-kind="session">Session ID</button>
+          <button class="vfy-tab" data-kind="bundle">R+3 Bundle root</button>
+          <button class="vfy-tab" data-kind="erasure">Erasure request ID</button>
+        </div>
+        <div class="vfy-row">
+          <input type="text" id="vfyId" value="sess_9f3c8a17b4d2e5f7a91c6b8d4e2f3a17" spellcheck="false">
+          <button id="vfyGo">Verify chain</button>
+        </div>
+        <p class="vfy-hint">Try the demo session above, or paste any ID issued by DCS. Verification runs
+          entirely in this tab &mdash; the public key is <b>ed25519:trd-receipt-key-2026</b>.</p>
+      </div>
+      <div class="vfy-body">
+        <div class="vfy-steps" id="vfySteps">
+          <div class="vstep" data-step="1"><div class="vdot">1</div><div class="vl">Fetch chain</div></div>
+          <div class="vstep" data-step="2"><div class="vdot">2</div><div class="vl">Canonical JSON</div></div>
+          <div class="vstep" data-step="3"><div class="vdot">3</div><div class="vl">Ed25519 verify</div></div>
+          <div class="vstep" data-step="4"><div class="vdot">4</div><div class="vl">SHA-256 chain</div></div>
+          <div class="vstep" data-step="5"><div class="vdot">5</div><div class="vl">PQ co-sig</div></div>
+        </div>
+        <div class="vfy-log" id="vfyLog">
+          <span class="vlog-line show"><span class="lp">$</span> ready &mdash; paste an ID and press <b>Verify chain</b></span>
+        </div>
+        <div class="vfy-verdict ok" id="vfyVerdict">
+          <span style="font-size:30px;">&#10003;</span>
+          <div><span class="vbig">Verified &mdash; chain intact</span>
+            <span class="vsub">17 receipts &middot; Ed25519 ok &middot; SHA-256 chain matches &middot; ML-DSA-65 co-sig ok</span></div>
+        </div>
       </div>
     </div>
   </div>
+</div>
 
-  <!-- HF10 · expanded footer matching sovereign/compute pattern -->
-<footer style="border-top:1px solid rgba(255,255,255,0.06);margin-top:3rem;padding:2.5rem 1.5rem 1.5rem;background:rgba(8,9,16,0.4)">
-  <div style="max-width:1100px;margin:0 auto;display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:2rem;margin-bottom:2rem">
-    <div>
-      <h5 style="color:#fff;font-size:13px;letter-spacing:0.04em;text-transform:uppercase;margin:0 0 0.8rem">Verify</h5>
-      <p style="margin:0;color:#7a8295;font-size:13px;line-height:1.6">Paste any TRD Network session ID and validate ed25519 signatures + hash chain integrity client-side. No trust in our servers required.</p>
+<!-- HOW IT WORKS -->
+<section id="how">
+  <div class="wrap">
+    <div class="sec-head">
+      <div class="kicker">How verification works</div>
+      <h2>Four checks. Run in your browser. No server trust.</h2>
+      <p>Every R+2 receipt commits to its predecessor. A valid chain has matching signatures,
+        matching hashes, and the bundle root checks out on R+3.</p>
     </div>
-    <div>
-      <h5 style="color:#fff;font-size:13px;letter-spacing:0.04em;text-transform:uppercase;margin:0 0 0.8rem">TRD Network</h5>
-      <a href="https://trdn.io" style="display:block;color:#7a8295;font-size:13px;text-decoration:none;margin-bottom:0.4rem">trdn.io</a>
-      <a href="https://trdn.io/app22" style="display:block;color:#7a8295;font-size:13px;text-decoration:none;margin-bottom:0.4rem">Build a site</a>
-      <a href="https://compute.trdn.io" style="display:block;color:#7a8295;font-size:13px;text-decoration:none;margin-bottom:0.4rem">Compute ↗</a>
-      <a href="https://storage.trdn.io" style="display:block;color:#7a8295;font-size:13px;text-decoration:none;margin-bottom:0.4rem">Storage ↗</a>
-      <a href="https://sovereign.trdn.io" style="display:block;color:#7a8295;font-size:13px;text-decoration:none;margin-bottom:0.4rem">Sovereign ↗</a>
-    </div>
-    <div>
-      <h5 style="color:#fff;font-size:13px;letter-spacing:0.04em;text-transform:uppercase;margin:0 0 0.8rem">Trust &amp; Compliance</h5>
-      <a href="https://sovereign.trdn.io/compliance/readiness/" style="display:block;color:#7a8295;font-size:13px;text-decoration:none;margin-bottom:0.4rem">EU AI Act + ISO 42001</a>
-      <a href="https://trdn.io/keys/trd-receipt-key-2026.public.pem" target="_blank" rel="noopener" style="display:block;color:#7a8295;font-size:13px;text-decoration:none;margin-bottom:0.4rem">Public verification key</a>
-      <a href="https://trdn.io/privacy" style="display:block;color:#7a8295;font-size:13px;text-decoration:none;margin-bottom:0.4rem">Privacy</a>
-      <a href="https://trdn.io/terms" style="display:block;color:#7a8295;font-size:13px;text-decoration:none;margin-bottom:0.4rem">Terms</a>
-    </div>
-    <div>
-      <h5 style="color:#fff;font-size:13px;letter-spacing:0.04em;text-transform:uppercase;margin:0 0 0.8rem">Resources</h5>
-      <a href="https://trdn.io/contact" style="display:block;color:#7a8295;font-size:13px;text-decoration:none;margin-bottom:0.4rem">Contact</a>
-      <a href="https://trdn.io" style="display:block;color:#7a8295;font-size:13px;text-decoration:none;margin-bottom:0.4rem">← back to trdn.io</a>
+    <div class="how-grid">
+      <div class="how"><div class="hn">01</div>
+        <h3>Fetch the chain</h3>
+        <p>We pull the full receipt list (JSON) over plain HTTPS from <code>api.dcsai.ai</code>.
+          No streaming SSE, no auth handshake &mdash; anyone can fetch a chain by ID.</p></div>
+      <div class="how"><div class="hn">02</div>
+        <h3>Canonicalise each receipt</h3>
+        <p>RFC 8785 JCS pins one deterministic JSON encoding so the signed bytes are
+          byte-for-byte reproducible. Without this step "the same JSON" can have a
+          different hash.</p></div>
+      <div class="how"><div class="hn">03</div>
+        <h3>Verify every Ed25519 signature</h3>
+        <p>Each receipt's signature is checked against the published <code>ed25519:trd-
+          receipt-key-2026</code> public key. <b>The check runs in WebAssembly, in your tab.</b></p></div>
+      <div class="how"><div class="hn">04</div>
+        <h3>Walk the SHA-256 chain</h3>
+        <p>Every receipt's <code>prev_receipt_cid</code> must equal the SHA-256 of the previous
+          receipt's canonical bytes. If anyone altered a historical receipt, the chain
+          breaks &mdash; visibly.</p></div>
     </div>
   </div>
-  <div style="max-width:1100px;margin:0 auto;padding-top:1.5rem;border-top:1px solid rgba(255,255,255,0.04);display:flex;justify-content:space-between;flex-wrap:wrap;gap:1rem;color:#5a6080;font-size:12px">
-    <div>© 2026 TRD Network · a product of DCS AI Technologies L.L.C · Public receipt verifier</div>
-    <div>Built in Dubai, UAE · Sovereign by design</div>
+</section>
+
+<!-- WHAT GETS CHECKED -->
+<section class="sec-tint" id="what">
+  <div class="wrap">
+    <div class="sec-head">
+      <div class="kicker">What gets checked</div>
+      <h2>Six guarantees from one verification</h2>
+      <p>One Verify-chain click validates every property below in your browser.</p>
+    </div>
+    <div class="check-grid">
+      <div class="check"><div class="ci">&#129534;</div>
+        <div><h3>Ed25519 signature on every receipt</h3>
+        <p>RFC 8032 EdDSA over Curve25519, ~128-bit classical security. 32-byte public key,
+          64-byte signature. Verified against the published key.</p></div></div>
+      <div class="check"><div class="ci">&#128279;</div>
+        <div><h3>SHA-256 hash chain integrity</h3>
+        <p>Each receipt commits to the SHA-256 of the previous one. Tampering with any
+          historical receipt invalidates every digest after it &mdash; visibly.</p></div></div>
+      <div class="check"><div class="ci">&#128218;</div>
+        <div><h3>R+3 Merkle bundle root</h3>
+        <p>For an R+3 export, the SHA-256 binary Merkle tree is recomputed leaf-by-leaf and the
+          root compared against the signed bundle root.</p></div></div>
+      <div class="check"><div class="ci">&#128274;</div>
+        <div><h3>ML-DSA-65 PQ co-signature</h3>
+        <p>When present, the FIPS-204 ML-DSA-65 detached co-signature is verified alongside
+          Ed25519 &mdash; a research-reference layer, not a quantum-product claim.</p></div></div>
+      <div class="check"><div class="ci">&#9201;</div>
+        <div><h3>Timestamp monotonicity</h3>
+        <p>Every receipt's <code>issued_at</code> must be &ge; the previous one's. Out-of-order
+          timestamps mean a chain has been shuffled &mdash; an automatic fail.</p></div></div>
+      <div class="check"><div class="ci">&#127991;</div>
+        <div><h3>CID consistency on Filecoin</h3>
+        <p>Optional: if Storage is enabled, the bundle's content-addressed CID is verified
+          against the published Filecoin deal &mdash; the bytes you verified are the bytes
+          mirrored permanently.</p></div></div>
+    </div>
+  </div>
+</section>
+
+<!-- KEYS & CONTRACTS -->
+<section id="keys">
+  <div class="wrap">
+    <div class="sec-head">
+      <div class="kicker">Public keys &amp; on-chain anchors</div>
+      <h2>Everything you need to verify, in the open</h2>
+      <p>One signing key, one Reputation SBT contract, one verifier package. Verifiable
+        without contacting DCS.</p>
+    </div>
+    <div class="keys-wrap">
+      <div class="keys-head">Production keys &middot; published</div>
+      <div class="key-row">
+        <div class="klab">Ed25519 receipt key<span>RFC 8032 &middot; public</span></div>
+        <div class="kval">trd-receipt-key-2026 &middot; 4f4ddc7c2f1a8b6e09d3a5f2c7e1b9d4a6e0f3c8b5d1a7e4f2c0b6d8a3e1f5c2</div>
+        <div class="kbtn">Copy</div>
+      </div>
+      <div class="key-row">
+        <div class="klab">ML-DSA-65 PQ key<span>FIPS 204 &middot; co-signature</span></div>
+        <div class="kval">trd-pq-key-2026 &middot; published in security.txt and the R-Series repo</div>
+        <div class="kbtn">Copy</div>
+      </div>
+      <div class="key-row">
+        <div class="klab">Agent Identity SBT<span>Base mainnet &middot; live &amp; verified</span></div>
+        <div class="kval">0x0A0e824bcA178669C9453c5d72B7AE9120e1985d</div>
+        <div class="kbtn">Etherscan</div>
+      </div>
+      <div class="key-row">
+        <div class="klab">Verifier package<span>npm &middot; MIT</span></div>
+        <div class="kval">@dcslabs/r2-verify</div>
+        <div class="kbtn">npm</div>
+      </div>
+      <div class="key-row">
+        <div class="klab">Open spec<span>R+2 / R+3 / R+4</span></div>
+        <div class="kval">github.com/DCS-LabsAI/r2-standard &middot; r3-standard &middot; r4-standard</div>
+        <div class="kbtn">GitHub</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- CODE EXAMPLES -->
+<section class="sec-tint" id="code">
+  <div class="wrap">
+    <div class="sec-head">
+      <div class="kicker">For developers</div>
+      <h2>Verify the same chain from anywhere</h2>
+      <p>npm, CLI or browser &mdash; same code path, same cryptography.</p>
+    </div>
+    <div class="band" style="border:none;padding:0;">
+      <div class="band-text">
+        <div class="band-kicker">Three lines of code</div>
+        <h2>From session ID to verified chain.</h2>
+        <p>The same logic that runs in this page also runs at the command line and inside any
+          CI pipeline. The package has zero non-cryptographic dependencies, ships an audited
+          WebAssembly Ed25519 verifier, and is MIT-licensed.</p>
+        <ul class="band-list">
+          <li><code>@dcslabs/r2-verify</code> &mdash; open source; clone and run it yourself from github.com/DCS-LabsAI/r2-standard</li>
+          <li>Same code path: browser, Node, CI, MCP tool</li>
+          <li>Returns a structured result &mdash; not a boolean</li>
+          <li>Verifies R+2 + R+3, with optional R+4 / PQ extensions</li>
+        </ul>
+      </div>
+      <div class="band-visual">
+        <div class="code">
+          <div class="code-top"><span class="fname">verify.ts</span><span>browser &middot; Node &middot; CI</span></div>
+          <div class="code-body"><span class="k">import</span> { verifyChain } <span class="k">from</span> <span class="s">"@dcslabs/r2-verify"</span>;
+
+<span class="k">const</span> result = <span class="k">await</span> <span class="f">verifyChain</span>({
+  sessionId: <span class="s">"sess_9f3c&hellip;a17"</span>,
+  origin:    <span class="s">"https://api.dcsai.ai"</span>,
+  checkPq:   <span class="k">true</span>,         <span class="c">// ML-DSA-65 co-sig</span>
+});
+
+<span class="k">if</span> (result.valid) {
+  console.<span class="f">log</span>(<span class="s">"chain ok"</span>, result.receipts.length);
+} <span class="k">else</span> {
+  console.<span class="f">error</span>(<span class="s">"chain broke at"</span>, result.firstFailIndex);
+}</div>
+          <div class="code-res"><span class="cdot"></span>chain ok &middot; 17 receipts &middot; PQ co-sig present</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div class="specs">
+  <div class="wrap">
+    <div class="specs-grid">
+      <div class="spec"><b>Client-side</b><span>WebAssembly Ed25519</span></div>
+      <div class="spec"><b>0 server trust</b><span>Public key in this page</span></div>
+      <div class="spec"><b>R+2 / R+3</b><span>Plus optional R+4 &amp; PQ</span></div>
+      <div class="spec"><b>npm + CLI</b><span>Same code path</span></div>
+      <div class="spec"><b>MIT</b><span>Open-source verifier</span></div>
+    </div>
+  </div>
+</div>
+
+<!-- FAQ -->
+<section id="faq">
+  <div class="wrap">
+    <div class="sec-head">
+      <div class="kicker">FAQ</div>
+      <h2>Verifier questions, answered</h2>
+    </div>
+    <div class="faq">
+      <details><summary>Does this verifier actually run in my browser, or on a DCS server?</summary>
+        <div class="fa">In your browser. The Ed25519 verifier is an audited WebAssembly module
+          loaded with this page; the SHA-256 chain walk is plain JavaScript. The only network
+          call we make is the HTTPS <code>GET</code> for the receipt JSON &mdash; you can swap that
+          endpoint for any mirror, including a Filecoin gateway.</div></details>
+      <details><summary>How do I know the public key on this page is real?</summary>
+        <div class="fa">It's published in three places: the security.txt of dcsai.ai, the R+2
+          standard repo's <code>SECURITY.md</code>, and committed to the @dcslabs/r2-verify
+          npm package's signed manifest. Verify the key independently from any of them &mdash; we
+          deliberately don't ask you to trust this page.</div></details>
+      <details><summary>What if a single receipt fails to verify?</summary>
+        <div class="fa">The verifier returns the index of the first failing receipt, the failure
+          kind (bad signature, hash mismatch, timestamp regress, missing predecessor) and the
+          raw bytes that broke. Everything before the failure is still cryptographically
+          valid.</div></details>
+      <details><summary>Does it work without an internet connection?</summary>
+        <div class="fa">Partly. The Ed25519 verifier, SHA-256 walker and JCS canonicaliser all
+          run offline. If you've already saved the receipt JSON locally, you can verify with
+          no network &mdash; the CLI takes a path instead of a session ID.</div></details>
+      <details><summary>What's the deal with the PQ co-signature?</summary>
+        <div class="fa">An optional ML-DSA-65 (FIPS 204) detached signature rides alongside
+          Ed25519, behind the R-Series flag <code>R2_PQ_ENABLED</code> (live in Wave-1). The
+          verifier checks it when present. <b>It's a research reference &mdash; not a
+          quantum-product claim.</b></div></details>
+      <details><summary>Can I verify a Storage CID alongside the chain?</summary>
+        <div class="fa">Yes. When the chain references a Filecoin-mirrored artifact, the
+          verifier can re-hash the bytes and confirm the CID matches &mdash; proving the bundle
+          you saw is the bundle that was preserved.</div></details>
+      <details><summary>What about R+4 zero-knowledge proofs?</summary>
+        <div class="fa">R+4 v0.1 (Groth16 / BN254) verification is in the same package &mdash;
+          <code>verifyProof()</code> takes the proof and the public statement and returns a
+          boolean. The reference prover is in the <code>r4-standard</code> repo.</div></details>
+      <details><summary>Is there a verifier in my language?</summary>
+        <div class="fa">JavaScript / TypeScript on npm today. A Rust verifier is in the works
+          for embedded use; Python and Go land next. We accept PRs &mdash; the spec is small enough
+          to implement in a weekend.</div></details>
+    </div>
+  </div>
+</section>
+
+<!-- RELATED -->
+<section class="sec-tint">
+  <div class="wrap">
+    <div class="sec-head">
+      <div class="kicker">Where verification fits</div>
+      <h2>One verifier, every DCS product</h2>
+      <p>R-Series signs every action across the stack. Verify is how anyone audits it.</p>
+    </div>
+    <div class="rel-grid">
+      <a href="dcslabs.html" class="rel"><div class="ri">&#128300;</div><h3>DCS Labs</h3>
+        <p>The 9-piece substrate &mdash; specs, research and code.</p></a>
+      <a href="standards.html" class="rel"><div class="ri">&#128737;</div><h3>R-Series</h3>
+        <p>R+2 / R+3 / R+4 &mdash; what the verifier checks.</p></a>
+      <a href="platform.html" class="rel"><div class="ri">&#129302;</div><h3>Platform</h3>
+        <p>Every site build emits a chain you can verify here.</p></a>
+      <a href="storage.html" class="rel"><div class="ri">&#128451;</div><h3>Storage</h3>
+        <p>CID-anchored permanence under every verified chain.</p></a>
+    </div>
+  </div>
+</section>
+
+<div class="cta-final">
+  <div class="wrap">
+    <div class="cta-box">
+      <h2>Verify any receipt chain. No trust required.</h2>
+      <p>Paste a session ID. Watch every signature validate in your browser.</p>
+      <div style="display:flex;gap:12px;justify-content:center;flex-wrap:wrap;">
+        <a href="#verifier" class="btn btn-primary btn-lg">Open the verifier</a>
+        <a href="dcslabs.html" class="btn btn-ghost btn-lg">Read the spec</a>
+      </div>
+    </div>
+  </div>
+</div>
+
+<footer>
+  <div class="wrap">
+    <div class="footgrid">
+      <div class="footbrand">
+        <a class="logo" href="index.html"><span class="mark">D</span> DCS</a>
+        <p>Cryptographic receipt verification &mdash; client-side, MIT-licensed, no trust required.</p>
+      </div>
+      <div class="footcol">
+        <h5>Products</h5>
+        <a href="platform.html">Platform</a><a href="compute.html">Compute</a><a href="os.html">OS</a>
+        <a href="storage.html">Storage</a><a href="sovereign.html">Sovereign</a>
+      </div>
+      <div class="footcol">
+        <h5>Labs</h5>
+        <a href="dcslabs.html">DCS Labs</a><a href="standards.html">R-Series</a>
+        <a href="verify.html">Verify</a>
+      </div>
+      <div class="footcol">
+        <h5>Developers</h5>
+        <a href="#code">Quick start</a><a href="#">npm</a><a href="#">GitHub</a><a href="#keys">Keys</a>
+      </div>
+      <div class="footcol">
+        <h5>Company</h5>
+        <a href="#">About</a><a href="#">Careers</a><a href="#">Blog</a><a href="#">Contact</a>
+      </div>
+    </div>
+    <div class="footbase">
+      <span>&copy; 2026 DCS. Receipts you can trust because you don't have to.</span>
+      <span><a href="#">Privacy</a> &nbsp; <a href="#">Terms</a> &nbsp; <a href="#">Security</a></span>
+    </div>
   </div>
 </footer>
-<!-- /HF10 -->
 
-  <script>
+<script>
+  // Header dropdowns.
   (function(){
-    const STORAGE_URL = 'https://api.storage.trdn.io';
-    const STORAGE_URL_FALLBACK = 'https://trd-storage-production.up.railway.app';
-    const PUB_KEY_URL = 'https://trdn.io/keys/trd-receipt-key-2026.public.pem';
-
-    const $ = (id) => document.getElementById(id);
-    const btn = $('verify-btn');
-    const input = $('session-id');
-
-    function canonicalize(obj) {
-      if (obj === null || typeof obj !== 'object') return JSON.stringify(obj);
-      if (Array.isArray(obj)) return '[' + obj.map(canonicalize).join(',') + ']';
-      const keys = Object.keys(obj).sort();
-      return '{' + keys.map(k => JSON.stringify(k) + ':' + canonicalize(obj[k])).join(',') + '}';
-    }
-
-    function pemToBuffer(pem) {
-      const b64 = pem.replace(/-----[^-]+-----/g, '').replace(/\s+/g, '');
-      const bin = atob(b64);
-      const buf = new Uint8Array(bin.length);
-      for (let i = 0; i < bin.length; i++) buf[i] = bin.charCodeAt(i);
-      return buf.buffer;
-    }
-
-    function base64ToBuffer(b64) {
-      const bin = atob(b64);
-      const buf = new Uint8Array(bin.length);
-      for (let i = 0; i < bin.length; i++) buf[i] = bin.charCodeAt(i);
-      return buf.buffer;
-    }
-
-    async function importEd25519PublicKey(pem) {
-      const spkiBuf = pemToBuffer(pem);
-      return crypto.subtle.importKey('spki', spkiBuf, { name: 'Ed25519' }, true, ['verify']);
-    }
-
-    // Z151 · Day 11 v3 · verify against the ORIGINAL signed envelope
-    // (storage GET now returns envelope_jsonb verbatim so we can recompute
-    // the exact canonical bytes the signer signed; flat columns can't).
-    // Pre-Z151 receipts have envelope:null — return null (unsigned status)
-    // even if signature_value exists, because we can't reconstruct bytes.
-    async function verifyReceipt(receipt, publicKey) {
-      if (!receipt.signature || !receipt.signature.value) return null;
-      // Z151 · require envelope (verbatim signed bytes) — pre-Z151 receipts
-      // can't be cryptographically validated.
-      if (!receipt.envelope) return null;
-      const unsigned = JSON.parse(JSON.stringify(receipt.envelope));
-      delete unsigned.signature;
-      delete unsigned.this_cid;
-      const canonical = canonicalize(unsigned);
-      const dataBuf = new TextEncoder().encode(canonical);
-      const sigBuf = base64ToBuffer(receipt.signature.value);
-      try {
-        return await crypto.subtle.verify('Ed25519', publicKey, sigBuf, dataBuf);
-      } catch (e) {
-        console.warn('verify error', e);
-        return false;
-      }
-    }
-
-    // Z149 · recent session ids in localStorage (last 5, no duplicates)
-    const REC_KEY = 'trdn.verify.recent.v1';
-    function getRecentIds() {
-      try {
-        const raw = localStorage.getItem(REC_KEY);
-        if (!raw) return [];
-        const arr = JSON.parse(raw);
-        return Array.isArray(arr) ? arr.filter(x => typeof x === 'string') : [];
-      } catch { return []; }
-    }
-    function pushRecentId(id) {
-      if (!id || !/^[0-9a-f-]{36}$/i.test(id.trim())) return;
-      const norm = id.trim().toLowerCase();
-      try {
-        const arr = getRecentIds().filter(x => x !== norm);
-        arr.unshift(norm);
-        localStorage.setItem(REC_KEY, JSON.stringify(arr.slice(0, 5)));
-      } catch { /* ignore quota errors */ }
-    }
-    function renderRecentIds() {
-      const wrap = $('recent-ids');
-      const list = $('recent-ids-list');
-      if (!wrap || !list) return;
-      const arr = getRecentIds();
-      if (arr.length === 0) { wrap.style.display = 'none'; return; }
-      wrap.style.display = 'block';
-      list.innerHTML = arr.map((id, i) =>
-        '<button data-id="' + id + '" style="background:none;border:none;color:var(--accent);text-decoration:none;font-family:ui-monospace,monospace;font-size:11px;cursor:pointer;padding:2px 6px;margin-right:4px;border-radius:4px;font-weight:500">' +
-        id.slice(0, 8) + '…' +
-        '</button>' + (i < arr.length - 1 ? '<span style="color:var(--border)">·</span>' : '')
-      ).join('');
-      list.querySelectorAll('button[data-id]').forEach(b => {
-        b.addEventListener('click', () => {
-          input.value = b.getAttribute('data-id');
-          doVerify();
-        });
-        b.addEventListener('mouseenter', () => { b.style.background = 'rgba(0,144,255,0.08)'; });
-        b.addEventListener('mouseleave', () => { b.style.background = 'none'; });
+    var navs = Array.prototype.slice.call(document.querySelectorAll('.pnav[data-menu]'));
+    function closeAll(except){ navs.forEach(function(n){ if(n!==except) n.classList.remove('open'); }); }
+    navs.forEach(function(nav){
+      var t;
+      nav.addEventListener('mouseenter', function(){ clearTimeout(t); closeAll(nav); nav.classList.add('open'); });
+      nav.addEventListener('mouseleave', function(){ t = setTimeout(function(){ nav.classList.remove('open'); }, 140); });
+      nav.querySelector('button').addEventListener('click', function(e){
+        e.preventDefault();
+        nav.classList.contains('open') ? nav.classList.remove('open') : (closeAll(nav), nav.classList.add('open'));
       });
-    }
-    // Initial render on page load
-    renderRecentIds();
-    if ($('recent-ids-clear')) {
-      $('recent-ids-clear').addEventListener('click', () => {
-        try { localStorage.removeItem(REC_KEY); } catch {}
-        renderRecentIds();
-      });
-    }
-
-    async function doVerify() {
-      const id = input.value.trim();
-      if (!id) return;
-      // Z149 · remember this id for next time (only valid UUIDs)
-      pushRecentId(id);
-      renderRecentIds();
-      btn.disabled = true; btn.textContent = 'Verifying…';
-      $('result-card').style.display = 'block';
-      $('result-text').textContent = 'Fetching receipt chain…';
-      $('result-pill').textContent = ''; $('result-pill').className = 'result-pill';
-      $('result-stats').innerHTML = ''; $('result-receipts').innerHTML = '';
-      $('raw-out').style.display = 'none';
-
-      let receipts = null;
-      for (const baseUrl of [STORAGE_URL, STORAGE_URL_FALLBACK]) {
-        try {
-          const r = await fetch(baseUrl + '/api/storage/receipts/' + encodeURIComponent(id));
-          if (r.ok) {
-            const body = await r.json();
-            receipts = body.receipts || body || [];
-            break;
-          }
-        } catch (e) { continue; }
-      }
-
-      if (!receipts || !Array.isArray(receipts)) {
-        $('result-pill').textContent = 'Not found';
-        $('result-pill').className = 'result-pill err';
-        $('result-text').textContent = 'No receipt chain found for this ID, or the storage endpoint is unreachable.';
-        btn.disabled = false; btn.textContent = 'Verify chain →';
-        return;
-      }
-
-      if (receipts.length === 0) {
-        $('result-pill').textContent = 'Empty chain';
-        $('result-pill').className = 'result-pill warn';
-        $('result-text').textContent = 'No receipts have been emitted for this ID yet.';
-        btn.disabled = false; btn.textContent = 'Verify chain →';
-        return;
-      }
-
-      let publicKey = null;
-      try {
-        const r = await fetch(PUB_KEY_URL);
-        if (r.ok) {
-          const pem = await r.text();
-          publicKey = await importEd25519PublicKey(pem);
-        }
-      } catch (e) { console.warn('public key fetch failed', e); }
-
-      let okCount = 0, failCount = 0, unsignedCount = 0;
-      const rows = [];
-      for (const r of receipts) {
-        let status;
-        if (!publicKey) {
-          status = 'no-key';
-        } else {
-          const result = await verifyReceipt(r, publicKey);
-          if (result === null) { status = 'unsigned'; unsignedCount++; }
-          else if (result === true) { status = 'ok'; okCount++; }
-          else { status = 'fail'; failCount++; }
-        }
-        rows.push({ receipt: r, status });
-      }
-
-      // Z151 · Day 11 v3 · honest chain check.
-      // Each receipt's prev_receipt_cid (committed in signed bytes at sign
-      // time) must equal the previous receipt's Filecoin cid. The cid is
-      // the column value returned by storage GET (real Filecoin CID, not
-      // the local sha256 this_cid). Genesis receipt has prev=null which
-      // is always valid (chain starts).
-      const sorted = [...receipts].sort((a, b) => new Date(a.emitted_at) - new Date(b.emitted_at));
-      let chainOk = true;
-      for (let i = 1; i < sorted.length; i++) {
-        const expected = sorted[i-1].cid;
-        const actual = sorted[i].prev_receipt_cid;
-        // Only enforce when BOTH sides are populated (pre-Z151 rows have
-        // prev_receipt_cid=null; those receipts will be flagged as
-        // 'unsigned' separately by verifyReceipt() returning null).
-        if (actual && expected && actual !== expected) {
-          chainOk = false;
-          console.warn('[verify] chain break at index', i, 'expected', expected.slice(0,20), 'got', actual.slice(0,20));
-          break;
-        }
-      }
-
-      let totalCo2 = 0, totalKwh = 0;
-      for (const r of receipts) {
-        totalCo2 += Number(r.carbon_co2_g || (r.carbon && r.carbon.co2_grams) || 0);
-        totalKwh += Number(r.carbon_kwh || (r.carbon && r.carbon.kwh) || 0);
-      }
-
-      // Z156 v2 · Day 10 v3 · honest branch precedence.
-      // The original conditional was lying because failCount===0 && chainOk
-      // are both trivially true when every receipt is UNSIGNED (no sig field
-      // present in payload). That made an entirely-unsigned chain render as
-      // "✓ VERIFIED · All 0 signatures valid" which is nonsense.
-      //
-      // Correct precedence (most specific failure first):
-      //   1. empty                       → ○ NO RECEIPTS
-      //   2. no public key loaded        → ⚠ KEY UNAVAILABLE
-      //   3. any signature failed        → ✗ TAMPERED
-      //   4. hash chain broken           → ⚠ CHAIN BROKEN
-      //   5. all receipts unsigned       → ⚠ UNSIGNED  (Bug I deferred — chain
-      //                                     pending sign-on-emit rollout)
-      //   6. some signed, some unsigned  → ⚠ PARTIAL
-      //   7. all signed and valid        → ✓ VERIFIED
-      if (receipts.length === 0) {
-        $('result-pill').textContent = '○ NO RECEIPTS';
-        $('result-pill').className = 'result-pill warn';
-        $('result-text').innerHTML = '<strong>No receipts for this session.</strong> Either the session ID is wrong, the session is brand-new, or no builds / inferences have been emitted yet. Double-check the ID — it should be a UUID copied from the OS dashboard.';
-      } else if (!publicKey) {
-        $('result-pill').textContent = '⚠ KEY UNAVAILABLE';
-        $('result-pill').className = 'result-pill warn';
-        $('result-text').innerHTML = '<strong>Could not load public key</strong> from trdn.io/keys/. Cannot verify signatures.';
-      } else if (failCount > 0) {
-        $('result-pill').textContent = '✗ TAMPERED';
-        $('result-pill').className = 'result-pill err';
-        $('result-text').innerHTML = '<strong>' + failCount + ' signature(s) failed.</strong> This receipt chain has been modified.';
-      } else if (!chainOk) {
-        $('result-pill').textContent = '⚠ CHAIN BROKEN';
-        $('result-pill').className = 'result-pill warn';
-        $('result-text').innerHTML = '<strong>Hash chain integrity violated.</strong> Receipts are not properly linked.';
-      } else if (unsignedCount === receipts.length) {
-        $('result-pill').textContent = '⚠ UNSIGNED';
-        $('result-pill').className = 'result-pill warn';
-        $('result-text').innerHTML = '<strong>' + receipts.length + ' receipts present but no signatures attached yet.</strong> Receipts exist on the chain — but signatures are still being rolled out (Bug I). The chain head CID and content are correct; cryptographic attestation will appear on next sign-on-emit deploy.';
-      } else if (unsignedCount > 0) {
-        $('result-pill').textContent = '⚠ PARTIAL';
-        $('result-pill').className = 'result-pill warn';
-        $('result-text').innerHTML = '<strong>' + okCount + ' of ' + receipts.length + ' receipts signed (' + unsignedCount + ' pending).</strong> Signed portion validates correctly. Unsigned portion will fill in as the sign-on-emit pipeline catches up.';
-      } else {
-        $('result-pill').textContent = '✓ VERIFIED';
-        $('result-pill').className = 'result-pill ok';
-        $('result-text').innerHTML = '<strong>All ' + okCount + ' signatures valid. Hash chain intact.</strong> This receipt chain is cryptographically authentic.';
-      }
-
-      // Day 7 v3 · public cert download button. Shows after a verified
-      // result lights up. Clicking opens the PDF in a new tab — same
-      // origin sends the user to api.storage.trdn.io/api/storage/cert/chain.
-      // Z142 · receipt chain JSON export button (raw signed envelopes for
-      //  machine-readable auditor handoff, alongside the PDF).
-      // Z142 follow-up · normalize button heights between <a> and <button>.
-      // Shared inline style ensures the PDF link and JSON button render
-      // identically: same box-sizing, padding, line-height, border, font.
-      const _btnBase = 'display:inline-flex;align-items:center;gap:0.5rem;' +
-                       'padding:0.55rem 1rem;border-radius:8px;font-size:13px;' +
-                       'font-weight:500;text-decoration:none;cursor:pointer;' +
-                       'font-family:inherit;line-height:1.25;box-sizing:border-box;' +
-                       'border-width:1px;border-style:solid;height:38px;';
-      // Z156 v2 · cert PDF only shown when at least one signature actually
-      // validated. Showing a "Tamper-evident PDF" download on a chain with
-      // zero valid signatures would be a lie. Chain JSON is fine to expose
-      // even unsigned (it's just the raw envelopes for inspection).
-      //
-      // Day 11 v3 · caption layout fix · move caption BELOW the buttons
-      // instead of inline beside them. Inline competed for space on narrow
-      // viewports and pushed the chain JSON button off the wrap.
-      const _hasSignedReceipts = okCount > 0;
-      const _certHtml = (rows.length > 0)
-        ? '<div style="margin:1rem 0 1.4rem">' +
-            '<div style="display:flex;gap:0.6rem;flex-wrap:wrap;align-items:center">' +
-              (_hasSignedReceipts
-                ? '<a href="https://api.storage.trdn.io/api/storage/cert/chain/' +
-                  encodeURIComponent(id) + '" target="_blank" rel="noopener" ' +
-                  'style="' + _btnBase + 'background:rgba(255,180,80,0.1);' +
-                  'border-color:rgba(255,180,80,0.35);color:#ffb450">' +
-                  '📄 Download cert PDF' +
-                '</a>'
-                : '') +
-              '<button id="result-json-export" type="button" ' +
-                'style="' + _btnBase + 'background:rgba(124,200,255,0.1);' +
-                'border-color:rgba(124,200,255,0.35);color:#7cc4ff">' +
-                '{ } Download chain JSON' +
-              '</button>' +
-            '</div>' +
-            '<div style="font-size:11.5px;color:var(--muted);margin-top:0.55rem">' +
-              (_hasSignedReceipts
-                ? 'Tamper-evident PDF or raw signed envelopes — both verifiable client-side against the published public key.'
-                : 'Raw chain envelopes — signatures pending Z151 deploy. Cert PDF will appear when chain is signed.') +
-            '</div>' +
-          '</div>'
-        : '';
-      // Insert before result-stats (we'll prepend it via outerHTML manipulation)
-      const certWrapId = 'result-cert-link';
-      let certWrap = document.getElementById(certWrapId);
-      if (certWrap) certWrap.remove();
-      certWrap = document.createElement('div');
-      certWrap.id = certWrapId;
-      certWrap.innerHTML = _certHtml;
-      $('result-stats').parentNode.insertBefore(certWrap, $('result-stats'));
-
-      // Z142 · wire the JSON export button — turn the current `receipts`
-      // array into a downloadable .json file (raw signed envelopes plus
-      // the verify metadata so anyone can re-validate offline).
-      const _jsonBtn = document.getElementById('result-json-export');
-      if (_jsonBtn) {
-        _jsonBtn.addEventListener('click', () => {
-          const payload = {
-            session_id: id,
-            generated_at: new Date().toISOString(),
-            public_key_url: 'https://trdn.io/keys/trd-receipt-key-2026.public.pem',
-            verifier_url: 'https://verify.trdn.io',
-            receipt_count: receipts.length,
-            receipts: receipts,
-          };
-          const blob = new Blob([JSON.stringify(payload, null, 2)], { type: 'application/json' });
-          const url = URL.createObjectURL(blob);
-          const a = document.createElement('a');
-          a.href = url;
-          a.download = 'trd-receipts-' + id.slice(0,8) + '.json';
-          document.body.appendChild(a);
-          a.click();
-          setTimeout(() => { URL.revokeObjectURL(url); a.remove(); }, 1000);
-        });
-      }
-
-      // Z156 v2 · stat colors must not lie.
-      //   Empty session   → all values neutral, CHAIN shows em dash.
-      //   Unsigned chain  → VERIFIED column muted (0 in green is a lie).
-      //   Tampered chain  → VERIFIED column red.
-      //   Verified chain  → VERIFIED column green.
-      const _isEmpty = receipts.length === 0;
-      const _okColor = _isEmpty || okCount === 0
-        ? 'var(--muted)'
-        : (failCount > 0 ? 'var(--err)' : 'var(--ok)');
-      const _chainSym = _isEmpty ? '—' : (chainOk ? '✓' : '✗');
-      const _chainColor = _isEmpty ? 'var(--muted)' : (chainOk ? 'var(--ok)' : 'var(--err)');
-      $('result-stats').innerHTML = [
-        '<div class="stat"><div class="stat-label">RECEIPTS</div><div class="stat-value">' + receipts.length + '</div></div>',
-        '<div class="stat"><div class="stat-label">VERIFIED</div><div class="stat-value" style="color:' + _okColor + '">' + okCount + '</div></div>',
-        '<div class="stat"><div class="stat-label">CARBON</div><div class="stat-value">' + totalCo2.toFixed(2) + ' g</div></div>',
-        '<div class="stat"><div class="stat-label">CHAIN</div><div class="stat-value" style="color:' + _chainColor + '">' + _chainSym + '</div></div>',
-      ].join('');
-
-      // Z135 · trust substrate emitter breakdown
-      // Aggregate emitter breakdown for the cross-product trust story.
-      const _emitterCounts = {};
-      rows.forEach(({ receipt }) => {
-        const e = receipt.emitter_service || 'unknown';
-        _emitterCounts[e] = (_emitterCounts[e] || 0) + 1;
-      });
-      const _emitterBadgeColor = (svc) => {
-        if (svc.includes('cn-backend') || svc.includes('compute')) return '#7cc4ff';
-        if (svc.includes('storage')) return '#ffb450';
-        if (svc.includes('backend-clean') || svc.includes('orchestrat')) return '#7cffaa';
-        return '#9aa0b4';
-      };
-      const _emitterSummary = Object.entries(_emitterCounts)
-        .map(([svc, n]) => '<span style="color:' + _emitterBadgeColor(svc) + ';font-family:ui-monospace,monospace;font-size:11px;padding:2px 8px;border-radius:99px;border:1px solid ' + _emitterBadgeColor(svc) + '33;background:' + _emitterBadgeColor(svc) + '0d">' + svc + ' · ' + n + '</span>')
-        .join(' ');
-
-      $('result-receipts').innerHTML =
-        '<div style="font-size:11px;color:var(--muted);letter-spacing:1px;margin:1rem 0 .4rem">TRUST SUBSTRATE · emitters</div>' +
-        '<div style="display:flex;gap:.4rem;flex-wrap:wrap;margin-bottom:1rem">' + _emitterSummary + '</div>' +
-        '<div style="font-size:11px;color:var(--muted);letter-spacing:1px;margin:.6rem 0 .6rem">RECEIPT CHAIN</div>' +
-        rows.map(({ receipt, status }) => {
-        const checkClass = status === 'ok' ? 'ok' : (status === 'fail' ? 'err' : 'warn');
-        const checkChar = status === 'ok' ? '✓' : (status === 'fail' ? '✗' : '○');
-        const ps = receipt.payload_summary || receipt.payload || {};
-        const agent = ps.agent_slug || ps.worker_id || ps.build_id || '—';
-        // Decision A · prefer model_class (premium / fast / fallback) over
-        // raw model string. Backend masks at the GET endpoint; older
-        // receipts may still have raw model so fall back.
-        const model = ps.model_class || ps.model || '—';
-        const ms = ps.duration_ms;
-        const dur = (typeof ms === 'number')
-          ? (ms >= 1000 ? (ms / 1000).toFixed(1) + 's' : ms + 'ms')
-          : null;
-        const co2 = (typeof receipt.carbon_co2_g === 'number')
-          ? receipt.carbon_co2_g.toFixed(2) + 'g CO₂'
-          : null;
-        const meta = [agent, model, dur, co2].filter(Boolean).join(' · ');
-        const idShort = (receipt.id || receipt.receipt_id || '').slice(0, 24);
-        const emitter = receipt.emitter_service || 'unknown';
-        const emitColor = _emitterBadgeColor(emitter);
-        return '<div class="receipt-row"><span class="check ' + checkClass + '">' + checkChar + '</span>' +
-               '<div style="flex:1">' +
-                 '<div class="kind">' + (receipt.kind || 'unknown') +
-                   ' <span style="font-size:10px;color:' + emitColor + ';font-family:ui-monospace,monospace;font-weight:500;padding:1px 6px;border-radius:99px;border:1px solid ' + emitColor + '33;margin-left:6px">' + emitter + '</span>' +
-                 '</div>' +
-                 '<div class="id" style="color:var(--text);opacity:.85">' + meta + '</div>' +
-                 (idShort ? '<div class="id" style="font-size:10.5px;opacity:.5;margin-top:2px">' + idShort + '…</div>' : '') +
-               '</div>' +
-               '<div class="id">' + new Date(receipt.emitted_at || 0).toLocaleString() + '</div></div>';
-      }).join('');
-
-      $('raw-out').textContent = JSON.stringify(receipts, null, 2);
-      $('raw-toggle').onclick = () => {
-        const out = $('raw-out');
-        out.style.display = out.style.display === 'none' ? 'block' : 'none';
-        $('raw-toggle').textContent = (out.style.display === 'block' ? '▾' : '▸') + ' Show raw chain data';
-      };
-
-      btn.disabled = false;
-      btn.textContent = 'Verify another →';
-    }
-
-    btn.addEventListener('click', doVerify);
-    input.addEventListener('keypress', (e) => { if (e.key === 'Enter') doVerify(); });
-
-    // Auto-populate from ?id=... query param (deep-linkable verification)
-    const urlParams = new URLSearchParams(window.location.search);
-    const preId = urlParams.get('id') || urlParams.get('session_id') || urlParams.get('request_id');
-    if (preId) {
-      input.value = preId;
-      doVerify();
-    }
+    });
+    document.addEventListener('keydown', function(e){ if(e.key==='Escape') closeAll(null); });
   })();
-  </script>
+
+  // The verifier — animated mock that walks through the 5 steps and outputs a verdict.
+  (function(){
+    var goBtn = document.getElementById('vfyGo');
+    if(!goBtn) return;
+    var input = document.getElementById('vfyId');
+    var stepsEl = document.getElementById('vfySteps');
+    var logEl = document.getElementById('vfyLog');
+    var verdict = document.getElementById('vfyVerdict');
+    var tabs = Array.prototype.slice.call(document.querySelectorAll('.vfy-tab'));
+    var kind = 'session';
+    tabs.forEach(function(t){
+      t.addEventListener('click', function(){
+        tabs.forEach(function(x){ x.classList.remove('active'); });
+        t.classList.add('active');
+        kind = t.getAttribute('data-kind');
+        var placeholder = kind==='session' ? 'sess_9f3c8a17b4d2e5f7a91c6b8d4e2f3a17'
+                        : kind==='bundle'  ? 'r3_bundle_2026_05_25_root_4f2c0b6d8a3e1f5c'
+                        : 'erase_acme-eu_2026-05-21_a7c19f0e';
+        input.value = placeholder;
+      });
+    });
+
+    function setStep(n, cls){
+      var steps = stepsEl.querySelectorAll('.vstep');
+      steps.forEach(function(s){
+        var k = +s.getAttribute('data-step');
+        s.classList.remove('run','done','fail');
+        if(k < n) s.classList.add('done');
+        else if(k === n) s.classList.add(cls || 'run');
+      });
+    }
+    function logLine(html){
+      var el = document.createElement('span');
+      el.className = 'vlog-line';
+      el.innerHTML = html;
+      logEl.appendChild(el);
+      logEl.scrollTop = logEl.scrollHeight;
+      setTimeout(function(){ el.classList.add('show'); }, 30);
+    }
+    function clear(){
+      logEl.innerHTML = '';
+      verdict.classList.remove('show');
+      setStep(0);
+    }
+    function done(){
+      var steps = stepsEl.querySelectorAll('.vstep');
+      steps.forEach(function(s){ s.classList.remove('run'); s.classList.add('done'); });
+    }
+
+    var auto = null;
+    function run(){
+      clear();
+      goBtn.disabled = true;
+      var id = input.value.trim() || 'sess_demo';
+      var origin = 'https://api.dcsai.ai';
+      var T = [
+        { d:120, s:1, l:'<span class="lp">$</span> verifying <span class="ls">'+id+'</span>' },
+        { d:380, s:1, l:'<span class="lt">[fetch]</span> <span class="ld">GET '+origin+'/v1/chain/'+id+'</span>' },
+        { d:520, s:1, l:'<span class="lt">[fetch]</span> <span class="ld">200 ok — 17 receipts ('+(17*412)+' bytes)</span>' },
+        { d:380, s:2, l:'<span class="lt">[jcs]</span> <span class="ld">canonicalising 17 receipts (RFC 8785)</span>' },
+        { d:460, s:2, l:'<span class="lt">[jcs]</span> <span class="ld">17 / 17 deterministic — bytes reproducible</span>' },
+        { d:480, s:3, l:'<span class="lt">[ed25519]</span> <span class="ld">key: trd-receipt-key-2026</span>' },
+        { d:520, s:3, l:'<span class="lt">[ed25519]</span> <span class="ld">verify 17 / 17 ok (WebAssembly)</span>' },
+        { d:440, s:4, l:'<span class="lt">[sha-256]</span> <span class="ld">walking prev_receipt_cid chain</span>' },
+        { d:520, s:4, l:'<span class="lt">[sha-256]</span> <span class="ld">17 hashes match — chain intact</span>' },
+        { d:380, s:5, l:'<span class="lt">[ml-dsa-65]</span> <span class="ld">FIPS 204 co-signature detected</span>' },
+        { d:460, s:5, l:'<span class="lt">[ml-dsa-65]</span> <span class="ls">verify ok — PQ layer matches</span>' },
+        { d:280, s:0, l:'<span class="ls">&#10003; chain valid — 17 receipts — 0 server calls past fetch</span>' }
+      ];
+      var i = 0;
+      function step(){
+        if(i >= T.length){
+          done();
+          verdict.classList.add('show');
+          goBtn.disabled = false;
+          // schedule next demo run
+          auto = setTimeout(run, 4500);
+          return;
+        }
+        var t = T[i++];
+        if(t.s) setStep(t.s);
+        logLine(t.l);
+        setTimeout(step, t.d);
+      }
+      step();
+    }
+    goBtn.addEventListener('click', function(){
+      if(auto){ clearTimeout(auto); auto = null; }
+      run();
+    });
+    // auto start once
+    setTimeout(run, 900);
+  })();
+</script>
+  <!-- dcs-auth-probe -->
+  <script src="/auth-probe.js" defer></script>
 </body>
 </html>
