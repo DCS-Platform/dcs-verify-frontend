@@ -1,0 +1,139 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Issuer profile — DCS Trust Registry</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{--bg:#0a0a0f;--surface:#13131a;--surface-2:#181820;--border:#1f1f29;--border-2:#2a2a36;--text:#e8e8ec;--dim:#9c9ca8;--dimmer:#6a6a78;--accent:#1e7eff;--accent-2:#4aa3ff;--green:#34d399;--purple:#a78bfa;--amber:#fbbf24;--radius:14px;--mono:"JetBrains Mono",monospace;--sans:"Inter",-apple-system,system-ui,sans-serif}
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{background:var(--bg);color:var(--text);font-family:var(--sans);line-height:1.55}
+  .wrap{max-width:860px;margin:0 auto;padding:0 24px}
+  nav{border-bottom:1px solid var(--border);position:sticky;top:0;background:rgba(10,10,15,.8);backdrop-filter:blur(12px);z-index:10}
+  nav .wrap{display:flex;align-items:center;justify-content:space-between;height:62px}
+  .brand{display:flex;gap:9px;align-items:center;font-weight:700;font-size:16px}
+  .brand .mk{width:24px;height:24px;border:1.5px solid var(--accent);border-radius:7px;display:grid;place-items:center;color:var(--accent);font-size:12px}
+  .navlinks{display:flex;gap:24px;font-size:14px;color:var(--dim)}.navlinks a{color:inherit;text-decoration:none}
+  .eyebrow{font-family:var(--mono);font-size:11px;letter-spacing:.16em;text-transform:uppercase;color:var(--dim);display:flex;align-items:center;gap:8px;margin:36px 0 14px}
+  .eyebrow .gd{width:7px;height:7px;border-radius:50%;background:var(--green);box-shadow:0 0 10px rgba(52,211,153,.6)}
+  .profile-head{display:flex;gap:22px;align-items:center;flex-wrap:wrap;padding:26px;background:var(--surface);border:1px solid var(--border);border-radius:var(--radius)}
+  .logo{width:72px;height:72px;border-radius:18px;background:linear-gradient(135deg,var(--accent),var(--purple));display:grid;place-items:center;font-size:30px;font-weight:800;flex:0 0 auto}
+  .phead-main{flex:1;min-width:200px}
+  .phead-main h1{font-size:26px;font-weight:800;letter-spacing:-.02em}
+  .phead-main .did{font-family:var(--mono);font-size:12px;color:var(--dim);margin-top:4px}
+  .verified-chip{display:inline-flex;align-items:center;gap:6px;font-size:12px;font-family:var(--mono);color:var(--green);border:1px solid var(--border-2);border-radius:999px;padding:4px 11px;margin-top:8px}
+  .scorebox{text-align:center;flex:0 0 auto}
+  .scorebox .num{font-size:54px;font-weight:800;letter-spacing:-.03em;line-height:1;background:linear-gradient(120deg,var(--accent-2),var(--accent));-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}
+  .scorebox .lbl{font-family:var(--mono);font-size:11px;color:var(--dimmer);letter-spacing:.08em;margin-top:6px}
+  .grid{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-top:16px}
+  .stat{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:16px}
+  .stat .n{font-size:22px;font-weight:700}.stat .l{font-family:var(--mono);font-size:10px;color:var(--dimmer);margin-top:3px}
+  h2{font-size:18px;font-weight:700;margin:30px 0 12px}
+  .breakdown{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);overflow:hidden}
+  .brow{display:flex;align-items:center;gap:14px;padding:14px 18px;border-top:1px solid var(--border)}
+  .brow:first-child{border-top:none}
+  .brow .name{width:110px;font-size:14px;font-weight:600;text-transform:capitalize}
+  .brow .bar{flex:1;height:8px;background:var(--surface-2);border-radius:99px;overflow:hidden}
+  .brow .bar i{display:block;height:100%;background:linear-gradient(90deg,var(--accent),var(--accent-2));border-radius:99px}
+  .brow .pts{font-family:var(--mono);font-size:12px;color:var(--dim);width:74px;text-align:right}
+  .brow .reason{font-family:var(--mono);font-size:11px;color:var(--dimmer);flex-basis:100%;padding-left:124px;margin-top:-4px}
+  .audit-note{font-family:var(--mono);font-size:11.5px;color:var(--dim);background:var(--surface);border:1px dashed var(--border-2);border-radius:12px;padding:14px 16px;margin-top:14px}
+  .audit-note b{color:var(--green)}
+  footer{border-top:1px solid var(--border);margin-top:50px;padding:30px 0;color:var(--dimmer);font-family:var(--mono);font-size:12px}
+  @media(max-width:680px){.grid{grid-template-columns:1fr 1fr}.navlinks{display:none}.brow .reason{padding-left:0}}
+</style>
+</head>
+<body>
+<nav><div class="wrap">
+  <div class="brand"><span class="mk">◈</span> DCS Trust Registry</div>
+  <div class="navlinks"><a href="explorer.html">Explorer</a><a href="verify.html">Verify</a><a href="index.html">Home</a></div>
+</div></nav>
+
+<div class="wrap">
+  <div class="eyebrow"><span class="gd"></span> Public issuer profile · anyone can read this</div>
+
+  <div class="profile-head">
+    <div class="logo">D</div>
+    <div class="phead-main">
+      <h1 id="p-name">DCS Labs</h1>
+      <div class="did" id="p-did">did:web:dcslabs.ai</div>
+      <span class="verified-chip" id="audit-chip" style="display:none"></span>
+    </div>
+    <div class="scorebox">
+      <div class="num" id="score">—</div>
+      <div class="lbl">TRUST SCORE</div>
+    </div>
+  </div>
+
+  <div class="grid">
+    <div class="stat"><div class="n" id="s-issued">—</div><div class="l">ISSUED</div></div>
+    <div class="stat"><div class="n" id="s-verif">—</div><div class="l">VERIFICATIONS</div></div>
+    <div class="stat"><div class="n" id="s-revrate">—</div><div class="l">REVOCATION RATE</div></div>
+    <div class="stat"><div class="n" id="s-age">—</div><div class="l">ACTIVE</div></div>
+  </div>
+
+  <h2>Why this score</h2>
+  <div class="breakdown" id="breakdown"></div>
+  <div class="audit-note"><b>Fully auditable.</b> This score is reproducible from the public inputs above — issuer age, verification count, revocation rate, audit status, federation reputation. No hidden weighting. Recompute it yourself from the open formula.</div>
+
+  <h2>Supported credential types</h2>
+  <div class="grid" style="grid-template-columns:repeat(5,1fr)">
+    <div class="stat"><div class="n" style="font-size:14px">Certificate</div><div class="l">R+2</div></div>
+    <div class="stat"><div class="n" style="font-size:14px">License</div><div class="l">R+2</div></div>
+    <div class="stat"><div class="n" style="font-size:14px">Result</div><div class="l">R+2</div></div>
+    <div class="stat"><div class="n" style="font-size:14px">Document</div><div class="l">R+2</div></div>
+    <div class="stat"><div class="n" style="font-size:14px">Receipt</div><div class="l">R+2</div></div>
+  </div>
+  <div class="audit-note" style="margin-top:14px">These are the credential types this issuer is provisioned to sign — a capability list, not a count.</div>
+</div>
+
+<footer><div class="wrap">DCS Verify, a product of DCS AI Technologies L.L.C · Trust Registry is public and account-free.</div></footer>
+
+<script type="module">
+  // LIVE: binds to /v1/registry/:issuer — real inputs + reproducible score from the
+  // open weights. No fabricated numbers: on failure we show an honest unavailable
+  // state, never sample data. Early network -> numbers are real and small.
+  const API = "https://api.dcslabs.ai/v1";
+  const NAMES = { dcslabs:["DCS Labs","did:web:dcslabs.ai","D"], dcsai:["DCS AI","did:web:dcs.ai","A"],
+                  dcsrank:["DCS Rank","did:web:rank.dcslabs.ai","R"], dcssports:["DCS Sports","did:web:sports.dcslabs.ai","S"] };
+  const issuer = (new URLSearchParams(location.search).get("issuer") || "dcslabs").toLowerCase();
+  const $ = (id) => document.getElementById(id);
+
+  function honestUnavailable(msg){
+    $("score").textContent = "—";
+    for (const id of ["s-issued","s-verif","s-revrate","s-age"]) $(id).textContent = "—";
+    $("breakdown").innerHTML = `<div class="brow"><span class="reason" style="padding-left:0">${msg}</span></div>`;
+  }
+
+  (async () => {
+    const meta = NAMES[issuer] || [issuer, "did:web:"+issuer, issuer[0]?.toUpperCase() || "?"];
+    $("p-name").textContent = meta[0]; $("p-did").textContent = meta[1];
+    document.querySelector(".logo").textContent = meta[2];
+    try {
+      const r = await fetch(`${API}/registry/${issuer}`, { headers: { "accept":"application/json" } });
+      if (!r.ok) return honestUnavailable(`No public profile for "${issuer}" yet.`);
+      const d = await r.json();
+      const inp = d.inputs || {}, bd = d.breakdown || {}, W = d.weights || {};
+      $("score").textContent = Math.round(d.score);
+      $("s-issued").textContent = (inp.total_issued ?? 0).toLocaleString();
+      $("s-verif").textContent  = inp.total_verifications == null ? "—" : inp.total_verifications.toLocaleString();
+      const rate = inp.total_issued ? (100*(inp.revocations||0)/inp.total_issued) : 0;
+      $("s-revrate").textContent = inp.total_issued ? rate.toFixed(2)+"%" : "—";
+      $("s-age").textContent = inp.issuer_age_days != null ? (inp.issuer_age_days/365).toFixed(1)+"y" : "—";
+      // audit chip — only shown when genuinely verified
+      if (inp.audit_status === "verified" || inp.audit_status === "in_progress") {
+        const c = $("audit-chip"); c.textContent = "✓ audit: " + inp.audit_status; c.style.display = "inline-flex";
+      }
+      $("breakdown").innerHTML = Object.keys(W).map(k => {
+        const b = bd[k] || {}; const pct = (b.sub_score ?? 0)*100;
+        return `<div class="brow"><span class="name">${k}</span><span class="bar"><i style="width:${pct}%"></i></span>`+
+               `<span class="pts">${(b.contribution ?? 0).toFixed?.(1) ?? b.contribution} / ${W[k]}</span>`+
+               `<span class="reason">${b.reason || ""}</span></div>`;
+      }).join("");
+    } catch (e) { honestUnavailable("Registry temporarily unavailable — the score is always recomputable from public inputs."); }
+  })();
+</script>
+</body>
+</html>

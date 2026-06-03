@@ -1,0 +1,159 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Issuer console — DCS Verify</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="styles.css" />
+<style>
+  .dash{max-width:1000px;margin:0 auto;padding:0 28px 80px}
+  .panel{background:var(--ink-2);border:1px solid var(--line);border-radius:var(--radius);padding:24px;margin:16px 0}
+  .panel h3{font-family:var(--display);font-size:17px;font-weight:600;margin-bottom:16px}
+  label.lbl{font-family:var(--mono);font-size:12px;color:var(--dim);display:block;margin-bottom:6px}
+  .field{padding:11px 13px;border:1px solid var(--line);border-radius:9px;background:var(--ink);color:var(--fg);font-family:var(--mono);font-size:13px}
+  .field:focus{outline:none;border-color:var(--blue)}
+  .row{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+  textarea.field{width:100%;min-height:64px;resize:vertical;margin:8px 0}
+  select.field{font-family:var(--sans)}
+  .cards{display:grid;grid-template-columns:repeat(4,1fr);gap:12px}
+  .stat{background:var(--ink-3);border:1px solid var(--line);border-radius:11px;padding:16px}
+  .stat .n{font-family:var(--display);font-size:26px;font-weight:600}
+  .stat .l{font-family:var(--mono);font-size:11px;color:var(--dim);margin-top:2px}
+  .bars{display:flex;align-items:flex-end;gap:8px;height:96px;margin-top:20px;padding-bottom:18px}
+  .bar{flex:1;background:linear-gradient(var(--blue),var(--blue-deep));border-radius:5px 5px 0 0;min-height:3px;position:relative}
+  .bar span{position:absolute;bottom:-17px;left:0;right:0;text-align:center;font-size:10px;font-family:var(--mono);color:var(--dim)}
+  table{width:100%;border-collapse:collapse;font-size:13px;margin-top:10px}
+  th{text-align:left;color:var(--dim);font-family:var(--mono);font-size:11px;letter-spacing:.04em;font-weight:500;padding:8px;border-bottom:1px solid var(--line)}
+  td{padding:9px 8px;border-bottom:1px solid var(--line);vertical-align:top;font-family:var(--mono);font-size:12.5px}
+  .pill{display:inline-block;padding:2px 9px;border-radius:999px;font-size:11px;font-family:var(--mono)}
+  .pill.valid{background:rgba(79,139,255,.12);color:var(--blue)} .pill.revoked{background:rgba(255,107,107,.12);color:var(--red)} .pill.suspended{background:rgba(240,179,65,.12);color:var(--amber)}
+  .mini{padding:6px 11px;font-size:12px;border-radius:8px}
+  .msg{font-family:var(--mono);font-size:12.5px;color:var(--dim);margin:8px 0}
+  .msg.err{color:var(--red)}
+  .gate{max-width:460px;margin:30px auto;text-align:center}
+</style>
+</head>
+<body>
+<div class="glow g1"></div>
+
+<nav>
+  <div class="wrap">
+    <a class="brand" href="index.html"><span class="mark">◈</span> DCS Verify</a>
+    <div class="navlinks">
+      <a href="index.html#features">Features</a>
+      <a href="verify.html">Verify</a>
+      <a href="explorer.html">Explorer</a>
+      <a href="app.html">App</a>
+      <a href="pricing.html">Pricing</a>
+      <a class="cta" href="dashboard.html" style="color:var(--blue);background:transparent;border:1px solid var(--blue)">Issuer console</a>
+    </div>
+  </div>
+</nav>
+
+<main>
+  <div class="page-head wrap"><h1>Issuer console</h1><p>Issue, manage, and monitor your credentials. Connect with your <code>dcsl_</code> API key.</p></div>
+
+  <div class="dash">
+    <div class="panel gate" id="gate">
+      <h3>Connect</h3>
+      <div style="display:flex;flex-direction:column;gap:10px">
+        <input id="key" class="field" type="password" placeholder="dcsl_ API key" />
+        <input id="api" class="field" placeholder="API base" value="https://api.dcslabs.ai/v1" />
+        <button class="btn primary" id="load">Connect →</button>
+      </div>
+      <p class="msg" id="gatemsg"></p>
+    </div>
+
+    <div id="dash" style="display:none">
+      <p class="msg" id="msg"></p>
+
+      <div class="panel">
+        <h3>Summary</h3>
+        <div class="cards" id="cards"></div>
+        <div class="bars" id="bars"></div>
+      </div>
+
+      <div class="panel">
+        <h3>Issue a credential</h3>
+        <div class="row">
+          <select id="i_issuer" class="field"><option>dcslabs</option><option>dcsai</option><option>dcsrank</option><option>dcssports</option></select>
+          <select id="i_type" class="field"><option>certificate</option><option>result</option><option>license</option><option>document</option></select>
+          <label class="lbl" style="display:flex;align-items:center;gap:6px;margin:0"><input type="checkbox" id="i_status" checked /> revocable</label>
+          <label class="lbl" style="display:flex;align-items:center;gap:6px;margin:0"><input type="checkbox" id="i_anchor" /> anchor on Base</label>
+        </div>
+        <textarea id="i_subject" class="field" placeholder='subject JSON'>{"name":"Aarav Sharma","credential":"R-Series Conformance"}</textarea>
+        <div class="row"><button class="btn primary mini" id="issue">Issue</button><span class="msg" id="issue_out"></span></div>
+      </div>
+
+      <div class="panel">
+        <h3>Credentials</h3>
+        <div class="row"><input id="q" class="field" placeholder="search…" style="flex:1" /><button class="btn ghost mini" id="search">Search</button></div>
+        <table><thead><tr><th>CID</th><th>Type</th><th>Status</th><th>Actions</th></tr></thead><tbody id="rows"></tbody></table>
+        <p class="msg" id="rows_note"></p>
+      </div>
+    </div>
+  </div>
+</main>
+
+<footer>
+  <div class="wrap">
+    <div><a class="brand" href="index.html"><span class="mark">◈</span> DCS Verify</a>
+      <p class="foot-legal">DCS Verify, a product of DCS AI Technologies L.L.C.</p></div>
+    <div class="cols"><div><h5>Product</h5><a href="verify.html">Verify</a><a href="dashboard.html">Issuer console</a><a href="pricing.html">Pricing</a></div></div>
+  </div>
+</footer>
+
+<script>
+(function(){
+  var $=function(id){return document.getElementById(id);};
+  var API=function(){return $("api").value.replace(/\/$/,"");};
+  function H(){return {"authorization":"Bearer "+$("key").value,"content-type":"application/json"};}
+  function setMsg(t,err){var m=$("msg");if(!m)return;m.textContent=t;m.className=err?"msg err":"msg";}
+  async function api(path,opts){var r=await fetch(API()+path,Object.assign({headers:H()},opts||{}));var j=await r.json().catch(function(){return{};});if(!r.ok)throw new Error(j.error||("HTTP "+r.status));return j;}
+  function pill(s){return '<span class="pill '+s+'">'+s+'</span>';}
+
+  function renderSummary(s){
+    var c=$("cards");c.innerHTML="";
+    [["Issued",s.issued_total],["Verifications today",s.verifications_today],["Revocations",s.revocations],["Suspensions",s.suspensions]].forEach(function(it){
+      var d=document.createElement("div");d.className="stat";d.innerHTML='<div class="n">'+(it[1]==null?"—":it[1])+'</div><div class="l">'+it[0]+'</div>';c.appendChild(d);
+    });
+    var bars=$("bars");bars.innerHTML="";
+    var data=(s.by_credential_type&&Object.keys(s.by_credential_type).length)?s.by_credential_type:{certificate:0,license:0,result:0,document:0};
+    var max=Math.max(1,...Object.values(data).map(Number));
+    Object.keys(data).forEach(function(k){var b=document.createElement("div");b.className="bar";b.style.height=(Number(data[k])/max*100||3)+"%";b.innerHTML='<span>'+k.slice(0,4)+'</span>';bars.appendChild(b);});
+  }
+  function renderRows(items){
+    var t=$("rows");t.innerHTML="";
+    (items||[]).forEach(function(r){
+      var tr=document.createElement("tr");
+      tr.innerHTML='<td>'+(r.cid||"")+'</td><td>'+(r.credential_type||"")+'</td><td>'+pill(r.validity_status||"valid")+'</td>'+
+        '<td class="row"><button class="btn ghost mini" data-act="revoke" data-cid="'+r.cid+'">revoke</button>'+
+        '<button class="btn ghost mini" data-act="suspend" data-cid="'+r.cid+'">suspend</button>'+
+        '<button class="btn ghost mini" data-act="reactivate" data-cid="'+r.cid+'">reactivate</button></td>';
+      t.appendChild(tr);
+    });
+    Array.prototype.forEach.call(t.querySelectorAll("button[data-act]"),function(b){b.addEventListener("click",function(){doStatus(b.getAttribute("data-act"),b.getAttribute("data-cid"));});});
+  }
+  async function doStatus(act,cid){try{await api("/credentials/"+encodeURIComponent(cid)+"/"+act,{method:"POST"});setMsg(act+" ok · "+cid);await loadCreds();}catch(e){setMsg(e.message,true);}}
+  async function loadSummary(){try{renderSummary(await api("/dashboard/summary"));}catch(e){setMsg(e.message,true);}}
+  async function loadCreds(){try{var q=$("q").value?("?q="+encodeURIComponent($("q").value)):"";var j=await api("/dashboard/credentials"+q);renderRows(j.items);$("rows_note").textContent=(j.items&&j.items.length)?"":"No credentials yet.";}catch(e){setMsg(e.message,true);}}
+
+  $("load").addEventListener("click",async function(){
+    if(!$("key").value){$("gatemsg").textContent="enter your dcsl_ key";$("gatemsg").className="msg err";return;}
+    $("gate").style.display="none";$("dash").style.display="block";
+    await loadSummary();await loadCreds();
+  });
+  $("issue").addEventListener("click",async function(){
+    var subject;try{subject=JSON.parse($("i_subject").value);}catch(e){$("issue_out").textContent="subject must be JSON";return;}
+    try{var body={issuer:$("i_issuer").value,credential_type:$("i_type").value,subject:subject,status_enabled:$("i_status").checked,anchor:$("i_anchor").checked};
+      var r=await api("/credentials/issue",{method:"POST",body:JSON.stringify(body)});
+      $("issue_out").innerHTML='issued · '+(r.cid||(r.receipt&&r.receipt.cid)||"");await loadCreds();
+    }catch(e){$("issue_out").textContent=e.message;}
+  });
+  $("search").addEventListener("click",loadCreds);
+})();
+</script>
+</body>
+</html>

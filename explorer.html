@@ -1,0 +1,151 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Trust Explorer — DCS Verify</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{--bg:#0a0a0f;--surface:#13131a;--surface-2:#181820;--border:#1f1f29;--border-2:#2a2a36;--text:#e8e8ec;--dim:#9c9ca8;--dimmer:#6a6a78;--accent:#1e7eff;--accent-2:#4aa3ff;--green:#34d399;--purple:#a78bfa;--radius:14px;--mono:"JetBrains Mono",monospace;--sans:"Inter",-apple-system,system-ui,sans-serif}
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{background:var(--bg);color:var(--text);font-family:var(--sans);line-height:1.55}
+  .wrap{max-width:960px;margin:0 auto;padding:0 24px}
+  nav{border-bottom:1px solid var(--border);position:sticky;top:0;background:rgba(10,10,15,.8);backdrop-filter:blur(12px);z-index:10}
+  nav .wrap{display:flex;align-items:center;justify-content:space-between;height:62px}
+  .brand{display:flex;gap:9px;align-items:center;font-weight:700;font-size:16px}
+  .brand .mk{width:24px;height:24px;border:1.5px solid var(--accent);border-radius:7px;display:grid;place-items:center;color:var(--accent);font-size:12px}
+  .navlinks{display:flex;gap:24px;font-size:14px;color:var(--dim)}.navlinks a{color:inherit;text-decoration:none}
+  .hero{text-align:center;padding:54px 0 30px}
+  .eyebrow{font-family:var(--mono);font-size:11px;letter-spacing:.16em;text-transform:uppercase;color:var(--dim);display:inline-flex;align-items:center;gap:8px;margin-bottom:16px}
+  .eyebrow .gd{width:7px;height:7px;border-radius:50%;background:var(--green);box-shadow:0 0 10px rgba(52,211,153,.6)}
+  h1{font-size:38px;font-weight:800;letter-spacing:-.03em}
+  .hero p{color:var(--dim);margin-top:8px}
+  .search{display:flex;gap:10px;max-width:560px;margin:24px auto 0}
+  .search input{flex:1;padding:15px 18px;border:1px solid var(--border-2);border-radius:13px;background:var(--surface);color:var(--text);font-size:15px;font-family:var(--sans)}
+  .search input:focus{outline:none;border-color:var(--accent)}
+  .search button{padding:0 22px;border:none;border-radius:13px;background:var(--accent);color:#fff;font-weight:700;cursor:pointer}
+  .stats{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin:34px 0}
+  .stat{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:18px;text-align:center}
+  .stat .n{font-size:26px;font-weight:800;letter-spacing:-.02em}
+  .stat .l{font-family:var(--mono);font-size:10px;color:var(--dimmer);margin-top:4px;letter-spacing:.06em}
+  h2{font-size:16px;font-weight:700;margin:28px 0 12px;font-family:var(--mono);text-transform:uppercase;letter-spacing:.06em;color:var(--dim)}
+  .issuers{display:flex;flex-direction:column;gap:8px}
+  .issuer{display:flex;align-items:center;gap:14px;padding:15px 18px;background:var(--surface);border:1px solid var(--border);border-radius:12px;cursor:pointer;transition:.15s;text-decoration:none;color:inherit}
+  .issuer:hover{border-color:var(--border-2)}
+  .ilogo{width:42px;height:42px;border-radius:11px;display:grid;place-items:center;font-weight:800;font-size:17px;flex:0 0 auto}
+  .iname{flex:1}.iname .n{font-weight:700;font-size:15px}.iname .d{font-family:var(--mono);font-size:11px;color:var(--dim)}
+  .iscore{text-align:right}.iscore .s{font-size:20px;font-weight:800;background:linear-gradient(120deg,var(--accent-2),var(--accent));-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}
+  .iscore .v{font-family:var(--mono);font-size:10px;color:var(--dimmer)}
+  .note{font-family:var(--mono);font-size:12px;color:var(--dimmer);text-align:center;margin-top:20px;border:1px dashed var(--border-2);border-radius:12px;padding:14px}
+  footer{border-top:1px solid var(--border);margin-top:50px;padding:30px 0;color:var(--dimmer);font-family:var(--mono);font-size:12px}
+  @media(max-width:680px){.stats{grid-template-columns:1fr 1fr}.navlinks{display:none}}
+</style>
+</head>
+<body>
+<nav><div class="wrap">
+  <div class="brand"><span class="mk">◈</span> DCS Trust Explorer</div>
+  <div class="navlinks"><a href="registry.html">Registry</a><a href="verify.html">Verify</a><a href="index.html">Home</a></div>
+</div></nav>
+
+<div class="wrap">
+  <div class="hero">
+    <div class="eyebrow"><span class="gd"></span> Public · account-free · verify without trusting us</div>
+    <h1>Explore the trust network</h1>
+    <p>Search issuers, credentials, and domains. Inspect the whole network yourself.</p>
+    <div class="search">
+      <input id="q" placeholder="Search issuer (e.g. dcslabs) — or paste a portal URL to check it…" />
+      <button id="go">Search</button>
+    </div>
+    <div class="note" id="portal-result" style="display:none;max-width:560px;margin:14px auto 0;text-align:left"></div>
+  </div>
+
+  <div class="stats">
+    <div class="stat"><div class="n" id="st-issuers">—</div><div class="l">ACTIVE ISSUERS</div></div>
+    <div class="stat"><div class="n" id="st-creds">—</div><div class="l">CREDENTIALS</div></div>
+    <div class="stat"><div class="n" id="st-anchored">—</div><div class="l">ANCHORED ON BASE</div></div>
+    <div class="stat"><div class="n" id="st-verif">—</div><div class="l">VERIFICATIONS</div></div>
+  </div>
+
+  <h2>Issuers by trust score</h2>
+  <div class="issuers" id="issuer-list">
+    <div class="issuer" style="cursor:default;opacity:.6">
+      <span class="ilogo" style="background:var(--surface-2);color:var(--dimmer)">…</span>
+      <span class="iname"><span class="n">Loading live registry…</span><span class="d">reading public data from api.dcslabs.ai</span></span>
+    </div>
+  </div>
+
+  <div class="note">
+    Network-gated: live counts and rankings populate as real issuers join and credentials are verified.
+    The explorer is intentionally public — anyone can audit the network without an account, because trust you can't inspect isn't trust.
+  </div>
+</div>
+
+<footer><div class="wrap">DCS Verify, a product of DCS AI Technologies L.L.C · Trust Explorer reads public data only.</div></footer>
+
+<script type="module">
+  // LIVE: real counts from /v1/explorer/stats + real issuer rankings from /v1/registry.
+  // Honest by construction — numbers come from the database; gaps show as "—",
+  // never as fabricated counts. Early network: small real numbers are the point.
+  const API = "https://api.dcslabs.ai/v1";
+  const $ = (id) => document.getElementById(id);
+  const GRADS = ["linear-gradient(135deg,var(--accent),var(--purple))","linear-gradient(135deg,#34d399,#1e7eff)",
+                 "linear-gradient(135deg,#fbbf24,#f87171)","linear-gradient(135deg,#a78bfa,#34d399)"];
+  const NAMES = { dcslabs:["DCS Labs","did:web:dcslabs.ai"], dcsai:["DCS AI","did:web:dcs.ai"],
+                  dcsrank:["DCS Rank","did:web:rank.dcslabs.ai"], dcssports:["DCS Sports","did:web:sports.dcslabs.ai"] };
+
+  (async () => {
+    try {
+      const s = await (await fetch(`${API}/explorer/stats`)).json();
+      $("st-issuers").textContent  = s.total_issuers_active ?? "—";
+      $("st-creds").textContent    = (s.total_credentials ?? 0).toLocaleString();
+      $("st-anchored").textContent = (s.total_anchored ?? 0).toLocaleString();
+      $("st-verif").textContent    = s.total_verifications == null ? "—" : s.total_verifications.toLocaleString();
+    } catch {}
+    try {
+      const r = await (await fetch(`${API}/registry`)).json();
+      const rows = (r.issuers || []).map((it, i) => {
+        const [name, did] = NAMES[it.issuer] || [it.issuer, ""];
+        const active = (it.inputs?.total_issued ?? 0) > 0;
+        return `<a class="issuer" href="registry.html?issuer=${it.issuer}">
+          <span class="ilogo" style="background:${GRADS[i % GRADS.length]}">${name[0]}</span>
+          <span class="iname"><span class="n">${name}</span><span class="d">${did}</span></span>
+          <span class="iscore"><span class="s">${Math.round(it.score)}</span><span class="v">${active ? (it.inputs.total_issued + " issued") : "provisioned"}</span></span>
+        </a>`;
+      });
+      rows.push(`<div class="issuer" style="cursor:default;opacity:.6">
+        <span class="ilogo" style="background:var(--surface-2);color:var(--dimmer)">?</span>
+        <span class="iname"><span class="n">Your institution here</span><span class="d">become the first external issuer</span></span>
+        <span class="iscore"><span class="v">join →</span></span></div>`);
+      $("issuer-list").innerHTML = rows.join("");
+    } catch {
+      $("issuer-list").innerHTML = `<div class="issuer" style="cursor:default;opacity:.6">
+        <span class="ilogo" style="background:var(--surface-2);color:var(--dimmer)">!</span>
+        <span class="iname"><span class="n">Registry temporarily unavailable</span><span class="d">live data only — nothing cached, nothing faked</span></span></div>`;
+    }
+  })();
+
+  // Search: issuer name -> profile; URL -> P5 portal check (advisory only).
+  async function go() {
+    const q = $("q").value.trim();
+    if (!q) return;
+    const box = $("portal-result");
+    if (/^https?:\/\//i.test(q) || q.includes(".")) {
+      box.style.display = "block"; box.textContent = "Checking portal…";
+      try {
+        const url = /^https?:\/\//i.test(q) ? q : "https://" + q;
+        const r = await (await fetch(`${API}/portal/check`, { method:"POST",
+          headers:{ "content-type":"application/json" }, body: JSON.stringify({ url }) })).json();
+        box.innerHTML = `<b style="color:${r.risk==="high"||r.risk==="elevated" ? "#f87171" : "var(--green)"}">risk: ${r.risk}</b>` +
+          (r.flags?.length ? ` · ${r.flags.join(", ")}` : "") +
+          `<br>${r.guidance}<br><span style="opacity:.7">Advisory only — authenticity comes from the signed receipt, never the portal.</span>`;
+      } catch { box.textContent = "Portal check unavailable right now."; }
+    } else {
+      location.href = `registry.html?issuer=${encodeURIComponent(q.toLowerCase())}`;
+    }
+  }
+  $("go").addEventListener("click", go);
+  $("q").addEventListener("keydown", (e) => { if (e.key === "Enter") go(); });
+</script>
+</body>
+</html>

@@ -1,0 +1,130 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Verify a credential — DCS Verify</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="styles.css" />
+<style>
+  .verify-shell{max-width:720px;margin:0 auto;padding:0 28px 80px}
+  .vcard{background:var(--ink-2);border:1px solid var(--line);border-radius:var(--radius);padding:26px;margin:16px 0}
+  label.lbl{font-family:var(--mono);font-size:12px;color:var(--dim);display:block;margin-bottom:6px;letter-spacing:.03em}
+  .field{width:100%;padding:13px 15px;border:1px solid var(--line);border-radius:10px;background:var(--ink);color:var(--fg);font-family:var(--mono);font-size:13.5px;margin-bottom:14px}
+  .field:focus{outline:none;border-color:var(--blue)}
+  textarea.field{min-height:80px;resize:vertical}
+  .statusline{display:flex;align-items:center;gap:11px;font-size:20px;font-weight:600;font-family:var(--display);margin-bottom:14px}
+  .statusline .dot{width:14px;height:14px;border-radius:50%}
+  .checks{list-style:none}
+  .checks li{display:flex;align-items:center;gap:10px;padding:8px 0;font-size:14.5px;font-family:var(--mono)}
+  .checks .mk{font-weight:700;width:18px;text-align:center}
+  .raw .r{padding:9px 0;border-top:1px solid var(--line);font-family:var(--mono);font-size:12.5px;word-break:break-all}
+  .raw .r:first-child{border-top:none}
+  .raw .k{color:var(--dim);font-size:11px;display:block;margin-bottom:3px;letter-spacing:.03em}
+  .raw a{color:var(--blue)}
+  .timeline{display:flex;gap:0;margin:18px 0 4px;flex-wrap:wrap}
+  .tl{flex:1;min-width:84px;text-align:center;font-size:11.5px;font-family:var(--mono);color:var(--dim);position:relative;padding-top:20px}
+  .tl::before{content:"";position:absolute;top:5px;left:50%;width:9px;height:9px;border-radius:50%;background:var(--line-2);transform:translateX(-50%)}
+  .tl.on{color:var(--green)} .tl.on::before{background:var(--green);box-shadow:0 0 10px var(--green)}
+  .hint{font-family:var(--mono);font-size:12px;color:var(--dim);margin-top:10px}
+</style>
+</head>
+<body>
+<div class="glow g1"></div>
+
+<nav>
+  <div class="wrap">
+    <a class="brand" href="index.html"><span class="mark">◈</span> DCS Verify</a>
+    <div class="navlinks">
+      <a href="index.html#features">Features</a>
+      <a href="index.html#how">How it works</a>
+      <a href="verify.html" style="color:var(--blue)">Verify</a>
+      <a href="explorer.html">Explorer</a>
+      <a href="app.html">App</a>
+      <a href="pricing.html">Pricing</a>
+      <a class="cta" href="dashboard.html">Issuer console</a>
+    </div>
+  </div>
+</nav>
+
+<main>
+  <div class="page-head wrap">
+    <h1>Verify a credential</h1>
+    <p>Paste a credential ID or receipt. We show the result <em>and</em> the raw materials, so you can re-check it yourself — no DCS account needed.</p>
+  </div>
+
+  <div class="verify-shell">
+    <div class="vcard" id="input-card">
+      <label class="lbl" for="cid">Credential ID (CID) or receipt JSON</label>
+      <input id="cid" class="field" placeholder="sha256:… or paste receipt JSON" />
+      <label class="lbl" for="doc">Original document — optional (proves the file matches)</label>
+      <textarea id="doc" class="field" placeholder="paste the original document JSON to check the hash"></textarea>
+      <button class="btn primary" id="go">Verify →</button>
+      <div class="hint">Tip: append <code>/verify.html?cid=sha256:…</code> to deep-link straight to a result.</div>
+    </div>
+    <div id="result"></div>
+  </div>
+</main>
+
+<footer>
+  <div class="wrap">
+    <div><a class="brand" href="index.html"><span class="mark">◈</span> DCS Verify</a>
+      <p class="foot-legal">DCS Verify, a product of DCS AI Technologies L.L.C.</p></div>
+    <div class="cols"><div><h5>Product</h5><a href="verify.html">Verify</a><a href="dashboard.html">Issuer console</a><a href="pricing.html">Pricing</a></div></div>
+  </div>
+</footer>
+
+<script>
+(function(){
+  var API = "https://api.dcslabs.ai/v1";
+  var BASESCAN = "https://basescan.org/tx/";
+  var STATE = {
+    valid:{label:"Valid",color:"var(--green)"}, expired:{label:"Expired",color:"var(--amber)"},
+    suspended:{label:"Suspended",color:"var(--amber)"}, revoked:{label:"Revoked",color:"var(--red)"},
+    renewed:{label:"Renewed — a newer version exists",color:"var(--blue)"}
+  };
+  function mark(ok){ return ok===true?'<span class="mk" style="color:var(--green)">✓</span>':ok===false?'<span class="mk" style="color:var(--red)">✗</span>':'<span class="mk" style="color:var(--dim)">—</span>'; }
+  function tl(r,res){
+    var steps=[["Issued",!!r.issued_at],["Anchored",res.anchor_present],["Verified",res.signature_valid],["Renewed",res.validity_status==="renewed"],["Expired",res.validity_status==="expired"]];
+    return '<div class="timeline">'+steps.map(function(s){return '<div class="tl'+(s[1]?' on':'')+'">'+s[0]+'</div>';}).join("")+'</div>';
+  }
+  function raw(r){
+    function row(k,v,link){ if(v==null||v==="")return ""; var val=link?'<a href="'+link+'" target="_blank" rel="noopener">'+v+' ↗</a>':v; return '<div class="r"><span class="k">'+k+'</span>'+val+'</div>'; }
+    return '<div class="raw">'+row("CID (over unsigned form)",r.cid)+row("Issuer",(r.issuer||"")+" · "+(r.issuer_did||""))+row("Public key",r.pubkey)+row("Canonicalization",r.canonical_alg)+row("Base anchor tx",r.base_tx,r.base_tx?BASESCAN+r.base_tx:null)+(r.status?row("Status list",r.status.status_list_id+" #"+r.status.status_list_index,API+"/status/"+r.status.status_list_id):"")+'</div>';
+  }
+  function renderDoc(r){ var s=r.subject||{}; return Object.keys(s).map(function(k){return "<strong>"+k+":</strong> "+(typeof s[k]==="object"?JSON.stringify(s[k]):s[k]);}).join("<br>")||'<span class="hint">no subject claims</span>'; }
+  function show(r,res){
+    var st=STATE[res.validity_status]||{label:res.validity_status,color:"var(--dim)"};
+    document.getElementById("result").innerHTML=
+      '<div class="vcard"><div class="statusline"><span class="dot" style="background:'+st.color+';box-shadow:0 0 14px '+st.color+'"></span>'+st.label+'</div>'+tl(r,res)+
+        '<ul class="checks">'+
+          '<li>'+mark(res.signature_valid)+'Signature valid (issuer key)</li>'+
+          '<li>'+mark(res.hash_match)+(res.hash_match===null?'Document not supplied (hash not checked)':'Document matches the hash')+'</li>'+
+          '<li>'+mark(res.anchor_present)+'Anchored on Base</li>'+
+        '</ul>'+(res.latest_cid?'<div class="hint">Newer version: '+res.latest_cid+'</div>':'')+'</div>'+
+      '<div class="vcard"><label class="lbl">Credential</label>'+renderDoc(r)+'</div>'+
+      '<div class="vcard"><label class="lbl">Raw materials — re-verify these yourself, no DCS account needed</label>'+raw(r)+'</div>';
+  }
+  function err(m){ document.getElementById("result").innerHTML='<div class="vcard"><div class="statusline"><span class="dot" style="background:var(--red)"></span>'+m+'</div></div>'; }
+  function run(){
+    var input=document.getElementById("cid").value.trim(), docText=document.getElementById("doc").value.trim(), document_=null;
+    if(docText){ try{document_=JSON.parse(docText);}catch(e){return err("Document isn't valid JSON.");} }
+    var body,isReceipt=false;
+    try{ var p=JSON.parse(input); if(p&&p.cid){body={receipt:p,document:document_};isReceipt=true;} }catch(e){}
+    if(!isReceipt) body={cid:input,document:document_};
+    fetch(API+"/credentials/verify",{method:"POST",headers:{"content-type":"application/json"},body:JSON.stringify(body)})
+      .then(function(r){return r.json().then(function(j){return {ok:r.ok,j:j};});})
+      .then(function(res){ if(!res.ok)return err(res.j.error||"Verification failed.");
+        var ref=isReceipt?body.receipt.cid:input;
+        fetch(API+"/credentials/"+encodeURIComponent(ref)).then(function(r){return r.ok?r.json():(isReceipt?body.receipt:null);})
+          .then(function(rc){show(rc||body.receipt||{cid:input,subject:{}},res.j);}).catch(function(){show(isReceipt?body.receipt:{cid:input,subject:{}},res.j);});
+      }).catch(function(){err("Could not reach the verification service.");});
+  }
+  document.getElementById("go").addEventListener("click",run);
+  var qp=new URLSearchParams(location.search).get("cid");
+  if(qp){ document.getElementById("cid").value=decodeURIComponent(qp); run(); }
+})();
+</script>
+</body>
+</html>

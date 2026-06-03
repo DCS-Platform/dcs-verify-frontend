@@ -1,0 +1,140 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Pricing — DCS Verify</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="styles.css" />
+<style>
+  .price-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:18px;margin-top:46px}
+  .tier{background:var(--ink-2);border:1px solid var(--line);border-radius:var(--radius);padding:30px;display:flex;flex-direction:column}
+  .tier.feature{border-color:var(--blue);box-shadow:0 0 40px -12px rgba(79,139,255,.35);position:relative}
+  .tier.feature .tag{position:absolute;top:-11px;left:30px;background:var(--blue);color:var(--ink);font-family:var(--mono);font-size:11px;font-weight:600;padding:3px 11px;border-radius:999px;letter-spacing:.04em}
+  .tier h3{font-family:var(--display);font-size:21px;font-weight:600;margin-bottom:6px}
+  .tier .sub{color:var(--muted);font-size:14px;margin-bottom:20px;min-height:40px}
+  .tier .price{font-family:var(--display);font-size:40px;font-weight:600;letter-spacing:-.02em}
+  .tier .price small{font-size:15px;color:var(--muted);font-weight:400;font-family:var(--sans)}
+  .tier ul{list-style:none;margin:22px 0 26px;flex:1}
+  .tier li{display:flex;gap:10px;padding:7px 0;font-size:14.5px;color:var(--fg)}
+  .tier li::before{content:"✓";color:var(--blue);font-weight:700}
+  .tier li.off{color:var(--dim)}.tier li.off::before{content:"—";color:var(--dim)}
+  .free-band{text-align:center;margin-top:50px;padding:28px;border:1px dashed var(--line-2);border-radius:var(--radius);background:var(--ink-2)}
+  .free-band b{color:var(--blue)}
+  .faq{margin-top:70px}
+  .qa{border-top:1px solid var(--line);padding:22px 0}
+  .qa h4{font-family:var(--display);font-size:17px;font-weight:600;margin-bottom:7px}
+  .qa p{color:var(--muted);font-size:14.5px}
+  @media(max-width:860px){.price-grid{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<div class="glow g1"></div><div class="glow g2"></div>
+
+<nav>
+  <div class="wrap">
+    <a class="brand" href="index.html"><span class="mark">◈</span> DCS Verify</a>
+    <div class="navlinks">
+      <a href="index.html#features">Features</a>
+      <a href="index.html#how">How it works</a>
+      <a href="verify.html">Verify</a>
+      <a href="pricing.html" style="color:var(--blue)">Pricing</a>
+      <a class="cta" href="dashboard.html">Issuer console</a>
+    </div>
+  </div>
+</nav>
+
+<main>
+  <div class="page-head wrap" style="text-align:center">
+    <h1>Pricing</h1>
+    <p style="margin:0 auto">Verification is always free and public. You pay to <em>issue</em> — priced by volume, not locked behind seats.</p>
+  </div>
+
+  <div class="wrap">
+    <div class="price-grid">
+      <div class="tier">
+        <h3>Starter</h3>
+        <div class="sub">For trying it out and small issuers getting their first credentials live.</div>
+        <div class="price">$19<small> / mo</small></div>
+        <ul>
+          <li>Up to 500 issued credentials / mo</li>
+          <li>Signed R+2 receipts + chain</li>
+          <li>Bitstring status (revoke / suspend)</li>
+          <li>Verify Badge embed</li>
+          <li>Public verify page</li>
+          <li>W3C VC export (optional)</li>
+          <li class="off">On-chain anchoring</li>
+          <li class="off">Wallet (OID4VP / VCI)</li>
+        </ul>
+        <a class="btn ghost" href="dashboard.html">Start free trial</a>
+      </div>
+
+      <div class="tier feature">
+        <span class="tag">MOST POPULAR</span>
+        <h3>Growth</h3>
+        <div class="sub">For active issuers — schools, training bodies, businesses issuing at scale.</div>
+        <div class="price">$49<small> / mo</small></div>
+        <ul>
+          <li>Up to 5,000 issued credentials / mo</li>
+          <li>Everything in Starter</li>
+          <li>On-chain anchoring on Base</li>
+          <li>Renewal chains</li>
+          <li>Issuer dashboard + analytics</li>
+          <li>Sectoral profiles (gov / health / finance / edu)</li>
+          <li class="off">Priority support</li>
+        </ul>
+        <a class="btn primary" href="dashboard.html">Get Growth →</a>
+      </div>
+
+      <div class="tier">
+        <h3>Pro</h3>
+        <div class="sub">For high-volume issuers and platforms building on the verify API.</div>
+        <div class="price">$99<small> / mo</small></div>
+        <ul>
+          <li>Up to 25,000 issued credentials / mo</li>
+          <li>Everything in Growth</li>
+          <li>Wallet presentation (OID4VP / VCI)</li>
+          <li>Full Trust Infrastructure API</li>
+          <li>Custom render templates</li>
+          <li>Priority support</li>
+          <li>Volume pricing beyond 25k</li>
+        </ul>
+        <a class="btn ghost" href="dashboard.html">Get Pro</a>
+      </div>
+    </div>
+
+    <div class="free-band">
+      <b>Verifying is always free.</b> &nbsp;Anyone can verify any DCS credential — no account, no fee, no rate-gate on the public verify page or status lists. The badge is free to embed. You only pay to issue.
+    </div>
+
+    <div class="faq">
+      <h2 class="sec" style="font-size:30px">Questions</h2>
+      <div class="qa"><h4>Why is verification free?</h4><p>Verification is the distribution. The more people who can confirm a DCS credential without friction, the more valuable issuing one becomes. Charging to verify would defeat the point.</p></div>
+      <div class="qa"><h4>What does "anchored on Base" mean?</h4><p>An optional step that records the credential's hash on the Base blockchain, so its existence at a point in time is provable on a public ledger (verifiable on Basescan) — not just by us.</p></div>
+      <div class="qa"><h4>Can I verify credentials that aren't from DCS?</h4><p>The roadmap includes verifying W3C VCs, PDF signatures, and Open Badges from any issuer. DCS-issued credentials work today.</p></div>
+      <div class="qa"><h4>Do you take a cut of anything, or show ads?</h4><p>No. Issuers pay a flat monthly tier by volume. Verification is free. There are no ads and we don't sell data.</p></div>
+    </div>
+  </div>
+
+  <section class="cta-block wrap">
+    <h2>Start with verification — it's free.</h2>
+    <p>Check a credential right now, or open the console and issue your first one.</p>
+    <div class="hero-cta" style="justify-content:center">
+      <a class="btn primary" href="verify.html">Verify a credential →</a>
+      <a class="btn ghost" href="dashboard.html">Open issuer console</a>
+    </div>
+  </section>
+</main>
+
+<footer>
+  <div class="wrap">
+    <div><a class="brand" href="index.html"><span class="mark">◈</span> DCS Verify</a>
+      <p class="foot-legal">DCS Verify, a product of DCS AI Technologies L.L.C.</p></div>
+    <div class="cols"><div><h5>Product</h5><a href="verify.html">Verify</a><a href="dashboard.html">Issuer console</a><a href="explorer.html">Explorer</a>
+      <a href="app.html">App</a>
+      <a href="pricing.html">Pricing</a></div></div>
+  </div>
+</footer>
+</body>
+</html>
