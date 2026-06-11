@@ -29,8 +29,24 @@
 </nav>
 
 <main>
+  <!-- BUILD VERIFY RESULT (shown when ?id=<session> is present; the DCS Verify
+       badge on every built site links here). Hidden by default. -->
+  <section class="hero wrap" id="buildVerify" style="display:none">
+    <div class="kicker reveal"><span class="pulse"></span> Independent verification · signed by DCS Labs</div>
+    <h1 class="hero-title reveal" style="font-size:clamp(30px,5vw,52px)">Site <span class="em">verified</span>.</h1>
+    <p class="lede reveal" id="bvLede">Checking the signed receipt for this build…</p>
+    <div class="verify-mock reveal" id="bvCard" style="max-width:680px">
+      <div class="bar"><span class="d" style="background:#ff6b6b"></span><span class="d" style="background:#f0b341"></span><span class="d" style="background:#1e7eff"></span><span style="margin-left:8px" id="bvBarUrl">verify.dcsai.ai</span></div>
+      <div class="body" id="bvBody">
+        <div class="statusline"><span class="dot" style="background:#f0b341"></span> Loading…</div>
+      </div>
+    </div>
+    <div class="hero-cta reveal" id="bvActions" style="margin-top:18px"></div>
+    <div class="hero-note reveal" style="margin-top:14px">no account needed · re-check the signature yourself · <a href="verify.html" style="color:inherit">verify another →</a></div>
+  </section>
+
   <!-- HERO -->
-  <section class="hero wrap">
+  <section class="hero wrap" data-marketing="1">
     <div class="kicker reveal"><span class="pulse"></span> Built on R+2 — the open provenance standard</div>
     <h1 class="hero-title reveal" style="animation-delay:.05s">Verify it <span class="em">yourself</span>.<br>Don't take our word for it.</h1>
     <p class="lede reveal" style="animation-delay:.12s">DCS Verify issues, verifies, and manages credentials as Ed25519-signed receipts — independently checkable without trusting the issuing vendor. Open standard. MIT-licensed. No vapor.</p>
@@ -173,5 +189,53 @@
     </div>
   </div>
 </footer>
+
+<script>
+(function(){
+  var id = new URLSearchParams(location.search).get('id');
+  if(!id) return;                       // no ?id → normal marketing homepage
+  // Build-verify mode: hide marketing sections, show the result panel.
+  var main = document.querySelector('main');
+  Array.prototype.forEach.call(main.children, function(el){
+    if(el.id !== 'buildVerify') el.style.display='none';
+  });
+  var panel = document.getElementById('buildVerify');
+  panel.style.display='';
+  var STORAGE='https://api.dcsai.ai';
+  var shortId = id.length>12 ? id.slice(0,8)+'…' : id;
+  document.getElementById('bvBarUrl').textContent='verify.dcsai.ai/?id='+shortId;
+  function esc(s){return String(s==null?'':s).replace(/[&<>"]/g,function(c){return{'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c];});}
+  function row(k,v,cls){return '<div class="vrow"><span class="lbl">'+k+'</span><span class="val '+(cls||'')+'">'+v+'</span></div>';}
+  function fail(msg){
+    document.getElementById('bvLede').textContent='';
+    document.getElementById('bvBody').innerHTML='<div class="statusline"><span class="dot" style="background:#f0b341"></span> '+esc(msg)+'</div>';
+  }
+  fetch(STORAGE+'/api/storage/verify/'+encodeURIComponent(id))
+    .then(function(r){return r.json();})
+    .then(function(d){
+      if(!d || d.ok!==true){
+        fail((d&&d.message)||'This build’s receipt is still being prepared. Check back shortly.');
+        return;
+      }
+      document.getElementById('bvLede').textContent='This site was produced by DCS’s signed agent pipeline. Every check below is independently re-verifiable.';
+      var sigOk = d.signature && d.signature.valid;
+      var anchored = d.anchor && d.anchor.status==='anchored' && d.anchor.tx;
+      var body = '<div class="statusline"><span class="dot"></span> Valid · signed by '+esc(d.issuer||'DCS Labs')+'</div>';
+      body += row('CID', esc(d.cid||'—'));
+      body += row('Signature', sigOk ? '✓ verified ('+esc(d.signature.algo||'ed25519')+')' : '— not signed', sigOk?'ok':'');
+      body += anchored
+        ? row('Anchor','✓ Base · <a href="'+esc(d.anchor.explorer)+'" target="_blank" rel="noopener" style="color:inherit">'+esc(String(d.anchor.tx).slice(0,8))+'… ↗</a>','ok')
+        : row('Anchor','· Base · anchoring pending');
+      body += row('Status', d.status==='valid' ? '✓ not revoked' : esc(d.status), d.status==='valid'?'ok':'');
+      body += row('Receipts', esc(d.receipt_count||1)+' in chain');
+      document.getElementById('bvBody').innerHTML = body;
+      var acts='';
+      if(d.cert_url) acts += '<a class="btn primary" href="'+esc(d.cert_url)+'" target="_blank" rel="noopener">Download certificate (PDF) ↓</a>';
+      if(anchored)  acts += '<a class="btn ghost" href="'+esc(d.anchor.explorer)+'" target="_blank" rel="noopener">View on Basescan ↗</a>';
+      document.getElementById('bvActions').innerHTML = acts;
+    })
+    .catch(function(){ fail('Could not reach the verification service. Try again in a moment.'); });
+})();
+</script>
 </body>
 </html>
