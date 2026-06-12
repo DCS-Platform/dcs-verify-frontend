@@ -61,23 +61,24 @@
       <div class="did" id="p-did">did:web:dcslabs.ai</div>
       <span class="verified-chip" id="audit-chip" style="display:none"></span>
     </div>
-    <div class="scorebox">
+    <div class="scorebox" id="scorebox">
       <div class="num" id="score">—</div>
       <div class="lbl">TRUST SCORE</div>
     </div>
   </div>
 
-  <div class="grid">
+  <div class="grid" id="stat-grid">
     <div class="stat"><div class="n" id="s-issued">—</div><div class="l">ISSUED</div></div>
     <div class="stat"><div class="n" id="s-verif">—</div><div class="l">VERIFICATIONS</div></div>
     <div class="stat"><div class="n" id="s-revrate">—</div><div class="l">REVOCATION RATE</div></div>
     <div class="stat"><div class="n" id="s-age">—</div><div class="l">ACTIVE</div></div>
   </div>
 
-  <h2>Why this score</h2>
+  <h2 id="why-h">Why this score</h2>
   <div class="breakdown" id="breakdown"></div>
-  <div class="audit-note"><b>Fully auditable.</b> This score is reproducible from the public inputs above — issuer age, verification count, revocation rate, audit status, federation reputation. No hidden weighting. Recompute it yourself from the open formula.</div>
+  <div class="audit-note" id="score-note"><b>Fully auditable.</b> This score is reproducible from the public inputs above — issuer age, verification count, revocation rate, audit status, federation reputation. No hidden weighting. Recompute it yourself from the open formula.</div>
 
+  <div id="cred-types">
   <h2>Supported credential types</h2>
   <div class="grid" style="grid-template-columns:repeat(5,1fr)">
     <div class="stat"><div class="n" style="font-size:14px">Certificate</div><div class="l">R+2</div></div>
@@ -87,6 +88,7 @@
     <div class="stat"><div class="n" style="font-size:14px">Receipt</div><div class="l">R+2</div></div>
   </div>
   <div class="audit-note" style="margin-top:14px">These are the credential types this issuer is provisioned to sign — a capability list, not a count.</div>
+  </div>
 </div>
 
 <footer><div class="wrap">DCS Verify, a product of DCS AI Technologies L.L.C · Trust Registry is public and account-free.</div></footer>
@@ -106,6 +108,13 @@
     for (const id of ["s-issued","s-verif","s-revrate","s-age"]) $(id).textContent = "—";
     $("breakdown").innerHTML = `<div class="brow"><span class="reason" style="padding-left:0">${msg}</span></div>`;
   }
+  // Hide the issuer-only chrome (trust score, issued/verifications/etc cards,
+  // credential-type capability list) — none of it applies when the lookup target
+  // is a receipt or a build session rather than an issuer.
+  function hideIssuerChrome(heading){
+    for (const id of ["scorebox","stat-grid","cred-types","score-note"]) { const e = $(id); if (e) e.style.display = "none"; }
+    const wh = $("why-h"); if (wh) wh.textContent = heading || "Details";
+  }
 
   // A build session is a UUID (verify.dcsai.ai/?id=<session>), NOT an issuer.
   // If someone lands here with a session UUID as ?issuer=, the per-issuer lookup
@@ -122,11 +131,13 @@
     $("p-name").textContent = meta[0]; $("p-did").textContent = meta[1];
     document.querySelector(".logo").textContent = meta[2];
     if (isSessionUuid) {
+      hideIssuerChrome("Build session");
       return honestUnavailable(`"${issuer}" is a build session, not an issuer. To verify a built site, open verify.dcsai.ai/?id=${issuer} — this page is for issuer profiles (e.g. ?issuer=dcslabs).`);
     }
     if (isReceiptCid) {
       $("p-name").textContent = "Receipt CID"; $("p-did").textContent = issuer;
-      return honestUnavailable(`That's a receipt CID, not an issuer. A receipt lives in the network feed, not the issuer registry. See it in the Explorer (verify.dcsai.ai/explorer) or read the raw JSON at gateway.lighthouse.storage/ipfs/${issuer}. To inspect who signed it, open ?issuer=dcslabs.`);
+      hideIssuerChrome("About this receipt");
+      return honestUnavailable(`That's a receipt CID, not an issuer — so it has no issuer stats (trust score, issued, verifications). A receipt lives in the network feed, not the issuer registry. Verify it at verify.dcsai.ai/verify, see it in the Explorer, or read the raw JSON at gateway.lighthouse.storage/ipfs/${issuer}. To inspect who signed it, open ?issuer=dcslabs.`);
     }
     try {
       const r = await fetch(`${API}/registry/${issuer}`, { headers: { "accept":"application/json" } });
