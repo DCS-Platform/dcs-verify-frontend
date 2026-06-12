@@ -226,7 +226,7 @@
       body += row('Signature', sigOk ? '✓ verified ('+esc(d.signature.algo||'ed25519')+')' : '— not signed', sigOk?'ok':'');
       body += anchored
         ? row('Anchor','✓ Base · <a href="'+esc(d.anchor.explorer)+'" target="_blank" rel="noopener" style="color:inherit">'+esc(String(d.anchor.tx).slice(0,8))+'… ↗</a>','ok')
-        : row('Anchor','· Base · anchoring pending');
+        : row('Anchor','· Base · anchoring…');
       body += row('Status', d.status==='valid' ? '✓ not revoked' : esc(d.status), d.status==='valid'?'ok':'');
       body += row('Receipts', esc(d.receipt_count||1)+' in chain');
       document.getElementById('bvBody').innerHTML = body;
