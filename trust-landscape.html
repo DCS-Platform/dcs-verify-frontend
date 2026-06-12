@@ -90,6 +90,21 @@
   .reason.fail .rk{color:var(--red)}
   .reason.win .rk{color:var(--green)}
   @media(max-width:760px){ .reasons{grid-template-columns:1fr} }
+  table.matrix{min-width:560px}
+  table.matrix td.cell-no,table.matrix td.cell-yes{text-align:left;white-space:normal;font-size:14px;line-height:1.45;vertical-align:middle}
+  table.matrix td.cell-no span{color:var(--dim)}
+  table.matrix td.cell-yes span{color:var(--fg);font-weight:500}
+  table.matrix td .mk{vertical-align:-4px;margin-right:7px}
+  .matrix-take{margin-top:22px;font-size:clamp(17px,2.2vw,20px);line-height:1.5;color:var(--fg);max-width:760px}
+  .matrix-take em{color:var(--blue-2);font-style:normal;font-weight:600}
+  .proof-card{margin-top:26px;max-width:520px;border:1px solid var(--line-2);background:var(--ink-2);border-radius:var(--radius);padding:22px 24px}
+  .proof-card .pc-head{font-family:var(--mono);font-size:12.5px;color:var(--muted);display:flex;align-items:center;gap:9px;margin-bottom:16px}
+  .proof-card .pc-dot{width:8px;height:8px;border-radius:50%;background:var(--green);box-shadow:0 0 12px rgba(52,211,153,.7)}
+  .proof-card .pc-grid{display:grid;gap:12px;margin-bottom:18px}
+  .proof-card .pc-grid>div{display:flex;justify-content:space-between;gap:16px;font-size:13.5px}
+  .proof-card .pc-k{font-family:var(--mono);color:var(--dim)}
+  .proof-card .pc-v{font-family:var(--mono);color:var(--fg);text-align:right;word-break:break-all}
+  .proof-card .pc-v.ok{color:var(--green)}
 </style>
 </head>
 <body>
@@ -188,32 +203,35 @@
 
   <!-- CAPABILITY MATRIX -->
   <section class="block wrap" style="padding-top:10px" id="matrix">
-    <div class="eyebrow">Capability matrix</div>
-    <h2 class="sec">What each category actually provides.</h2>
+    <div class="eyebrow">The comparison</div>
+    <h2 class="sec">Most AI agent systems can run.<br>Only DCS can prove what they did.</h2>
     <div class="matrix-wrap">
       <table class="matrix">
         <thead>
           <tr>
-            <th style="text-align:left">Capability</th>
+            <th style="text-align:left">The question that matters</th>
+            <th>AI agent systems today</th>
             <th class="dcs">DCS Verify</th>
-            <th>AI Models</th>
-            <th>Cloud Providers</th>
-            <th>DocuSign</th>
-            <th>VC Platforms</th>
           </tr>
         </thead>
         <tbody id="matrixBody"></tbody>
       </table>
     </div>
-    <div class="legend">
-      <span><span class="mk" data-mk="yes"></span> Core capability</span>
-      <span><span class="mk" data-mk="part"></span> Partial / possible</span>
-      <span><span class="mk" data-mk="no"></span> Out of scope</span>
+    <p class="matrix-take">Every other system can <em>run</em> an agent. Only DCS issues a receipt that <em>proves</em> what it did — and lets anyone check it.</p>
+    <div class="proof-card">
+      <div class="pc-head"><span class="pc-dot"></span> Live receipt · signed by DCS Labs</div>
+      <div class="pc-grid">
+        <div><span class="pc-k">Content ID</span><span class="pc-v">sha256:9f3c1b2a…ddee</span></div>
+        <div><span class="pc-k">Signature</span><span class="pc-v ok">✓ Ed25519 verified</span></div>
+        <div><span class="pc-k">Anchor</span><span class="pc-v ok">✓ Base · 0x4a…91</span></div>
+        <div><span class="pc-k">Status</span><span class="pc-v ok">✓ not revoked</span></div>
+      </div>
+      <a class="btn primary" href="https://verify.dcslabs.ai/verify.html" style="margin-top:4px">Verify this receipt yourself →</a>
     </div>
 
-    <div style="margin-top:46px" class="eyebrow">Primary focus</div>
+    <div style="margin-top:46px" class="eyebrow">Not rivals — context</div>
     <h2 class="sec" style="font-size:clamp(24px,3.2vw,34px)">Everyone here solves a different problem.</h2>
-    <p class="sec-lede">DCS Verify isn't competing with AI models or cloud platforms — it makes the actions they enable independently provable.</p>
+    <p class="sec-lede">The platforms below aren't on the matrix above — they're the layers DCS sits on top of. Each solves a different piece of the stack; none produces a verifiable receipt for what an AI agent actually did. DCS doesn't compete with them — it makes their output provable.</p>
     <div class="focus" id="focusList"></div>
   </section>
 
@@ -273,19 +291,18 @@
     return '<span class="mk"><svg width="16" height="16" viewBox="0 0 20 20"><path d="M6 6l8 8M14 6l-8 8" stroke="#5a5a66" stroke-width="2" fill="none" stroke-linecap="round"/></svg></span>';
   }
   var rows=[
-    ['AI action receipts','yes','no','no','no','no'],
-    ['Public verification','yes','no','part','yes','yes'],
-    ['Receipt chains','yes','no','no','no','part'],
-    ['Blockchain anchoring','yes','no','no','no','part'],
-    ['Certificate generation','yes','no','no','yes','part'],
-    ['Open receipt standard','yes','no','no','no','yes']
+    ['Can you prove what the agent actually did?', 'Logs only — you must trust them', 'A signed receipt for every action'],
+    ['Can anyone verify it without trusting you?', 'No — records stay internal', 'Public, independent verification'],
+    ['Can you tell if the record was altered?', 'No tamper-evidence', 'Hash-chained — tampering breaks it visibly'],
+    ['Is it anchored where you can’t edit it?', 'No', 'Committed on Base mainnet'],
+    ['Would a regulator or court accept it?', 'Take-our-word-for-it', 'Cryptographic proof, not assertion'],
+    ['Can another system read the proof?', 'Siloed / proprietary', 'Open R-Series standard']
   ];
   document.getElementById('matrixBody').innerHTML = rows.map(function(r){
     return '<tr><th>'+r[0]+'</th>'+
-      '<td class="dcs">'+mk(r[1])+'</td><td>'+mk(r[2])+'</td><td>'+mk(r[3])+'</td>'+
-      '<td>'+mk(r[4])+'</td><td>'+mk(r[5])+'</td></tr>';
+      '<td class="cell-no">'+mk('no')+'<span>'+r[1]+'</span></td>'+
+      '<td class="dcs cell-yes">'+mk('yes')+'<span>'+r[2]+'</span></td></tr>';
   }).join('');
-  document.querySelectorAll('.legend .mk').forEach(function(el){ el.outerHTML = mk(el.getAttribute('data-mk')); });
 
   var focus=[
     ['OpenAI','AI models'],['Anthropic','AI models'],
