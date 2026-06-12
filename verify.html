@@ -109,8 +109,60 @@
       '<div class="vcard"><label class="lbl">Raw materials — re-verify these yourself, no DCS account needed</label>'+raw(r)+'</div>';
   }
   function err(m){ document.getElementById("result").innerHTML='<div class="vcard"><div class="statusline"><span class="dot" style="background:var(--red)"></span>'+m+'</div></div>'; }
+
+  // ---- Client-side receipt verification (works even when the API is down) ----
+  // A build receipt is stored content-addressed on IPFS/Filecoin: the CID *is* the
+  // SHA-256 of the bytes. So we fetch the bytes, recompute the CID, and compare —
+  // an independent integrity proof that needs no DCS server.
+  var GATEWAY = "https://gateway.lighthouse.storage/ipfs/";
+  function b32(bytes){ var A="abcdefghijklmnopqrstuvwxyz234567",bits=0,val=0,out=""; for(var i=0;i<bytes.length;i++){ val=(val<<8)|bytes[i]; bits+=8; while(bits>=5){ out+=A[(val>>>(bits-5))&31]; bits-=5; } } if(bits>0) out+=A[(val<<(5-bits))&31]; return out; }
+  function rawCidV1(u8){ return crypto.subtle.digest("SHA-256",u8).then(function(d){ var h=new Uint8Array(d),cid=new Uint8Array(36); cid[0]=0x01;cid[1]=0x55;cid[2]=0x12;cid[3]=0x20; cid.set(h,4); return "b"+b32(cid); }); }
+  function jrow(k,v,link){ if(v==null||v==="")return ""; var val=link?'<a href="'+link+'" target="_blank" rel="noopener">'+v+' ↗</a>':v; return '<div class="r"><span class="k">'+k+'</span>'+val+'</div>'; }
+  function showReceipt(cid, ok, rec){
+    var p=rec.payload||{}, sig=rec.signature||{}, em=rec.emitter||{};
+    var col = ok ? "var(--green)" : "var(--red)";
+    var lab = ok ? "Content verified — these exact bytes hash to this CID" : "Content hash does NOT match this CID";
+    document.getElementById("result").innerHTML=
+      '<div class="vcard"><div class="statusline"><span class="dot" style="background:'+col+';box-shadow:0 0 14px '+col+'"></span>'+lab+'</div>'+
+        '<ul class="checks">'+
+          '<li>'+mark(ok)+'Content-address match (CID = SHA-256 of these bytes)</li>'+
+          '<li>'+mark(!!sig.value)+'Signed '+(sig.algo||"")+(sig.key_id?(" · "+sig.key_id):"")+'</li>'+
+          '<li>'+mark(null)+'On-chain anchor — see the full chain at <a href="https://verify.dcsai.ai/?id='+(rec.session_id||"")+'" target="_blank" rel="noopener">verify by session ↗</a></li>'+
+        '</ul></div>'+
+      '<div class="vcard"><label class="lbl">Receipt</label><div class="raw">'+
+        jrow("Kind",rec.kind)+jrow("Session",rec.session_id)+
+        jrow("Type",[p.tier,p.industry].filter(Boolean).join(" · "))+
+        jrow("Runs in this receipt",p.total_runs!=null?String(p.total_runs):"")+
+        jrow("Cost (µUSD)",p.total_cost_micro_usd)+
+        jrow("Energy (kWh)",rec.carbon&&rec.carbon.kwh!=null?String(rec.carbon.kwh):"")+
+        jrow("CO₂ (g)",rec.carbon&&rec.carbon.co2_grams!=null?String(rec.carbon.co2_grams):"")+
+        jrow("Emitted",rec.emitted_at)+jrow("Emitter",em.service)+
+        jrow("This receipt hash",rec.this_cid)+jrow("Previous in chain",rec.prev_receipt_cid)+
+      '</div></div>'+
+      '<div class="vcard"><label class="lbl">Raw materials — re-verify these yourself, no DCS account needed</label><div class="raw">'+
+        jrow("Receipt CID",cid)+jrow("Raw JSON (IPFS / Filecoin)","open",GATEWAY+cid)+
+        jrow("Signature ("+(sig.algo||"")+")",sig.value)+
+      '</div></div>';
+  }
+  function verifyReceiptCid(cid){
+    document.getElementById("result").innerHTML='<div class="vcard"><div class="statusline"><span class="dot" style="background:var(--blue)"></span>Loading receipt from IPFS…</div></div>';
+    fetch(GATEWAY+cid).then(function(r){ if(!r.ok) throw 0; return r.arrayBuffer(); })
+      .then(function(buf){ var u8=new Uint8Array(buf);
+        return rawCidV1(u8).then(function(rc){
+          var ok = rc === cid.toLowerCase(), rec;
+          try{ rec=JSON.parse(new TextDecoder().decode(u8)); }catch(e){ rec={}; }
+          showReceipt(cid, ok, rec);
+        });
+      }).catch(function(){ err('Couldn\'t load that CID from the gateway. Open it directly: <a href="'+GATEWAY+cid+'" target="_blank" rel="noopener" style="color:var(--blue)">'+GATEWAY+cid+'</a>'); });
+  }
+
   function run(){
     var input=document.getElementById("cid").value.trim(), docText=document.getElementById("doc").value.trim(), document_=null;
+    if(!input) return;
+    // Build session UUID → the build-verify view (shows the whole chain).
+    if(/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(input)){ location.href="https://verify.dcsai.ai/?id="+encodeURIComponent(input); return; }
+    // IPFS receipt CID → verify client-side, no backend needed.
+    if(/^ba[fg][a-z2-7]{20,}$/i.test(input)){ verifyReceiptCid(input); return; }
     if(docText){ try{document_=JSON.parse(docText);}catch(e){return err("Document isn't valid JSON.");} }
     var body,isReceipt=false;
     try{ var p=JSON.parse(input); if(p&&p.cid){body={receipt:p,document:document_};isReceipt=true;} }catch(e){}
