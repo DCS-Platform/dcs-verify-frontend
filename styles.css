@@ -60,7 +60,7 @@ body::before{
 main,header,footer{position:relative;z-index:1}
 
 a{color:inherit;text-decoration:none}
-.wrap{max-width:1140px;margin:0 auto;padding:0 28px}
+.wrap{max-width:1480px;margin:0 auto;padding:0 28px}
 
 /* ---- nav ---- */
 nav{
