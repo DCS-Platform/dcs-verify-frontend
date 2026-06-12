@@ -207,35 +207,56 @@
   document.getElementById('bvBarUrl').textContent='verify.dcsai.ai/?id='+shortId;
   function esc(s){return String(s==null?'':s).replace(/[&<>"]/g,function(c){return{'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c];});}
   function row(k,v,cls){return '<div class="vrow"><span class="lbl">'+k+'</span><span class="val '+(cls||'')+'">'+v+'</span></div>';}
-  function fail(msg){
+  function amber(msg){
     document.getElementById('bvLede').textContent='';
     document.getElementById('bvBody').innerHTML='<div class="statusline"><span class="dot" style="background:#f0b341"></span> '+esc(msg)+'</div>';
   }
-  fetch(STORAGE+'/api/storage/verify/'+encodeURIComponent(id))
-    .then(function(r){return r.json();})
-    .then(function(d){
-      if(!d || d.ok!==true){
-        fail((d&&d.message)||'This build’s receipt is still being prepared. Check back shortly.');
-        return;
-      }
-      document.getElementById('bvLede').textContent='This site was produced by DCS’s signed agent pipeline. Every check below is independently re-verifiable.';
-      var sigOk = d.signature && d.signature.valid;
-      var anchored = d.anchor && d.anchor.status==='anchored' && d.anchor.tx;
-      var body = '<div class="statusline"><span class="dot"></span> Valid · signed by '+esc(d.issuer||'DCS Labs')+'</div>';
-      body += row('CID', esc(d.cid||'—'));
-      body += row('Signature', sigOk ? '✓ verified ('+esc(d.signature.algo||'ed25519')+')' : '— not signed', sigOk?'ok':'');
-      body += anchored
-        ? row('Anchor','✓ Base · <a href="'+esc(d.anchor.explorer)+'" target="_blank" rel="noopener" style="color:inherit">'+esc(String(d.anchor.tx).slice(0,8))+'… ↗</a>','ok')
-        : row('Anchor','· Base · anchoring…');
-      body += row('Status', d.status==='valid' ? '✓ not revoked' : esc(d.status), d.status==='valid'?'ok':'');
-      body += row('Receipts', esc(d.receipt_count||1)+' in chain');
-      document.getElementById('bvBody').innerHTML = body;
-      var acts='';
-      if(d.cert_url) acts += '<a class="btn primary" href="'+esc(d.cert_url)+'" target="_blank" rel="noopener">Download certificate (PDF) ↓</a>';
-      if(anchored)  acts += '<a class="btn ghost" href="'+esc(d.anchor.explorer)+'" target="_blank" rel="noopener">View on Basescan ↗</a>';
-      document.getElementById('bvActions').innerHTML = acts;
-    })
-    .catch(function(){ fail('Could not reach the verification service. Try again in a moment.'); });
+  function failRetry(msg){
+    document.getElementById('bvLede').textContent='';
+    document.getElementById('bvBody').innerHTML='<div class="statusline"><span class="dot" style="background:#f0b341"></span> '+esc(msg)+'</div>'+
+      '<div style="margin-top:14px"><button id="bvRetry" class="btn ghost" style="cursor:pointer">↻ Retry</button></div>';
+    var b=document.getElementById('bvRetry');
+    if(b) b.onclick=function(){ amber('Verifying…'); load(1); };
+  }
+  function render(d){
+    document.getElementById('bvLede').textContent='This site was produced by DCS’s signed agent pipeline. Every check below is independently re-verifiable.';
+    var sigOk = d.signature && d.signature.valid;
+    var anchored = d.anchor && d.anchor.status==='anchored' && d.anchor.tx;
+    var body = '<div class="statusline"><span class="dot"></span> Valid · signed by '+esc(d.issuer||'DCS Labs')+'</div>';
+    body += row('CID', esc(d.cid||'—'));
+    body += row('Signature', sigOk ? '✓ verified ('+esc(d.signature.algo||'ed25519')+')' : '— not signed', sigOk?'ok':'');
+    body += anchored
+      ? row('Anchor','✓ Base · <a href="'+esc(d.anchor.explorer)+'" target="_blank" rel="noopener" style="color:inherit">'+esc(String(d.anchor.tx).slice(0,8))+'… ↗</a>','ok')
+      : row('Anchor','· Base · anchoring…');
+    body += row('Status', d.status==='valid' ? '✓ not revoked' : esc(d.status), d.status==='valid'?'ok':'');
+    body += row('Receipts', esc(d.receipt_count||1)+' in chain');
+    document.getElementById('bvBody').innerHTML = body;
+    var acts='';
+    if(d.cert_url) acts += '<a class="btn primary" href="'+esc(d.cert_url)+'" target="_blank" rel="noopener">Download certificate (PDF) ↓</a>';
+    if(anchored)  acts += '<a class="btn ghost" href="'+esc(d.anchor.explorer)+'" target="_blank" rel="noopener">View on Basescan ↗</a>';
+    document.getElementById('bvActions').innerHTML = acts;
+  }
+  // Resilient load: a cold start / 5xx / network blip is transient, NOT "no receipt".
+  // Retry up to 3x with backoff before settling on an honest message — so a real
+  // receipt never reads as "still being prepared" because of a one-off hiccup.
+  function load(attempt){
+    attempt = attempt || 1;
+    fetch(STORAGE+'/api/storage/verify/'+encodeURIComponent(id))
+      .then(function(r){ if(!r.ok) throw new Error('HTTP '+r.status); return r.json(); })
+      .then(function(d){
+        if(d && d.ok===true){ render(d); return; }
+        // API answered cleanly but has no receipt (yet). Could be mid-ingest —
+        // retry a couple times, then show the prepared message.
+        if(attempt < 3){ setTimeout(function(){ load(attempt+1); }, 1500*attempt); return; }
+        amber((d&&d.message)||'This build’s receipt is still being prepared. Check back shortly.');
+      })
+      .catch(function(){
+        // Transient transport error — retry, then offer a manual retry button.
+        if(attempt < 3){ setTimeout(function(){ load(attempt+1); }, 1200*attempt); return; }
+        failRetry('Couldn’t reach the verification service — check your connection.');
+      });
+  }
+  load(1);
 })();
 </script>
 </body>
