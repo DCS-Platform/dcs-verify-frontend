@@ -253,6 +253,47 @@
   </section>
 </main>
 
+<style id="dcs-help-css">
+.dcs-help{max-width:860px;margin:60px auto 0;padding:0 24px}
+.dcs-help .ttl{font-family:var(--mono,monospace);font-size:11px;letter-spacing:.07em;text-transform:uppercase;color:#6a6a78;margin:34px 0 10px;display:flex;align-items:center;gap:8px}
+.dcs-help .ttl::before{content:"";width:6px;height:6px;border-radius:50%;background:#34d399;box-shadow:0 0 10px rgba(52,211,153,.6)}
+.dcs-help h2{font-family:var(--sans,Inter,sans-serif);font-size:25px;font-weight:700;color:#e8e8ec;margin:0 0 6px;letter-spacing:-.02em}
+.dcs-help .sub{font-family:var(--mono,monospace);font-size:12.5px;color:#9c9ca8;margin:0 0 20px;line-height:1.6}
+.dcs-help .ht{display:grid;gap:12px;margin-bottom:6px}
+.dcs-help .htc{background:#13131a;border:1px solid #1f1f29;border-radius:12px;padding:16px 18px}
+.dcs-help .htc .lab{font-family:var(--mono,monospace);font-size:11px;letter-spacing:.03em;color:#4aa3ff;text-transform:uppercase;margin-bottom:8px}
+.dcs-help .htc code{font-family:var(--mono,monospace);font-size:12px;color:#e8e8ec;background:#0a0a0f;border:1px solid #1f1f29;border-radius:6px;padding:3px 8px;word-break:break-all;display:inline-block;max-width:100%}
+.dcs-help .htc p{font-family:var(--sans,Inter,sans-serif);font-size:13.5px;color:#c7c7d1;line-height:1.6;margin:10px 0 0}
+.dcs-help .htc p b{color:#e8e8ec}
+.dcs-help .out{color:#34d399;font-weight:600} .dcs-help .errk{color:#fbbf24;font-family:var(--mono,monospace);font-size:12.5px}
+.dcs-help details{background:#13131a;border:1px solid #1f1f29;border-radius:10px;margin:8px 0;overflow:hidden}
+.dcs-help details summary{cursor:pointer;padding:15px 18px;font-family:var(--sans,Inter,sans-serif);font-size:14.5px;font-weight:600;color:#e8e8ec;list-style:none;display:flex;justify-content:space-between;align-items:center;gap:12px}
+.dcs-help details summary::-webkit-details-marker{display:none}
+.dcs-help details summary::after{content:"+";color:#6a6a78;font-size:20px;font-family:var(--mono,monospace);line-height:1}
+.dcs-help details[open] summary::after{content:"\2013"}
+.dcs-help details[open] summary{border-bottom:1px solid #1f1f29}
+.dcs-help details .a{padding:14px 18px 17px;font-family:var(--sans,Inter,sans-serif);font-size:13.5px;color:#c7c7d1;line-height:1.65}
+.dcs-help details .a code{font-family:var(--mono,monospace);font-size:12px;color:#e8e8ec;background:#0a0a0f;border:1px solid #1f1f29;border-radius:5px;padding:1px 6px;word-break:break-all}
+.dcs-help details .a b{color:#e8e8ec}
+</style>
+<section class="dcs-help" id="faq">
+  <div class="ttl">FAQ</div>
+  <h2>Frequently asked questions</h2>
+  <p class="sub">Receipts, chains, IDs, and how independent verification works.</p>
+  <details><summary>What is a DCS receipt?</summary><div class="a">A receipt is a cryptographic record of one AI action &mdash; what happened, when, which system did it, and a fingerprint of the result. Unlike a log, it's <b>signed</b> and <b>content-addressed</b>, so anyone can verify it later <b>without trusting us</b>.</div></details>
+  <details><summary>Session ID vs Receipt CID vs hash &mdash; what's the difference?</summary><div class="a">A <b>Session ID</b> (a UUID) identifies one build, which contains many receipts. A <b>Receipt CID</b> (<code>bafk&hellip;</code>) is the IPFS address of a single receipt. A <b>sha256:&hellip;</b> value is a content fingerprint. Rule of thumb: paste a <b>Session ID</b> to verify a whole build, a <b>CID</b> to verify one receipt.</div></details>
+  <details><summary>How many receipts does a build create?</summary><div class="a">One per recorded action (run), plus a few lifecycle receipts (<code>build_complete</code>, <code>memory_write</code>). So 10 runs &asymp; 11&ndash;12 in chain, and 50 runs &asymp; 52&ndash;53 in chain. The count tracks <b>actions</b>, not agents &mdash; one agent can take several actions.</div></details>
+  <details><summary>What does &ldquo;N in chain&rdquo; mean?</summary><div class="a">The number of receipts linked together for that build. Each receipt carries the hash of the one before it (<code>prev_receipt_cid</code>), forming a tamper-evident chain &mdash; change any receipt and every later link breaks.</div></details>
+  <details><summary>Do I need an account to verify?</summary><div class="a">No. The Verify, Explorer, and Registry pages are fully public. Anyone can paste an ID and re-check the result &mdash; that's the whole point: trust you can't inspect isn't trust.</div></details>
+  <details><summary>What does &ldquo;anchored on Base&rdquo; mean?</summary><div class="a">The chain's Merkle root is written to <b>Base mainnet</b> (an Ethereum L2) in a single transaction. That timestamps the receipts on a public blockchain and proves they existed at that moment and haven't changed since.</div></details>
+  <details><summary>Can I verify a receipt without DCS at all?</summary><div class="a">Yes. Fetch the JSON from IPFS (<code>gateway.lighthouse.storage/ipfs/&lt;cid&gt;</code>), recompute its SHA-256 to confirm it matches the CID, and check the Ed25519 signature against the issuer's published key. The reference verifier is open &mdash; our servers are a convenience, not a dependency.</div></details>
+  <details><summary>What happens if someone edits a receipt?</summary><div class="a">Its content hash changes, so it no longer matches its CID, and the chain link from the next receipt breaks. Verification fails immediately and visibly. Tampering can't be hidden.</div></details>
+  <details><summary>Where do I find my Session ID or CID?</summary><div class="a">In your dashboard's transaction history (the <b>Project / build</b> column links each build), on the build's <b>certificate PDF</b>, or in the <b>Explorer</b> network feed. Any &ldquo;View on IPFS&rdquo; link is a CID.</div></details>
+  <details><summary>Why does something say &ldquo;temporarily unavailable&rdquo;?</summary><div class="a">The issuer registry/credential API may be redeploying. Receipt verification by <b>CID</b> still works independently, because it's content-addressed and checked in your browser. Issuer trust scores return once that service is back.</div></details>
+  <details><summary>Is my private content exposed in a receipt?</summary><div class="a">No. A receipt holds action <b>metadata</b> &mdash; kind, timestamp, hashes, cost, energy &mdash; not the underlying private data. It carries only what's needed to prove the action happened, nothing more.</div></details>
+  <details><summary>Which standards does this use?</summary><div class="a">The open <b>R-Series</b>: <b>R+2</b> signed receipts (Ed25519 + RFC&nbsp;8785 JCS canonicalization + SHA-256), <b>R+3</b> post-quantum hybrid co-signatures, and <b>R+4</b> zero-knowledge proofs. See the R-Series standard on dcslabs.ai.</div></details>
+</section>
+
 <footer>
   <div class="wrap">
     <div>
