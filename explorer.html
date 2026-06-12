@@ -49,7 +49,17 @@
   .stats.secondary{margin-top:0}
   .stats.secondary .stat{background:transparent;border-style:dashed}
   .stats.secondary .stat .n{font-size:21px;color:var(--dim)}
-  @media(max-width:680px){.stats{grid-template-columns:1fr 1fr}.navlinks{display:none}}
+  .byproduct{display:flex;flex-wrap:wrap;gap:8px}
+  .bp{display:inline-flex;align-items:center;gap:8px;background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:8px 14px;font-size:13px}
+  .bp .c{font-variant-numeric:tabular-nums;font-weight:700;color:var(--accent-2)}
+  .bp .k{color:var(--dim);font-family:var(--mono);font-size:11px}
+  .recent{display:flex;flex-direction:column;gap:6px}
+  .rrow{display:grid;grid-template-columns:120px 1fr 170px 100px;gap:12px;align-items:center;background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:10px 14px;font-size:12.5px}
+  .rrow .t{font-family:var(--mono);color:var(--dim);font-size:11px}
+  .rrow .k{font-weight:600}
+  .rrow .src{font-family:var(--mono);color:var(--dim);font-size:11px}
+  .rrow a{font-family:var(--mono);font-size:11px;color:var(--accent-2)}
+  @media(max-width:680px){.stats{grid-template-columns:1fr 1fr}.navlinks{display:none}.rrow{grid-template-columns:1fr 1fr}}
 </style>
 </head>
 <body>
@@ -88,6 +98,12 @@
     <div class="stat"><div class="n" id="st-verif">—</div><div class="l">VERIFICATIONS</div></div>
   </div>
 
+  <div class="seg-label">Receipts by product · live</div>
+  <div id="by-product" class="byproduct">Loading…</div>
+
+  <div class="seg-label" style="display:flex;align-items:center;gap:8px"><span class="gd" style="width:7px;height:7px;border-radius:50%;background:var(--green);box-shadow:0 0 10px rgba(52,211,153,.6)"></span> Recent network activity</div>
+  <div id="recent" class="recent">Loading…</div>
+
   <h2>Issuers by trust score</h2>
   <div class="issuers" id="issuer-list">
     <div class="issuer" style="cursor:default;opacity:.6">
@@ -117,15 +133,35 @@
 
   const STORAGE = "https://api.dcsai.ai";              // build / agent receipt network
   const fmt = (n) => (n == null ? "—" : Number(n).toLocaleString());
+  function timeAgo(iso){ if(!iso) return "—"; const s=Math.max(0,(Date.now()-new Date(iso).getTime())/1000); if(s<60)return Math.floor(s)+"s ago"; if(s<3600)return Math.floor(s/60)+"m ago"; if(s<86400)return Math.floor(s/3600)+"h ago"; return Math.floor(s/86400)+"d ago"; }
+  function esc(x){ return String(x==null?"":x).replace(/[&<>]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;"}[c])); }
+  function renderByProduct(map){
+    const ent=Object.entries(map||{}); const el=$("by-product"); if(!el) return;
+    if(!ent.length){ el.textContent="No receipts yet."; return; }
+    el.innerHTML = ent.sort((a,b)=>b[1]-a[1]).map(([k,v])=>`<span class="bp"><span class="c">${Number(v).toLocaleString()}</span><span class="k">${esc(k)}</span></span>`).join("");
+  }
+  function renderRecent(rows){
+    const el=$("recent"); if(!el) return;
+    if(!rows||!rows.length){ el.textContent="Waiting for live activity…"; return; }
+    el.innerHTML = rows.slice(0,15).map(r=>{
+      const proof = r.anchor_tx ? `<a href="https://basescan.org/tx/${esc(r.anchor_tx)}" target="_blank" rel="noopener">Basescan ↗</a>`
+                  : (r.cid ? `<a href="https://gateway.lighthouse.storage/ipfs/${esc(r.cid)}" target="_blank" rel="noopener">IPFS ↗</a>` : "—");
+      return `<div class="rrow"><span class="t">${timeAgo(r.ts)}</span><span class="k">${esc(r.kind||"receipt")}</span><span class="src">${esc(r.product||"dcs")}</span><span>${proof}</span></div>`;
+    }).join("");
+  }
   (async () => {
     // Merge both networks: live signed build receipts (storage) + credentials (registry).
     let st = {}; try { st = await (await fetch(`${STORAGE}/api/storage/stats/public`)).json(); } catch {}
+    let rec = {}; try { rec = await (await fetch(`${STORAGE}/api/storage/stats/public/recent?limit=25`)).json(); } catch {}
     let s  = {}; try { s  = await (await fetch(`${API}/explorer/stats`)).json(); } catch {}
+    const sd = st.stats || st;            // storage nests its rollup under .stats
     // Signed receipt network — real, live numbers from storage_receipts.
-    $("st-receipts").textContent = fmt(st.receipt_count);
-    $("st-sessions").textContent = fmt(st.session_count);
-    $("st-energy").textContent   = st.total_kwh   == null ? "—" : Number(st.total_kwh).toFixed(4);
-    $("st-carbon").textContent   = st.total_co2_g == null ? "—" : Number(st.total_co2_g).toFixed(2);
+    $("st-receipts").textContent = fmt(sd.receipt_count);
+    $("st-sessions").textContent = fmt(sd.session_count);
+    $("st-energy").textContent   = sd.total_kwh   == null ? "—" : Number(sd.total_kwh).toFixed(4);
+    $("st-carbon").textContent   = sd.total_co2_g == null ? "—" : Number(sd.total_co2_g).toFixed(2);
+    renderByProduct(sd.by_emitter || sd.by_kind || {});
+    renderRecent(rec.recent || []);
     // Credential network.
     $("st-issuers").textContent  = s.total_issuers_active ?? "—";
     $("st-creds").textContent    = fmt(s.total_credentials ?? 0);
