@@ -1,0 +1,12 @@
+# Cache policy (Cloudflare Pages / Netlify).
+# sw.js must NEVER be cached — browsers re-check it every visit, so a wedged or
+# stale worker gets replaced immediately (prevents the stale-cache death spiral).
+/sw.js
+  Cache-Control: no-store
+
+# HTML always revalidates so deploys show up instantly.
+/*.html
+  Cache-Control: no-cache
+
+/
+  Cache-Control: no-cache

@@ -1,0 +1,126 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Privacy Policy — DCS Verify</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{--bg:#0a0a0f;--surface:#13131a;--border:#1f1f29;--border-2:#2a2a36;--text:#e8e8ec;--dim:#9c9ca8;--dimmer:#6a6a78;--accent:#1e7eff;--accent-2:#4aa3ff;--green:#34d399;--mono:"JetBrains Mono",monospace;--sans:"Inter",-apple-system,system-ui,sans-serif}
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{background:var(--bg);color:var(--text);font-family:var(--sans);line-height:1.65}
+  .wrap{max-width:760px;margin:0 auto;padding:0 24px}
+  nav{border-bottom:1px solid var(--border);position:sticky;top:0;background:rgba(10,10,15,.8);backdrop-filter:blur(12px);z-index:10}
+  nav .wrap{display:flex;align-items:center;justify-content:space-between;height:62px}
+  .brand{display:flex;gap:9px;align-items:center;font-weight:700;font-size:16px}
+  .brand .mk{width:24px;height:24px;border:1.5px solid var(--accent);border-radius:7px;display:grid;place-items:center;color:var(--accent);font-size:12px}
+  .navlinks{display:flex;gap:24px;font-size:14px;color:var(--dim)}.navlinks a{color:inherit;text-decoration:none}
+  h1{font-size:30px;font-weight:800;letter-spacing:-.02em;margin:46px 0 6px}
+  .meta{font-family:var(--mono);font-size:11.5px;color:var(--dimmer);margin-bottom:30px}
+  h2{font-size:17px;font-weight:700;margin:30px 0 10px;color:var(--accent-2)}
+  p,li{color:var(--dim);font-size:14.5px;margin-bottom:10px}
+  ul{padding-left:22px;margin-bottom:12px}
+  b{color:var(--text)}
+  table{width:100%;border-collapse:collapse;margin:14px 0;font-size:13px}
+  th,td{text-align:left;padding:9px 10px;border-bottom:1px solid var(--border);color:var(--dim);vertical-align:top}
+  th{font-family:var(--mono);font-size:10.5px;letter-spacing:.08em;text-transform:uppercase;color:var(--dimmer)}
+  .note{font-family:var(--mono);font-size:11.5px;color:var(--dim);background:var(--surface);border:1px dashed var(--border-2);border-radius:12px;padding:14px 16px;margin:18px 0}
+  footer{border-top:1px solid var(--border);margin-top:54px;padding:28px 0;color:var(--dimmer);font-family:var(--mono);font-size:12px}
+  footer a{color:var(--dim);text-decoration:none}
+  @media(max-width:680px){.navlinks{display:none}}
+</style>
+<link rel="manifest" href="manifest.json">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<link rel="icon" href="favicon-32.png" sizes="32x32" type="image/png">
+<meta name="theme-color" content="#0a0a0f">
+<!-- BEGIN R4-2 SEO (managed; regenerate via meta-build.py) -->
+<meta name="description" content="DCS Verify Privacy Policy.">
+<link rel="canonical" href="https://verify.dcsai.ai/privacy.html">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="DCS Verify">
+<meta property="og:title" content="Privacy Policy — DCS Verify">
+<meta property="og:description" content="DCS Verify Privacy Policy.">
+<meta property="og:url" content="https://verify.dcsai.ai/privacy.html">
+<meta property="og:image" content="https://verify.dcslabs.ai/icon-512.png">
+<meta property="og:locale" content="en_US">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:site" content="@DCSAILabs">
+<meta name="twitter:title" content="Privacy Policy — DCS Verify">
+<meta name="twitter:description" content="DCS Verify Privacy Policy.">
+<meta name="twitter:image" content="https://verify.dcslabs.ai/icon-512.png">
+<!-- END R4-2 SEO -->
+<style id="a11y-deep">.skip-link{position:absolute;left:-9999px;top:0;z-index:1000;background:#1e7eff;color:#fff;padding:10px 16px;border-radius:0 0 8px 0;font:600 14px system-ui,sans-serif;text-decoration:none}.skip-link:focus{left:0}:focus-visible{outline:2px solid #4aa3ff;outline-offset:2px;border-radius:3px}</style>
+</head>
+<body>
+<nav><div class="wrap">
+  <a class="brand" href="index.html" style="text-decoration:none;color:inherit"><span class="mk">◆</span> DCS Verify</a>
+  <div class="navlinks"><a href="verify.html">Verify</a><a href="explorer.html">Explorer</a><a href="registry.html">Registry</a><a href="trust-landscape.html">Trust Landscape</a><a href="index.html">Home</a></div>
+</div></nav>
+
+
+<span id="main-content" tabindex="-1"></span>
+<div class="wrap">
+  <h1>Privacy Policy</h1>
+  <div class="meta">Effective: 4 June 2026 · DCS Verify, a product of DCS AI Technologies L.L.C, Dubai, UAE</div>
+
+  <p>This policy explains what we collect, what we deliberately do not collect, and how the unusual parts of a cryptographic verification system affect your data. It is written to be as honest as the product.</p>
+
+  <h2>1. What we collect</h2>
+  <table>
+    <tr><th>Who you are</th><th>What we store</th><th>Why</th></tr>
+    <tr><td><b>Verifier</b> (checking a credential)</td><td>Nothing identifying. We count verification events (credential ID, issuer, result, timestamp) — <b>never who verified</b>. No account, no cookies required, standard server logs only (IP, briefly, for abuse prevention).</td><td>Network statistics, trust-score volume</td></tr>
+    <tr><td><b>API key holder</b></td><td>Your email and a SHA-256 hash of your key (never the key itself).</td><td>Authentication, abuse prevention, contact</td></tr>
+    <tr><td><b>Issuer</b></td><td>Organisation name, issuer ID, DID, contact email, sector profile.</td><td>The public registry lists real, accountable issuers</td></tr>
+    <tr><td><b>Credential subject</b></td><td>The claims the issuer chose to include (e.g. a name, a degree title), stored verbatim inside the signed receipt.</td><td>That is the credential — it cannot work otherwise</td></tr>
+  </table>
+
+  <h2>2. Roles: the issuer chooses what goes in a credential</h2>
+  <p>For personal data inside credential subjects, the <b>issuer decides what to include</b> and must have a lawful basis (such as the subject's consent) to do so. We process that data to provide the service: signing, storing, and serving receipts for verification. If you believe a credential about you was issued without your consent, contact the issuer first; you may also contact us and we will review.</p>
+
+  <h2>3. What is public by design</h2>
+  <ul>
+    <li><b>The registry</b> — issuer organisations, their DIDs, and their trust-score inputs (issuance counts, revocation rates). No personal data of credential subjects.</li>
+    <li><b>Status lists</b> — anonymous bitstrings. Reading one reveals nothing about any person, only that bit N of list L is set.</li>
+    <li><b>Network statistics</b> — aggregate counts only.</li>
+    <li><b>Receipts</b> — retrievable by their ID or content hash (unguessable values). Anyone holding a receipt or its CID can fetch and verify it; that is the product. Do not put data in a credential subject that should not be visible to whomever the credential is shown.</li>
+  </ul>
+
+  <h2>4. The blockchain part — what is and is not on-chain</h2>
+  <div class="note"><b>Only hashes go on-chain.</b> An anchor is a content hash (CID) written into a Base mainnet transaction. A hash is not reversible into the credential's contents and contains no readable personal data. On-chain data is permanent and cannot be deleted by anyone, including us. The credential contents themselves stay in our database and in copies held by the issuer and holder.</div>
+
+  <h2>5. Deletion, revocation, and honesty about limits</h2>
+  <ul>
+    <li><b>Revocation</b> marks a credential invalid for everyone, immediately, via the public status list. This is usually what people actually want.</li>
+    <li><b>Database deletion</b> — issuers can request deletion of a credential's stored subject data; verification of that receipt from our store then ceases to work. We cannot delete copies of receipts that holders or third parties already have, and we cannot delete on-chain hashes.</li>
+    <li><b>Account deletion</b> — email us and we delete your email and revoke your keys, except records we must keep for legal or security reasons.</li>
+  </ul>
+
+  <h2>6. What we deliberately do not do</h2>
+  <ul>
+    <li>We do not record who verifies a credential — verification is anonymous by design.</li>
+    <li>We do not sell or share personal data with advertisers. No advertising, no tracking pixels.</li>
+    <li>We do not use credential contents to train models.</li>
+    <li>Reputation and fraud signals are aggregate-only — never an individual's verification trail.</li>
+  </ul>
+
+  <h2>7. Where data lives and who touches it</h2>
+  <p>Hosting and processing use: Railway (API hosting), Supabase (database), Cloudflare (website/CDN), and the public Base network (anchors). Each processes data on our instructions per their own terms. Data may be processed outside your country; we choose providers with strong security practices (encryption in transit and at rest, access controls).</p>
+
+  <h2>8. Security</h2>
+  <p>Signing keys exist only as server environment variables, never in code or the database. API keys are stored hashed. Status lists, receipts, and scores are verifiable by anyone, which means tampering is detectable by anyone — security through verifiability, not secrecy. Report vulnerabilities via dcslabs.ai.</p>
+
+  <h2>9. Your rights</h2>
+  <p>Subject to applicable law (including UAE PDPL and, where it applies to you, GDPR), you may request access, correction, deletion (within the limits in §5), or restriction of your personal data, and complain to your local data-protection authority. Contact us via dcslabs.ai; we respond within 30 days.</p>
+
+  <h2>10. Children</h2>
+  <p>The Service is not directed at children under 16. Issuers issuing credentials about minors (e.g. school results) are responsible for obtaining appropriate guardian consent.</p>
+
+  <h2>11. Changes</h2>
+  <p>Material changes will be posted here with a new effective date.</p>
+</div>
+
+
+<footer><div class="wrap">DCS Verify, a product of DCS AI Technologies L.L.C · <a href="privacy.html">Privacy</a> · <a href="terms.html">Terms</a> · <a href="verify.html">Verify</a> · <a href="explorer.html">Explorer</a></div></footer>
+</body>
+</html>
