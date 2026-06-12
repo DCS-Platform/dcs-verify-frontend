@@ -204,6 +204,7 @@
   var panel = document.getElementById('buildVerify');
   panel.style.display='';
   var STORAGE='https://api.dcsai.ai';
+  var LAST_DATA=null;            // last verify response (carries the receipts list)
   var shortId = id.length>12 ? id.slice(0,8)+'…' : id;
   document.getElementById('bvBarUrl').textContent='verify.dcsai.ai/?id='+shortId;
   function esc(s){return String(s==null?'':s).replace(/[&<>"]/g,function(c){return{'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c];});}
@@ -220,6 +221,7 @@
     if(b) b.onclick=function(){ amber('Verifying…'); load(1); };
   }
   function render(d){
+    LAST_DATA=d;
     document.getElementById('bvLede').textContent='This site was produced by DCS’s signed agent pipeline. Every check below is independently re-verifiable.';
     var sigOk = d.signature && d.signature.valid;
     var anchored = d.anchor && d.anchor.status==='anchored' && d.anchor.tx;
@@ -263,27 +265,37 @@
       +'<td style="padding:7px 10px;border-top:'+bt+';color:#34d399;text-align:center">'+sig+'</td>'
       +'</tr>';
   }
+  function renderReceipts(rs){
+    var box=document.getElementById('bvReceipts');
+    if(!rs || !rs.length){ box.innerHTML='<div style="font-family:monospace;font-size:12px;color:#9c9ca8;padding:10px">No individual receipts returned for this session.</div>'; return; }
+    box.innerHTML = receiptsHtml(rs);
+    box.setAttribute('data-loaded','1');
+  }
   function loadReceipts(){
     var box=document.getElementById('bvReceipts');
+    // Preferred: the receipt list is already on the verify response we fetched.
+    if(LAST_DATA && LAST_DATA.receipts && LAST_DATA.receipts.length){ renderReceipts(LAST_DATA.receipts); return; }
+    // Fallback: pull the full chain from the unified-chain endpoint.
     box.innerHTML='<div style="font-family:monospace;font-size:12px;color:#9c9ca8;padding:10px">Loading the full receipt chain…</div>';
     fetch(STORAGE+'/api/storage/unified-chain/'+encodeURIComponent(id))
-      .then(function(r){ return r.json(); })
+      .then(function(r){ if(!r.ok) throw new Error('HTTP '+r.status); return r.json(); })
       .then(function(d){
         var rs=(d&&d.receipts)||[];
-        if(!rs.length){ box.innerHTML='<div style="font-family:monospace;font-size:12px;color:#9c9ca8;padding:10px">No individual receipts returned for this session.</div>'; return; }
-        var html='<div style="border:1px solid #1f1f29;border-radius:12px;overflow:hidden;background:#13131a;text-align:left">'
-          +'<div style="padding:12px 14px;font-family:monospace;font-size:11px;letter-spacing:.05em;color:#9c9ca8;border-bottom:1px solid #1f1f29">'
-          +esc(rs.length)+' RECEIPTS · EACH HASH FEEDS THE MERKLE ROOT · EACH IS INDEPENDENTLY VERIFIABLE</div>'
-          +'<div style="max-height:440px;overflow:auto"><table style="width:100%;border-collapse:collapse;font-size:13px">'
-          +'<thead><tr style="color:#6a6a78;font-family:monospace;font-size:10px;text-transform:uppercase;letter-spacing:.06em;position:sticky;top:0;background:#13131a">'
-          +'<th style="text-align:left;padding:9px 10px">#</th><th style="text-align:left;padding:9px 10px">Type</th>'
-          +'<th style="text-align:left;padding:9px 10px">Receipt hash (CID) — click for raw JSON</th><th style="padding:9px 10px">Sig</th></tr></thead><tbody>';
-        for(var i=0;i<rs.length;i++) html+=rcptRow(i, rs[i]);
-        html+='</tbody></table></div></div>';
-        box.innerHTML=html;
-        box.setAttribute('data-loaded','1');
+        renderReceipts(rs);
       })
       .catch(function(){ box.innerHTML='<div style="font-family:monospace;font-size:12px;color:#f0b341;padding:10px">Couldn’t load the receipt list — retry shortly.</div>'; });
+  }
+  function receiptsHtml(rs){
+    var html='<div style="border:1px solid #1f1f29;border-radius:12px;overflow:hidden;background:#13131a;text-align:left">'
+      +'<div style="padding:12px 14px;font-family:monospace;font-size:11px;letter-spacing:.05em;color:#9c9ca8;border-bottom:1px solid #1f1f29">'
+      +esc(rs.length)+' RECEIPTS · EACH HASH FEEDS THE MERKLE ROOT · EACH IS INDEPENDENTLY VERIFIABLE</div>'
+      +'<div style="max-height:440px;overflow:auto"><table style="width:100%;border-collapse:collapse;font-size:13px">'
+      +'<thead><tr style="color:#6a6a78;font-family:monospace;font-size:10px;text-transform:uppercase;letter-spacing:.06em;position:sticky;top:0;background:#13131a">'
+      +'<th style="text-align:left;padding:9px 10px">#</th><th style="text-align:left;padding:9px 10px">Type</th>'
+      +'<th style="text-align:left;padding:9px 10px">Receipt hash (CID) — click for raw JSON</th><th style="padding:9px 10px">Sig</th></tr></thead><tbody>';
+    for(var i=0;i<rs.length;i++) html+=rcptRow(i, rs[i]);
+    html+='</tbody></table></div></div>';
+    return html;
   }
   // Resilient load: a cold start / 5xx / network blip is transient, NOT "no receipt".
   // Retry up to 3x with backoff before settling on an honest message — so a real
