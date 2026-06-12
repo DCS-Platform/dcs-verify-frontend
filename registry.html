@@ -44,12 +44,10 @@
   footer{border-top:1px solid var(--border);margin-top:50px;padding:30px 0;color:var(--dimmer);font-family:var(--mono);font-size:12px}
   @media(max-width:680px){.grid{grid-template-columns:1fr 1fr}.navlinks{display:none}.brow .reason{padding-left:0}}
 </style>
+<script src="nav.js" defer></script>
 </head>
 <body>
-<nav><div class="wrap">
-  <div class="brand"><img src="/brand/logo-mark-circle.png" alt="DCS Verify" style="height:34px;width:34px;vertical-align:middle;margin-right:8px;display:inline-block"> DCS Trust Registry</div>
-  <div class="navlinks"><a href="explorer.html">Explorer</a><a href="verify.html">Verify</a><a href="trust-landscape.html">Trust Landscape</a><a href="beta.html">Beta</a><a href="index.html">Home</a></div>
-</div></nav>
+<div id="dcs-nav"></div>
 
 <div class="wrap">
   <div class="eyebrow"><span class="gd"></span> Public issuer profile · anyone can read this</div>
