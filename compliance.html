@@ -96,6 +96,7 @@
     <tbody id="matrix"></tbody>
   </table>
   <div class="muted" style="margin-top:12px">Results populate as tests are run. A row is marked <span style="color:var(--green)">Passed</span> only when it carries on-chain proof you can independently re-check.</div>
+  <div class="note" style="margin-top:14px"><b>Note on the two "58-receipt" rows.</b> They are different tests. The <span style="color:var(--green)">Passed</span> row is your real build: 58 receipts → <b>one</b> Merkle root → <b>one</b> Base transaction (Model A, production). The <span style="color:var(--amber)">Planned</span> row anchors each receipt in its <b>own</b> transaction — <b>58 separate</b> Base txns (Model B). That high-assurance mode is supported but not yet run, so it stays Planned until it carries real on-chain proof.</div>
 
   <h2>Evidence — completed tests</h2>
   <div id="evidence"></div>
@@ -117,7 +118,7 @@
   // Test records. Fill `proof` with REAL values as each test is run — a row only
   // renders as "Passed" when it has on-chain proof. Never mark passed without it.
   var TESTS = [
-    { name:'Merkle-batched anchoring', config:'58 receipts → 1 root → 1 anchor', model:'A', status:'pass',
+    { name:'Merkle-batched anchoring', config:'58 receipts → 1 Merkle root → 1 Base tx', model:'A', status:'pass',
       proof:{ session:'1e477d1d-abed-4248-86d6-bff63c41aa04', receipts:58, compute:56,
               merkle:'5d51e9d964e3c7994508c1b0f0684c2e53e1532298f8a832d0a216a66863454f',
               anchor:'0x9f5f17f3d921eed18b1979906ae4d761c9be8c3b32a41d5972496a2627005452',
@@ -127,8 +128,8 @@
               note:'Every receipt commits to its predecessor (prev_receipt_cid = SHA-256 of prior). Re-walk the chain on the session page.' } },
     { name:'Independent verification', config:'no DCS account', model:'A', status:'pass',
       proof:{ note:'Receipts fetched from api.dcsai.ai and signatures re-checked client-side. Anyone can verify without our servers.' } },
-    { name:'Individual per-receipt anchoring', config:'58 receipts → 58 anchors', model:'B', status:'plan', proof:null },
-    { name:'Scale — large batch', config:'100 receipts → 1 root → 1 anchor', model:'B', status:'plan', proof:null }
+    { name:'Individual per-receipt anchoring', config:'58 receipts → 58 SEPARATE Base txns (one per receipt)', model:'B', status:'plan', proof:null },
+    { name:'Scale — large batch', config:'100 receipts → 1 Merkle root → 1 Base tx', model:'B', status:'plan', proof:null }
   ];
 
   function esc(s){return String(s==null?'':s).replace(/[&<>]/g,function(c){return{'&':'&amp;','<':'&lt;','>':'&gt;'}[c];});}
