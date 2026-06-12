@@ -112,6 +112,10 @@
   // would always 404 — point them at the build-verify page instead of showing a
   // misleading "unavailable" card.
   const isSessionUuid = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(issuer);
+  // An IPFS/receipt CID (bafy…/bafk…) or sha256:… is a *receipt*, not an issuer.
+  // The registry indexes who signs, not individual receipts — so this lookup would
+  // always come back empty. Point the user to the Explorer / build-verify instead.
+  const isReceiptCid = /^(ba[fg][a-z2-7]{20,}|sha256:[0-9a-f]{64})$/i.test(issuer);
 
   (async () => {
     const meta = NAMES[issuer] || [issuer, "did:web:"+issuer, issuer[0]?.toUpperCase() || "?"];
@@ -119,6 +123,10 @@
     document.querySelector(".logo").textContent = meta[2];
     if (isSessionUuid) {
       return honestUnavailable(`"${issuer}" is a build session, not an issuer. To verify a built site, open verify.dcsai.ai/?id=${issuer} — this page is for issuer profiles (e.g. ?issuer=dcslabs).`);
+    }
+    if (isReceiptCid) {
+      $("p-name").textContent = "Receipt CID"; $("p-did").textContent = issuer;
+      return honestUnavailable(`That's a receipt CID, not an issuer. A receipt lives in the network feed, not the issuer registry. See it in the Explorer (verify.dcsai.ai/explorer) or read the raw JSON at gateway.lighthouse.storage/ipfs/${issuer}. To inspect who signed it, open ?issuer=dcslabs.`);
     }
     try {
       const r = await fetch(`${API}/registry/${issuer}`, { headers: { "accept":"application/json" } });
