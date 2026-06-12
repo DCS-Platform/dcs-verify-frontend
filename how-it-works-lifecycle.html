@@ -1,0 +1,130 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>How verification works — DCS</title>
+<style>
+  :root{
+    --bg-0:#0a0e1a; --bg-1:#0f1422; --card:#131826; --card-2:#1a2138;
+    --border:#232b42; --border-2:#2d3654;
+    --text-0:#f0f3fa; --text-1:#cdd3e3; --text-2:#8b94a8; --text-3:#6b7488;
+    --accent:#4d8eff; --green:#34d399; --purple:#a78bfa;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg-0);color:var(--text-0);
+    font-family:ui-sans-serif,system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
+    -webkit-font-smoothing:antialiased;padding:44px 20px}
+  .wrap{max-width:1120px;margin:0 auto}
+  .eyebrow{color:var(--accent);font-weight:700;font-size:.78rem;letter-spacing:.14em;text-transform:uppercase;margin:0 0 10px}
+  h1{font-size:1.9rem;line-height:1.15;margin:0 0 10px;font-weight:800;letter-spacing:-.01em}
+  .lede{color:var(--text-2);font-size:1rem;max-width:700px;margin:0 0 32px;line-height:1.55}
+  .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(232px,1fr));gap:14px}
+  .step{background:var(--card);border:1px solid var(--border);border-radius:16px;
+    padding:18px 16px 16px;display:flex;flex-direction:column;min-height:172px;
+    transition:transform .15s ease,border-color .15s ease}
+  .step:hover{transform:translateY(-3px);border-color:var(--border-2)}
+  .step.final{border-color:var(--accent)}
+  .top{display:flex;align-items:center;justify-content:space-between;margin-bottom:13px}
+  .num{font-size:.72rem;font-weight:700;letter-spacing:.1em;color:var(--text-3);
+    border:1px solid var(--border-2);border-radius:6px;padding:3px 7px}
+  .ic{width:30px;height:30px;color:var(--accent);display:flex;align-items:center;justify-content:center}
+  .ic svg{width:26px;height:26px;fill:none;stroke:currentColor;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round}
+  .ic.green{color:var(--green)} .ic.purple{color:var(--purple)}
+  .st-title{font-size:1.02rem;font-weight:700;margin:0 0 4px}
+  .st-sub{color:var(--text-2);font-size:.83rem;margin:0 0 auto;line-height:1.45}
+  .proof{margin-top:14px;display:flex;align-items:center;gap:7px;text-decoration:none;
+    background:var(--bg-1);border:1px solid var(--border-2);border-radius:9px;
+    padding:8px 10px;font-family:ui-monospace,Menlo,monospace;font-size:.72rem;
+    color:var(--accent);font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  a.proof:hover{background:var(--card-2);border-color:var(--accent)}
+  .proof .tag{color:var(--text-3);font-family:inherit;font-weight:600}
+  .proof.neutral{color:var(--text-1)}
+  .tech{margin-top:8px;font-family:ui-monospace,Menlo,monospace;font-size:.68rem;
+    color:var(--text-3);line-height:1.4;word-break:break-all}
+  .foot{margin-top:28px;color:var(--text-2);font-size:.92rem;line-height:1.55;max-width:760px}
+  .foot b{color:var(--text-1)}
+  .chainline{margin-top:16px;display:inline-flex;align-items:center;gap:10px;
+    background:var(--card);border:1px solid var(--border);border-radius:999px;
+    padding:9px 16px;font-size:.84rem;color:var(--text-1)}
+  .dot{width:8px;height:8px;border-radius:50%;background:var(--green)}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <p class="eyebrow">Proof, not promises</p>
+  <h1>From build to verifiable — every step leaves a public proof</h1>
+  <p class="lede">Each step of a DCS build is recorded as a signed receipt, hash-chained, pinned, and anchored on-chain. Anyone can open the proofs below and re-check them independently — no account, no trust in our servers.</p>
+
+  <div class="grid">
+    <!-- 1 BUILD -->
+    <div class="step">
+      <div class="top"><span class="num">STEP 1</span>
+        <span class="ic"><svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="16" rx="2"/><path d="M3 9h18"/><path d="M6.5 6.5h.01"/></svg></span></div>
+      <p class="st-title">Website built</p>
+      <p class="st-sub">Agents run the pipeline. Each step becomes one event.</p>
+      <span class="proof"><span class="tag">session</span> 1e477d1d…</span>
+    </div>
+    <!-- 2 RECEIPT CREATED -->
+    <div class="step">
+      <div class="top"><span class="num">STEP 2</span>
+        <span class="ic"><svg viewBox="0 0 24 24"><path d="M6 2h12v20l-3-2-3 2-3-2-3 2V2z"/><path d="M9 7h6M9 11h6M9 15h4"/></svg></span></div>
+      <p class="st-title">Receipt created</p>
+      <p class="st-sub">A structured receipt records exactly what happened.</p>
+      <span class="proof"><span class="tag">sha256</span> f8f3ea…839d</span>
+    </div>
+    <!-- 3 SIGNED -->
+    <div class="step">
+      <div class="top"><span class="num">STEP 3</span>
+        <span class="ic"><svg viewBox="0 0 24 24"><path d="M12 3l7 3v5c0 4.5-3 7.5-7 9-4-1.5-7-4.5-7-9V6l7-3z"/><path d="M9 12l2 2 4-4"/></svg></span></div>
+      <p class="st-title">Signed by DCS Labs</p>
+      <p class="st-sub">Ed25519 signature, chained to the previous receipt.</p>
+      <div class="tech">Key ID: dcs-labs-receipt-key-2026 · Active</div>
+    </div>
+    <!-- 4 PINNED -->
+    <div class="step">
+      <div class="top"><span class="num">STEP 4</span>
+        <span class="ic"><svg viewBox="0 0 24 24"><ellipse cx="12" cy="5" rx="8" ry="3"/><path d="M4 5v6c0 1.7 3.6 3 8 3s8-1.3 8-3V5"/><path d="M4 11v6c0 1.7 3.6 3 8 3s8-1.3 8-3v-6"/></svg></span></div>
+      <p class="st-title">Pinned to IPFS / Filecoin</p>
+      <p class="st-sub">Stored for permanence via Lighthouse.</p>
+      <a class="proof" target="_blank" rel="noopener"
+         href="https://gateway.lighthouse.storage/ipfs/bafkreiaxp2vytalntavb3rg3w65h6eh5g44uuxg6233p5mnf5ksshc4m4i">
+        <span class="tag">CID</span> bafkrei…m4i ↗</a>
+    </div>
+    <!-- 5 ANCHORED -->
+    <div class="step">
+      <div class="top"><span class="num">STEP 5</span>
+        <span class="ic purple"><svg viewBox="0 0 24 24"><path d="M10 13a5 5 0 0 0 7 0l3-3a5 5 0 0 0-7-7l-1 1"/><path d="M14 11a5 5 0 0 0-7 0l-3 3a5 5 0 0 0 7 7l1-1"/></svg></span></div>
+      <p class="st-title">Anchored on Base</p>
+      <p class="st-sub">All receipts fold into one Merkle root, committed in a single Base tx.</p>
+      <a class="proof" target="_blank" rel="noopener"
+         href="https://basescan.org/tx/0xe6c3ce5f7f0a998934a49fd70871c6fabe42dc3000dd69df74c72fb995307233">
+        <span class="tag">tx</span> 0xe6c3ce…307233 ↗</a>
+    </div>
+    <!-- 6 CERTIFICATE -->
+    <div class="step">
+      <div class="top"><span class="num">STEP 6</span>
+        <span class="ic green"><svg viewBox="0 0 24 24"><circle cx="12" cy="9" r="6"/><path d="M9 14l-2 7 5-3 5 3-2-7"/></svg></span></div>
+      <p class="st-title">Certificate (PDF)</p>
+      <p class="st-sub">A signed, branded PDF with the key, anchor and a scan-to-verify QR.</p>
+      <span class="proof neutral"><span class="tag">download</span> certificate ↓</span>
+    </div>
+    <!-- 7 VERIFIED -->
+    <div class="step final">
+      <div class="top"><span class="num">STEP 7</span>
+        <span class="ic"><svg viewBox="0 0 24 24"><path d="M12 2l2.4 1.8 3-.2 1 2.8 2.6 1.4-1 2.8 1 2.8-2.6 1.4-1 2.8-3-.2L12 22l-2.4-1.8-3 .2-1-2.8L3 16.2l1-2.8-1-2.8 2.6-1.4 1-2.8 3 .2z"/><path d="M9 12l2 2 4-4"/></svg></span></div>
+      <p class="st-title">Verified on the website</p>
+      <p class="st-sub">Paste any session id and watch the checks run live — no login.</p>
+      <a class="proof" target="_blank" rel="noopener"
+         href="https://verify.dcsai.ai/?id=1e477d1d-abed-4248-86d6-bff63c41aa04">
+        <span class="tag">open</span> verify.dcsai.ai ↗</a>
+    </div>
+  </div>
+
+  <p class="foot">
+    Steps 1–5 run automatically on every build. A 60-agent build produces <b>60 linked receipts</b> in one session chain — the more the pipeline does, the longer the proof. Algorithm Ed25519 · keys rotate yearly (2026 → 2027), and old receipts stay verifiable against the key that signed them.
+  </p>
+  <div class="chainline"><span class="dot"></span> One session = one chain · more agents = more links, same single thread</div>
+</div>
+</body>
+</html>

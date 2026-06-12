@@ -1,0 +1,437 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>DCS Verify — Founding Issuer Program</title>
+<meta name="description" content="A limited beta for organizations that want verifiable AI operations. Cryptographically signed, hash-chained, Base-anchored receipts anyone can verify. 60 days free." />
+<meta property="og:title" content="DCS Verify — Founding Issuer Program" />
+<meta property="og:description" content="Trust every AI action. Signed, chained, anchored, independently verifiable receipts for autonomous systems. Join the founding issuer beta." />
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="styles.css" />
+<style>
+  /* page-local components — everything else inherits from styles.css */
+  .pill-free{display:inline-flex;align-items:center;gap:8px;font-family:var(--mono);font-size:12.5px;letter-spacing:.04em;color:var(--green);border:1px solid rgba(52,211,153,.35);background:rgba(52,211,153,.07);padding:6px 14px;border-radius:999px}
+
+  /* two-statement framing */
+  .stack-claim{margin:30px auto 0;max-width:560px;display:grid;gap:10px}
+  .stack-claim .neg{font-family:var(--mono);font-size:14px;color:var(--dim)}
+  .stack-claim .pos{font-family:var(--display);font-size:clamp(22px,3vw,30px);font-weight:600;letter-spacing:-.02em}
+  .stack-claim .pos .em{color:var(--blue-2)}
+
+  /* logs vs proof */
+  .vs-grid{display:grid;grid-template-columns:1fr 1fr;gap:18px;margin-top:48px}
+  .vs-card{background:var(--ink-2);border:1px solid var(--line);border-radius:var(--radius);padding:28px}
+  .vs-card.bad{border-color:rgba(255,107,107,.25)}
+  .vs-card.good{border-color:rgba(52,211,153,.3)}
+  .vs-card h3{font-family:var(--display);font-weight:600;font-size:19px;margin-bottom:6px}
+  .vs-card .tag{font-family:var(--mono);font-size:12px;letter-spacing:.05em;text-transform:uppercase;margin-bottom:16px}
+  .vs-card.bad .tag{color:var(--red)}
+  .vs-card.good .tag{color:var(--green)}
+  .vs-card ul{list-style:none;display:grid;gap:11px}
+  .vs-card li{display:flex;gap:11px;font-size:14.5px;color:var(--muted);line-height:1.5}
+  .vs-card li svg{flex:0 0 auto;margin-top:3px}
+
+  /* pipeline */
+  .pipe{display:flex;flex-wrap:wrap;align-items:stretch;gap:10px;margin-top:44px}
+  .pipe .node{flex:1 1 130px;min-width:120px;background:var(--ink-2);border:1px solid var(--line);border-radius:var(--radius-sm);padding:16px 14px;text-align:center;position:relative}
+  .pipe .node .k{font-family:var(--mono);font-size:11px;color:var(--blue);margin-bottom:7px;letter-spacing:.04em}
+  .pipe .node .t{font-size:14px;font-weight:600;line-height:1.25}
+  .pipe .node.final{border-color:rgba(52,211,153,.4);background:rgba(52,211,153,.05)}
+  .pipe .node.final .k{color:var(--green)}
+  .pipe .arrow{display:flex;align-items:center;color:var(--dim);font-family:var(--mono)}
+  @media(max-width:760px){ .pipe .arrow{transform:rotate(90deg)} .pipe .node{flex-basis:100%} }
+
+  /* offer card */
+  .offer{margin-top:48px;display:grid;grid-template-columns:1.1fr 1fr;gap:0;border:1px solid var(--line-2);border-radius:var(--radius);overflow:hidden;background:var(--ink-2)}
+  .offer .left{padding:40px;border-right:1px solid var(--line)}
+  .offer .left .big{font-family:var(--display);font-size:46px;font-weight:600;letter-spacing:-.02em;line-height:1;margin:10px 0 6px}
+  .offer .left .sub{color:var(--muted);font-size:15px}
+  .offer .right{padding:40px}
+  .offer h4{font-family:var(--mono);font-size:12px;letter-spacing:.06em;text-transform:uppercase;color:var(--dim);margin-bottom:18px}
+  .offer ul{list-style:none;display:grid;gap:13px}
+  .offer li{display:flex;gap:11px;font-size:15px;align-items:flex-start}
+  .offer li svg{flex:0 0 auto;margin-top:3px}
+  @media(max-width:760px){ .offer{grid-template-columns:1fr} .offer .left{border-right:none;border-bottom:1px solid var(--line)} }
+
+  /* chip lists */
+  .chips{display:flex;flex-wrap:wrap;gap:10px;margin-top:30px}
+  .chip{font-size:14px;color:var(--fg);background:var(--ink-2);border:1px solid var(--line-2);padding:9px 15px;border-radius:999px}
+  .chip.live{display:inline-flex;align-items:center;gap:8px}
+  .chip.live svg{flex:0 0 auto}
+
+  /* apply form */
+  .apply{margin-top:44px;max-width:620px;background:var(--ink-2);border:1px solid var(--line);border-radius:var(--radius);padding:32px}
+  .apply .field{margin-bottom:16px}
+  .apply label{display:block;font-family:var(--mono);font-size:12px;letter-spacing:.04em;color:var(--muted);margin-bottom:7px}
+  .apply input,.apply select,.apply textarea{width:100%;background:var(--ink);border:1px solid var(--line-2);border-radius:9px;color:var(--fg);font-family:var(--sans);font-size:15px;padding:12px 13px;transition:.15s}
+  .apply input:focus,.apply select:focus,.apply textarea:focus{outline:none;border-color:var(--blue)}
+  .apply textarea{resize:vertical;min-height:88px}
+  .apply .row{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+  @media(max-width:560px){ .apply .row{grid-template-columns:1fr} }
+  .apply .note{font-family:var(--mono);font-size:12px;color:var(--dim);margin-top:14px}
+
+  /* faq */
+  .faq{margin-top:40px;display:grid;gap:0;border:1px solid var(--line);border-radius:var(--radius);overflow:hidden}
+  .faq details{border-top:1px solid var(--line);background:var(--ink-2)}
+  .faq details:first-child{border-top:none}
+  .faq summary{cursor:pointer;list-style:none;padding:20px 24px;font-family:var(--display);font-weight:600;font-size:16.5px;display:flex;justify-content:space-between;gap:16px;align-items:center}
+  .faq summary::-webkit-details-marker{display:none}
+  .faq summary::after{content:"+";color:var(--blue);font-family:var(--mono);font-size:20px;flex:0 0 auto}
+  .faq details[open] summary::after{content:"–"}
+  .faq .a{padding:0 24px 22px;color:var(--muted);font-size:14.5px;line-height:1.6}
+</style>
+</head>
+<body>
+<div class="glow g1"></div><div class="glow g2"></div>
+
+<nav>
+  <div class="wrap">
+    <a class="brand" href="index.html"><img src="/brand/logo-mark-circle.png" alt="DCS Verify" style="height:36px;width:36px;vertical-align:middle;margin-right:8px;display:inline-block;"> DCS Verify</a>
+    <div class="navlinks">
+      <a href="index.html#features">Features</a>
+      <a href="index.html#how">How it works</a>
+      <a href="verify.html">Verify</a>
+      <a href="explorer.html">Explorer</a>
+      <a href="trust-landscape.html">Trust Landscape</a>
+      <a class="cta" href="#apply">Apply for beta</a>
+    </div>
+  </div>
+</nav>
+
+<main>
+  <!-- HERO -->
+  <section class="hero wrap">
+    <div class="kicker reveal"><span class="pulse"></span> Founding Issuer Program · limited beta now open</div>
+    <h1 class="hero-title reveal" style="animation-delay:.05s">Trust every <span class="em">AI action</span>.</h1>
+    <p class="lede reveal" style="animation-delay:.12s">Most AI systems generate logs — and logs can be modified, deleted, or disputed. DCS Verify creates a cryptographically verifiable receipt for every important action: signed, chained, anchored on a public blockchain, and independently verifiable by anyone.</p>
+
+    <div class="stack-claim reveal" style="animation-delay:.16s">
+      <div class="neg">Not trust.</div>
+      <div class="pos"><span class="em">Proof.</span></div>
+    </div>
+
+    <div class="hero-cta reveal" style="animation-delay:.22s;margin-top:34px">
+      <a class="btn primary" href="#apply">Apply for beta access →</a>
+      <a class="btn ghost" href="verify.html">See a live verification</a>
+    </div>
+    <div class="hero-note reveal" style="animation-delay:.28s">60 days free · unlimited receipts during beta · no account needed to verify</div>
+
+    <!-- live-feel proof card -->
+    <div class="verify-mock reveal" style="animation-delay:.34s">
+      <div class="bar"><span class="d" style="background:#ff6b6b"></span><span class="d" style="background:#f0b341"></span><span class="d" style="background:#1e7eff"></span><span style="margin-left:8px">verify.dcsai.ai/?id=cad94c9a…</span></div>
+      <div class="body">
+        <div class="statusline"><span class="dot"></span> Verified · signed by DCS Labs</div>
+        <div class="vrow"><span class="lbl">Content hash</span><span class="val">sha256:9f3c1b2a…ddee</span></div>
+        <div class="vrow"><span class="lbl">Signature</span><span class="val ok">✓ verified (Ed25519)</span></div>
+        <div class="vrow"><span class="lbl">Chain</span><span class="val ok">✓ 60 receipts linked</span></div>
+        <div class="vrow"><span class="lbl">Anchor</span><span class="val ok">✓ Base · block 47212371 ↗</span></div>
+        <div class="vrow"><span class="lbl">Status</span><span class="val ok">✓ not revoked</span></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- TRUST BAND -->
+  <div class="band">
+    <div class="wrap">
+      <span><b>Ed25519</b> signatures</span>
+      <span><b>SHA-256</b> integrity</span>
+      <span><b>Filecoin</b> persistence</span>
+      <span><b>Base</b> mainnet anchoring</span>
+      <span><b>Public</b> verification</span>
+      <span><b>Open</b> standard</span>
+    </div>
+  </div>
+
+  <!-- WHY IT MATTERS -->
+  <section class="block wrap">
+    <div class="eyebrow">Why this matters</div>
+    <h2 class="sec">When an AI agent acts, can you prove what happened?</h2>
+    <p class="sec-lede">AI agents now make decisions, call tools, access systems, generate content, approve workflows, and perform real business actions. Every organization running them needs to answer five questions — to a regulator, a customer, or a court.</p>
+
+    <div class="vs-grid">
+      <div class="vs-card bad">
+        <div class="tag">Traditional logs</div>
+        <h3>Answer only if you trust the operator</h3>
+        <ul>
+          <li><svg width="16" height="16" viewBox="0 0 20 20"><path d="M6 6l8 8M14 6l-8 8" stroke="#ff6b6b" stroke-width="2" fill="none" stroke-linecap="round"/></svg> Can be edited or deleted after the fact</li>
+          <li><svg width="16" height="16" viewBox="0 0 20 20"><path d="M6 6l8 8M14 6l-8 8" stroke="#ff6b6b" stroke-width="2" fill="none" stroke-linecap="round"/></svg> No way to prove they weren't altered</li>
+          <li><svg width="16" height="16" viewBox="0 0 20 20"><path d="M6 6l8 8M14 6l-8 8" stroke="#ff6b6b" stroke-width="2" fill="none" stroke-linecap="round"/></svg> Disputable — it's your word against theirs</li>
+          <li><svg width="16" height="16" viewBox="0 0 20 20"><path d="M6 6l8 8M14 6l-8 8" stroke="#ff6b6b" stroke-width="2" fill="none" stroke-linecap="round"/></svg> Auditors must trust your internal systems</li>
+        </ul>
+      </div>
+      <div class="vs-card good">
+        <div class="tag">DCS Verify receipts</div>
+        <h3>Anyone can verify the evidence themselves</h3>
+        <ul>
+          <li><svg width="16" height="16" viewBox="0 0 20 20"><path d="M5 10l3 3 7-7" stroke="#34d399" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg> <b>What happened</b> — captured in a signed receipt</li>
+          <li><svg width="16" height="16" viewBox="0 0 20 20"><path d="M5 10l3 3 7-7" stroke="#34d399" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg> <b>Who performed it</b> — bound to the issuer's key</li>
+          <li><svg width="16" height="16" viewBox="0 0 20 20"><path d="M5 10l3 3 7-7" stroke="#34d399" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg> <b>Has it been altered</b> — tamper-evident hash chain</li>
+          <li><svg width="16" height="16" viewBox="0 0 20 20"><path d="M5 10l3 3 7-7" stroke="#34d399" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg> <b>Independently auditable</b> — anchored on-chain, public</li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <!-- HOW IT WORKS -->
+  <section class="block wrap">
+    <div class="eyebrow">How it works</div>
+    <h2 class="sec">From action to public proof, in one pipeline.</h2>
+    <p class="sec-lede">Every receipt contains cryptographic proof of the action that occurred. Every chain can be independently validated. Every anchor can be inspected on-chain.</p>
+
+    <div class="pipe">
+      <div class="node"><div class="k">01</div><div class="t">Action occurs</div></div>
+      <div class="arrow">→</div>
+      <div class="node"><div class="k">02</div><div class="t">Receipt created</div></div>
+      <div class="arrow">→</div>
+      <div class="node"><div class="k">03</div><div class="t">Ed25519 signed</div></div>
+      <div class="arrow">→</div>
+      <div class="node"><div class="k">04</div><div class="t">Hash chained</div></div>
+      <div class="arrow">→</div>
+      <div class="node"><div class="k">05</div><div class="t">Stored on Filecoin</div></div>
+      <div class="arrow">→</div>
+      <div class="node"><div class="k">06</div><div class="t">Anchored on Base</div></div>
+      <div class="arrow">→</div>
+      <div class="node final"><div class="k">07 ✓</div><div class="t">Publicly verifiable</div></div>
+    </div>
+  </section>
+
+  <!-- WHAT YOU GET -->
+  <section class="block wrap">
+    <div class="eyebrow">What your organization gets</div>
+    <h2 class="sec">A full trust layer, not just a logger.</h2>
+    <div class="feat-grid">
+      <div class="feat">
+        <div class="ic">◢</div>
+        <h3>Receipt infrastructure</h3>
+        <p>Generate verifiable receipts for AI agent actions, workflow execution, document generation, compliance records, automation events, internal approvals, and customer-facing actions.</p>
+      </div>
+      <div class="feat">
+        <div class="ic">◈</div>
+        <h3>Verification portal</h3>
+        <p>Let anyone confirm a receipt without creating an account. The signature, chain, and anchor are re-checkable by a skeptic — no vendor trust required.</p>
+      </div>
+      <div class="feat">
+        <div class="ic">▤</div>
+        <h3>Public explorer</h3>
+        <p>Inspect receipt chains, verification activity, and anchor history. A living record of everything your issuer has attested to.</p>
+      </div>
+      <div class="feat">
+        <div class="ic">✦</div>
+        <h3>Certificate generation</h3>
+        <p>Produce cryptographic attestation certificates for completed workflows — a one-page audit artifact with signature, fingerprint, chain depth, merkle root, and on-chain anchor.</p>
+      </div>
+      <div class="feat">
+        <div class="ic">◎</div>
+        <h3>Open standards</h3>
+        <p>Built on open specifications designed for independent verification. No lock-in: the receipt is portable and the reference verifier is yours to clone.</p>
+      </div>
+      <div class="feat">
+        <div class="ic">⟳</div>
+        <h3>Issuer profile</h3>
+        <p>A public profile publishing your signing key, fingerprint, rotation history, and receipt activity — so a verifier knows exactly who signed what.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- FOUNDING ISSUER OFFER -->
+  <section class="block wrap" id="program">
+    <div class="eyebrow">Founding Issuer Program</div>
+    <h2 class="sec">A limited beta for verifiable AI operations.</h2>
+    <p class="sec-lede">We're opening a small cohort of organizations interested in proving — not just logging — what their AI systems do. Founding issuers help shape the standard and become the first names on the network.</p>
+
+    <div class="offer">
+      <div class="left">
+        <span class="pill-free"><span class="pulse" style="width:7px;height:7px;border-radius:50%;background:var(--green);display:inline-block"></span> Beta</span>
+        <div class="big">Free</div>
+        <div class="sub">for your first 60 days — unlimited receipts, unlimited verifications, no card required.</div>
+      </div>
+      <div class="right">
+        <h4>Included</h4>
+        <ul>
+          <li><svg width="16" height="16" viewBox="0 0 20 20"><path d="M5 10l3 3 7-7" stroke="#34d399" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg> 60 days free</li>
+          <li><svg width="16" height="16" viewBox="0 0 20 20"><path d="M5 10l3 3 7-7" stroke="#34d399" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg> Unlimited receipts during beta</li>
+          <li><svg width="16" height="16" viewBox="0 0 20 20"><path d="M5 10l3 3 7-7" stroke="#34d399" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg> Unlimited verification requests</li>
+          <li><svg width="16" height="16" viewBox="0 0 20 20"><path d="M5 10l3 3 7-7" stroke="#34d399" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg> Explorer listing</li>
+          <li><svg width="16" height="16" viewBox="0 0 20 20"><path d="M5 10l3 3 7-7" stroke="#34d399" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg> Public issuer profile</li>
+          <li><svg width="16" height="16" viewBox="0 0 20 20"><path d="M5 10l3 3 7-7" stroke="#34d399" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg> Priority onboarding support</li>
+          <li><svg width="16" height="16" viewBox="0 0 20 20"><path d="M5 10l3 3 7-7" stroke="#34d399" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg> Direct access to the DCS Labs team</li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <!-- IDEAL PARTICIPANTS -->
+  <section class="block wrap">
+    <div class="eyebrow">Ideal participants</div>
+    <h2 class="sec">Who this is built for.</h2>
+    <p class="sec-lede">If your software takes actions on someone's behalf, those actions are worth proving.</p>
+    <div class="chips">
+      <span class="chip">AI startups</span>
+      <span class="chip">Agent platforms</span>
+      <span class="chip">Workflow automation companies</span>
+      <span class="chip">Developer tools</span>
+      <span class="chip">Training &amp; certification platforms</span>
+      <span class="chip">Compliance systems</span>
+      <span class="chip">Enterprise AI pilots</span>
+    </div>
+  </section>
+
+  <!-- WHAT WE ASK + CURRENT INFRA -->
+  <section class="block wrap">
+    <div class="eyebrow">What we ask in return</div>
+    <h2 class="sec">Use it. Generate real receipts. Tell us what breaks.</h2>
+    <p class="sec-lede">Use the platform, generate real receipts, and give us honest feedback. Help validate the next generation of trust infrastructure for autonomous systems. That's the whole deal.</p>
+
+    <div style="margin-top:36px" class="eyebrow">Current infrastructure — already live</div>
+    <div class="chips">
+      <span class="chip live"><svg width="15" height="15" viewBox="0 0 20 20"><path d="M5 10l3 3 7-7" stroke="#34d399" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg> Ed25519 signatures</span>
+      <span class="chip live"><svg width="15" height="15" viewBox="0 0 20 20"><path d="M5 10l3 3 7-7" stroke="#34d399" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg> SHA-256 integrity</span>
+      <span class="chip live"><svg width="15" height="15" viewBox="0 0 20 20"><path d="M5 10l3 3 7-7" stroke="#34d399" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg> Filecoin persistence</span>
+      <span class="chip live"><svg width="15" height="15" viewBox="0 0 20 20"><path d="M5 10l3 3 7-7" stroke="#34d399" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg> Base mainnet anchoring</span>
+      <span class="chip live"><svg width="15" height="15" viewBox="0 0 20 20"><path d="M5 10l3 3 7-7" stroke="#34d399" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg> Public verification</span>
+      <span class="chip live"><svg width="15" height="15" viewBox="0 0 20 20"><path d="M5 10l3 3 7-7" stroke="#34d399" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg> Receipt-chain certificates</span>
+      <span class="chip live"><svg width="15" height="15" viewBox="0 0 20 20"><path d="M5 10l3 3 7-7" stroke="#34d399" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg> Explorer &amp; audit tools</span>
+    </div>
+  </section>
+
+  <!-- FAQ -->
+  <section class="block wrap">
+    <div class="eyebrow">Good questions</div>
+    <h2 class="sec">Before you apply.</h2>
+    <div class="faq">
+      <details open>
+        <summary>Do the people verifying my receipts need an account?</summary>
+        <div class="a">No. Verification is public and free. Anyone with a receipt can re-check the signature, the hash chain, and the on-chain anchor themselves — without trusting DCS or contacting you.</div>
+      </details>
+      <details>
+        <summary>What happens after the 60 days?</summary>
+        <div class="a">During beta everything is free. Paid plans come later, once the network has real issuers and real verification volume. Founding issuers get first access and preferential terms when pricing is introduced.</div>
+      </details>
+      <details>
+        <summary>Am I locked into DCS?</summary>
+        <div class="a">No. Receipts are built on an open specification and are portable. The reference verifier is open — a third party can confirm your receipts independently of our servers.</div>
+      </details>
+      <details>
+        <summary>What does it take to integrate?</summary>
+        <div class="a">You emit a receipt at the moment an action occurs. Signing, chaining, Filecoin storage, and Base anchoring happen automatically. Priority onboarding support is included for founding issuers.</div>
+      </details>
+    </div>
+  </section>
+
+  <!-- APPLY -->
+  <section class="block wrap" id="apply">
+    <div class="eyebrow">Apply for beta access</div>
+    <h2 class="sec">Become a founding issuer.</h2>
+    <p class="sec-lede">The organizations that join during beta help shape the future of verifiable AI operations — and become the first issuers on the DCS Verify network. Tell us a little about what you'd verify.</p>
+
+    <form class="apply" id="applyForm">
+      <div class="row">
+        <div class="field">
+          <label for="f-name">Your name</label>
+          <input id="f-name" name="name" type="text" autocomplete="name" required placeholder="Jane Doe" />
+        </div>
+        <div class="field">
+          <label for="f-org">Organization</label>
+          <input id="f-org" name="org" type="text" autocomplete="organization" required placeholder="Acme AI" />
+        </div>
+      </div>
+      <div class="row">
+        <div class="field">
+          <label for="f-email">Work email</label>
+          <input id="f-email" name="email" type="email" autocomplete="email" required placeholder="jane@acme.ai" />
+        </div>
+        <div class="field">
+          <label for="f-type">Organization type</label>
+          <select id="f-type" name="type">
+            <option>AI startup</option>
+            <option>Agent platform</option>
+            <option>Workflow automation</option>
+            <option>Developer tools</option>
+            <option>Training / certification</option>
+            <option>Compliance system</option>
+            <option>Enterprise AI pilot</option>
+            <option>Other</option>
+          </select>
+        </div>
+      </div>
+      <div class="field">
+        <label for="f-use">What actions would you want to make verifiable?</label>
+        <textarea id="f-use" name="use" placeholder="e.g. every time our agent approves a refund, sends a contract, or completes a workflow…"></textarea>
+      </div>
+      <button class="btn primary" type="submit" style="width:100%;justify-content:center">Apply for beta access →</button>
+      <div class="note">No commitment. We read every application and reply personally. Verification is free and public regardless.</div>
+    </form>
+  </section>
+
+  <!-- CLOSING -->
+  <section class="cta-block wrap">
+    <h2>Make AI actions independently verifiable.</h2>
+    <p>Not because organizations should be trusted. Because proof should be available to everyone.</p>
+    <div class="hero-cta" style="justify-content:center">
+      <a class="btn primary" href="#apply">Apply for beta access →</a>
+      <a class="btn ghost" href="explorer.html">Explore the live network</a>
+    </div>
+  </section>
+</main>
+
+<footer>
+  <div class="wrap">
+    <div>
+      <a class="brand" href="index.html" style="margin-bottom:14px"><img src="/brand/logo-mark-circle.png" alt="DCS Verify" style="height:36px;width:36px;vertical-align:middle;margin-right:8px;display:inline-block;"> DCS Verify</a>
+      <p class="foot-legal">DCS Verify, a product of DCS AI Technologies L.L.C. Built on the R-Series cryptographic standard. Verify without trusting us.</p>
+    </div>
+    <div class="cols">
+      <div>
+        <h5>Product</h5>
+        <a href="verify.html">Verify</a>
+        <a href="explorer.html">Explorer</a>
+        <a href="dashboard.html">Issuer console</a>
+        <a href="pricing.html">Pricing</a>
+      </div>
+      <div>
+        <h5>Program</h5>
+        <a href="#program">Founding issuers</a>
+        <a href="#apply">Apply for beta</a>
+        <a href="index.html#how">How it works</a>
+      </div>
+      <div>
+        <h5>Verify</h5>
+        <a href="verify.html">Check a receipt</a>
+        <a href="explorer.html">Live network</a>
+        <a href="registry.html">Issuer registry</a>
+      </div>
+    </div>
+  </div>
+</footer>
+
+<script>
+// Progressive, no-backend application handoff: compose a prefilled email the
+// founder can send from their own client. Swap BETA_EMAIL for a form endpoint
+// (or wire to dashboard.html signup) whenever the backend is ready.
+(function(){
+  var BETA_EMAIL = 'founders@dcslabs.ai';
+  var form = document.getElementById('applyForm');
+  if(!form) return;
+  form.addEventListener('submit', function(e){
+    e.preventDefault();
+    var g = function(id){ return (document.getElementById(id).value||'').trim(); };
+    var name=g('f-name'), org=g('f-org'), email=g('f-email'),
+        type=document.getElementById('f-type').value, use=g('f-use');
+    var subject = 'Founding Issuer Program — '+(org||'beta application');
+    var body =
+      'Name: '+name+'\n'+
+      'Organization: '+org+'\n'+
+      'Work email: '+email+'\n'+
+      'Type: '+type+'\n\n'+
+      'What we want to make verifiable:\n'+use+'\n';
+    window.location.href = 'mailto:'+BETA_EMAIL+
+      '?subject='+encodeURIComponent(subject)+
+      '&body='+encodeURIComponent(body);
+  });
+})();
+</script>
+</body>
+</html>

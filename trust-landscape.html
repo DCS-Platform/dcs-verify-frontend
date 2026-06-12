@@ -1,0 +1,366 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>DCS Verify — Trust Landscape</title>
+<meta name="description" content="Where DCS Verify fits in the trust landscape. Why logs fail, why receipts matter, and a capability map across AI models, cloud providers, document signing, and verifiable-credential platforms." />
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="styles.css" />
+<style>
+  /* ---- hero with live workflow on the left ---- */
+  .lz-hero{display:grid;grid-template-columns:1.25fr .75fr;gap:72px;align-items:center;padding:64px 0 30px}
+  .lz-hero .copy{order:1}
+  .lz-hero .flow{order:2}
+  .lz-hero .copy h1{font-family:var(--display);font-weight:600;font-size:clamp(34px,5vw,54px);letter-spacing:-.025em;line-height:1.04;margin-bottom:18px}
+  .lz-hero .copy h1 .em{color:var(--blue-2)}
+  .lz-hero .copy p{color:var(--muted);font-size:18px;max-width:520px;margin-bottom:14px}
+  .lz-hero .copy .lead-note{font-family:var(--mono);font-size:12.5px;color:var(--dim);max-width:520px;line-height:1.6;margin-top:14px}
+  @media(max-width:900px){ .lz-hero{grid-template-columns:1fr;gap:36px;padding-top:44px} }
+
+  .lab{display:inline-flex;align-items:center;gap:8px;font-family:var(--mono);font-size:12px;letter-spacing:.04em;color:var(--green);border:1px solid rgba(52,211,153,.3);background:rgba(52,211,153,.06);padding:6px 13px;border-radius:999px;margin-bottom:18px}
+  .lab .pulse{width:7px;height:7px;border-radius:50%;background:var(--green);animation:pulse 2s infinite}
+
+  /* live workflow */
+  .flow{position:relative}
+  .flow-inner{position:relative;display:grid;gap:8px}
+  .flow-rail{position:absolute;left:25px;top:6px;bottom:6px;width:2px;background:var(--line-2);border-radius:2px;z-index:0}
+  .flow-fill{position:absolute;left:0;top:0;width:100%;height:0;background:linear-gradient(180deg,var(--blue),var(--green));border-radius:2px;transition:height .55s cubic-bezier(.4,0,.2,1)}
+  .flow-dot{position:absolute;left:26px;top:0;width:11px;height:11px;border-radius:50%;background:#fff;box-shadow:0 0 14px var(--blue-2),0 0 5px #fff;transform:translate(-50%,-50%);transition:top .55s cubic-bezier(.4,0,.2,1);opacity:0;z-index:3}
+  .fnode{position:relative;display:flex;align-items:center;gap:11px;padding:7px 12px;border:1px solid var(--line);border-radius:var(--radius-sm);background:var(--ink-2);opacity:.5;transition:.45s ease}
+  .fnode .fn-ic{flex:0 0 28px;width:28px;height:28px;border-radius:7px;display:grid;place-items:center;background:var(--ink-3);border:1px solid var(--line-2);color:var(--dim);position:relative;z-index:2;transition:.45s ease}
+  .fnode .fn-ic .num{font-family:var(--mono);font-size:11px}
+  .fnode .fn-ic svg{display:none;width:16px;height:16px}
+  .fnode .fn-t{font-weight:600;font-size:13px;line-height:1.2}
+  .fnode .fn-s{font-family:var(--mono);font-size:10.5px;color:var(--dim);margin-top:1px}
+  .fnode.on{opacity:1;border-color:var(--blue);box-shadow:0 8px 30px -14px rgba(30,126,255,.6)}
+  .fnode.on .fn-ic{background:rgba(30,126,255,.13);border-color:var(--blue);color:var(--blue-2)}
+  .fnode.final.on{border-color:var(--green);box-shadow:0 8px 30px -14px rgba(52,211,153,.6)}
+  .fnode.final.on .fn-ic{background:rgba(52,211,153,.15);border-color:var(--green);color:var(--green)}
+  .fnode.final.on .fn-ic .num{display:none}
+  .fnode.final.on .fn-ic svg{display:block}
+
+  /* matrix */
+  .matrix-wrap{margin-top:36px;overflow-x:auto;border:1px solid var(--line);border-radius:var(--radius);background:var(--ink-2)}
+  table.matrix{border-collapse:collapse;width:100%;min-width:680px;font-size:14.5px}
+  table.matrix th,table.matrix td{padding:15px 18px;text-align:center;border-bottom:1px solid var(--line);white-space:nowrap}
+  table.matrix thead th{font-family:var(--mono);font-size:12px;letter-spacing:.04em;color:var(--muted);text-transform:uppercase;background:var(--ink-3)}
+  table.matrix tbody th{text-align:left;font-family:var(--display);font-weight:600;color:var(--fg);font-size:14.5px}
+  table.matrix th.dcs,table.matrix td.dcs{background:rgba(30,126,255,.07)}
+  table.matrix thead th.dcs{color:var(--blue-2)}
+  table.matrix tr:last-child td,table.matrix tr:last-child th{border-bottom:none}
+  .mk{display:inline-flex;width:20px;height:20px;align-items:center;justify-content:center}
+  .legend{display:flex;gap:24px;flex-wrap:wrap;margin-top:16px;font-family:var(--mono);font-size:12.5px;color:var(--dim)}
+  .legend span{display:inline-flex;align-items:center;gap:8px}
+
+  /* primary focus */
+  .focus{margin-top:34px;border:1px solid var(--line);border-radius:var(--radius);overflow:hidden}
+  .focus .fr{display:grid;grid-template-columns:1fr 1.2fr;border-top:1px solid var(--line);background:var(--ink-2)}
+  .focus .fr:first-child{border-top:none}
+  .focus .fr.us{background:rgba(30,126,255,.07)}
+  .focus .org{padding:15px 22px;font-weight:600;font-family:var(--display)}
+  .focus .pf{padding:15px 22px;color:var(--muted);border-left:1px solid var(--line);font-size:14.5px}
+  .focus .fr.us .pf{color:var(--blue-2);font-weight:600}
+
+  /* trust stack */
+  .stack{position:relative;display:grid;gap:10px;margin-top:34px;max-width:580px}
+  .stack-rail{position:absolute;left:22px;top:10px;bottom:10px;width:2px;background:var(--line-2);border-radius:2px;z-index:0;overflow:hidden}
+  .stack-rail .sfill{position:absolute;left:0;right:0;bottom:0;height:0;background:linear-gradient(0deg,var(--blue),var(--green));border-radius:2px;transition:height .5s cubic-bezier(.4,0,.2,1)}
+  .stack-dot{position:absolute;left:23px;top:0;width:11px;height:11px;border-radius:50%;background:#fff;box-shadow:0 0 14px var(--blue-2),0 0 5px #fff;transform:translate(-50%,-50%);transition:top .5s cubic-bezier(.4,0,.2,1);opacity:0;z-index:3}
+  .layer{position:relative;display:flex;align-items:center;gap:14px;background:var(--ink-2);border:1px solid var(--line);border-radius:var(--radius-sm);padding:15px 18px 15px 46px;transition:.4s ease;z-index:1}
+  .layer .ln{font-family:var(--mono);font-size:12px;color:var(--blue);flex:0 0 26px}
+  .layer .lt{font-weight:600}
+  .layer .ld{color:var(--dim);font-size:13px;margin-left:auto;font-family:var(--mono)}
+  .layer.top{border-color:rgba(52,211,153,.4);background:rgba(52,211,153,.05)}
+  .layer.top .ln{color:var(--green)}
+  .stack.anim .layer{opacity:.5}
+  .stack.anim .layer.lit{opacity:1;border-color:var(--blue);box-shadow:0 8px 30px -14px rgba(30,126,255,.55)}
+  .stack.anim .layer.lit .ln{color:var(--blue-2)}
+  .stack.anim .layer.top.lit{border-color:var(--green);box-shadow:0 8px 34px -12px rgba(52,211,153,.6)}
+  .stack.anim .layer.top.lit .ln{color:var(--green)}
+
+  /* reason cards (logs fail / receipts matter) */
+  .reasons{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-top:34px}
+  .reason{background:var(--ink-2);border:1px solid var(--line);border-radius:var(--radius);padding:24px}
+  .reason h4{font-family:var(--display);font-weight:600;font-size:16.5px;margin-bottom:8px}
+  .reason p{color:var(--muted);font-size:14px;line-height:1.55}
+  .reason .rk{font-family:var(--mono);font-size:11.5px;letter-spacing:.05em;text-transform:uppercase;margin-bottom:12px}
+  .reason.fail .rk{color:var(--red)}
+  .reason.win .rk{color:var(--green)}
+  @media(max-width:760px){ .reasons{grid-template-columns:1fr} }
+</style>
+</head>
+<body>
+<div class="glow g1"></div><div class="glow g2"></div>
+
+<nav>
+  <div class="wrap">
+    <a class="brand" href="index.html"><img src="/brand/logo-mark-circle.png" alt="DCS Verify" style="height:36px;width:36px;vertical-align:middle;margin-right:8px;display:inline-block;"> DCS Verify</a>
+    <div class="navlinks">
+      <a href="verify.html">Verify</a>
+      <a href="explorer.html">Explorer</a>
+      <a href="trust-landscape.html">Trust Landscape</a>
+      <a href="beta.html">Beta</a>
+      <a class="cta" href="beta.html#apply">Apply</a>
+    </div>
+  </div>
+</nav>
+
+<main>
+  <!-- HERO: live workflow (left) + framing (right) -->
+  <section class="wrap lz-hero">
+    <div class="flow" id="flow">
+      <div class="lab"><span class="pulse"></span> Live receipt workflow</div>
+      <div class="flow-inner">
+        <div class="flow-rail"><div class="flow-fill"></div></div>
+        <div class="flow-dot"></div>
+
+        <div class="fnode"><div class="fn-ic"><span class="num">01</span></div><div><div class="fn-t">Action occurs</div><div class="fn-s">agent makes a decision</div></div></div>
+        <div class="fnode"><div class="fn-ic"><span class="num">02</span></div><div><div class="fn-t">Receipt created</div><div class="fn-s">what happened, captured</div></div></div>
+        <div class="fnode"><div class="fn-ic"><span class="num">03</span></div><div><div class="fn-t">Ed25519 signed</div><div class="fn-s">bound to the issuer key</div></div></div>
+        <div class="fnode"><div class="fn-ic"><span class="num">04</span></div><div><div class="fn-t">Hash chained</div><div class="fn-s">tamper-evident link</div></div></div>
+        <div class="fnode"><div class="fn-ic"><span class="num">05</span></div><div><div class="fn-t">Stored on Filecoin</div><div class="fn-s">durable, content-addressed</div></div></div>
+        <div class="fnode"><div class="fn-ic"><span class="num">06</span></div><div><div class="fn-t">Anchored on Base</div><div class="fn-s">committed on-chain</div></div></div>
+        <div class="fnode final"><div class="fn-ic"><span class="num">07</span><svg width="20" height="20" viewBox="0 0 20 20"><path d="M5 10l3 3 7-7" stroke="#34d399" stroke-width="2.2" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg></div><div><div class="fn-t">Publicly verifiable</div><div class="fn-s">anyone can re-check it</div></div></div>
+      </div>
+    </div>
+
+    <div class="copy">
+      <div class="eyebrow">Trust landscape</div>
+      <h1>Where DCS Verify <span class="em">fits</span>.</h1>
+      <p>AI models, cloud providers, document-signing tools, and verifiable-credential platforms each solve a different piece of trust. Most systems do not produce a portable, independently verifiable receipt for what an AI agent actually <em>did</em>.</p>
+      <p>This is the map of that gap — and the layer that closes it.</p>
+      <div class="hero-cta" style="margin-top:24px">
+        <a class="btn primary" href="#matrix">See the capability map →</a>
+        <a class="btn ghost" href="beta.html#apply">Apply for beta</a>
+      </div>
+      <p class="lead-note">A capability map, not a scoreboard. The organizations here solve different problems and many do their job extremely well — the point is simply that verifiable AI-action receipts are a category nobody else covers.</p>
+    </div>
+  </section>
+
+  <!-- THE PROBLEM -->
+  <section class="block wrap" style="padding-top:36px">
+    <div class="eyebrow">The problem</div>
+    <h2 class="sec">When an AI agent acts, can you prove what happened?</h2>
+    <p class="sec-lede">AI agents now make decisions, call tools, access systems, generate content, approve workflows, and perform real business actions. The moment one does, an organization may have to answer — to a regulator, a customer, or a court — exactly what occurred, who was responsible, and whether the record has been altered since.</p>
+  </section>
+
+  <!-- WHY LOGS FAIL -->
+  <section class="block wrap" style="padding-top:10px">
+    <div class="eyebrow">Why logs fail</div>
+    <h2 class="sec">A log records. It doesn't prove.</h2>
+    <p class="sec-lede">A traditional log answers those questions only if you already trust the system that wrote it. That's exactly the assumption an auditor, a regulator, or a counterparty can't make.</p>
+    <div class="reasons">
+      <div class="reason fail"><div class="rk">Mutable</div><h4>Can be changed</h4><p>Log entries can be edited or deleted after the fact, with nothing to show the original ever existed.</p></div>
+      <div class="reason fail"><div class="rk">Unprovable</div><h4>No integrity proof</h4><p>There's no way for an outsider to confirm a log wasn't altered — you simply have to take the operator's word.</p></div>
+      <div class="reason fail"><div class="rk">Disputable</div><h4>Your word vs theirs</h4><p>In a dispute, an internal log carries the weight of "trust us." Auditors must trust the very system under review.</p></div>
+    </div>
+  </section>
+
+  <!-- WHY RECEIPTS MATTER -->
+  <section class="block wrap" style="padding-top:10px">
+    <div class="eyebrow">Why receipts matter</div>
+    <h2 class="sec">A receipt is proof you don't have to trust.</h2>
+    <p class="sec-lede">Each receipt is signed by the issuer, linked into a tamper-evident chain, and anchored on a public blockchain — so anyone can confirm it independently, without contacting you and without trusting DCS.</p>
+    <div class="reasons">
+      <div class="reason win"><div class="rk">Signed</div><h4>Who did it</h4><p>An Ed25519 signature binds the action to the issuer's key. The authorship is cryptographic, not asserted.</p></div>
+      <div class="reason win"><div class="rk">Chained</div><h4>Whether it changed</h4><p>Each receipt hash-links to the one before it. Editing, deleting, or reordering breaks the chain — visibly, to anyone.</p></div>
+      <div class="reason win"><div class="rk">Anchored</div><h4>Independently auditable</h4><p>The chain's root is committed on Base mainnet. A third party can confirm it on-chain, no account and no permission required.</p></div>
+    </div>
+  </section>
+
+  <!-- TRUST STACK -->
+  <section class="block wrap" style="padding-top:10px">
+    <div class="eyebrow">The trust stack</div>
+    <h2 class="sec">DCS Verify is the verification layer for AI actions.</h2>
+    <p class="sec-lede">It doesn't replace the layers below — it sits on top and makes their output provable.</p>
+    <div class="stack" id="stack">
+      <div class="stack-rail"><div class="sfill"></div></div>
+      <div class="stack-dot"></div>
+      <div class="layer top"><span class="ln">04</span><span class="lt">DCS Verify</span><span class="ld">signed · chained · anchored · public</span></div>
+      <div class="layer"><span class="ln">03</span><span class="lt">Agent / workflow layer</span><span class="ld">takes the action</span></div>
+      <div class="layer"><span class="ln">02</span><span class="lt">AI models</span><span class="ld">make the decision</span></div>
+      <div class="layer"><span class="ln">01</span><span class="lt">Cloud infrastructure</span><span class="ld">runs the system</span></div>
+    </div>
+  </section>
+
+  <!-- CAPABILITY MATRIX -->
+  <section class="block wrap" style="padding-top:10px" id="matrix">
+    <div class="eyebrow">Capability matrix</div>
+    <h2 class="sec">What each category actually provides.</h2>
+    <div class="matrix-wrap">
+      <table class="matrix">
+        <thead>
+          <tr>
+            <th style="text-align:left">Capability</th>
+            <th class="dcs">DCS Verify</th>
+            <th>AI Models</th>
+            <th>Cloud Providers</th>
+            <th>DocuSign</th>
+            <th>VC Platforms</th>
+          </tr>
+        </thead>
+        <tbody id="matrixBody"></tbody>
+      </table>
+    </div>
+    <div class="legend">
+      <span><span class="mk" data-mk="yes"></span> Core capability</span>
+      <span><span class="mk" data-mk="part"></span> Partial / possible</span>
+      <span><span class="mk" data-mk="no"></span> Out of scope</span>
+    </div>
+
+    <div style="margin-top:46px" class="eyebrow">Primary focus</div>
+    <h2 class="sec" style="font-size:clamp(24px,3.2vw,34px)">Everyone here solves a different problem.</h2>
+    <p class="sec-lede">DCS Verify isn't competing with AI models or cloud platforms — it makes the actions they enable independently provable.</p>
+    <div class="focus" id="focusList"></div>
+  </section>
+
+  <!-- OPEN STANDARDS -->
+  <section class="block wrap" style="padding-top:10px">
+    <div class="eyebrow">Open standards</div>
+    <h2 class="sec">Portable by design. Not a silo.</h2>
+    <p class="sec-lede">Receipts are built on an open specification (the R-Series standard) and are content-addressed and portable. The reference verifier is open, so a third party can confirm your receipts without our servers — and where a deployment prefers W3C Verifiable Credential transport, a receipt can be embedded inside one. The receipt itself stays the lighter, high-volume primitive.</p>
+  </section>
+
+  <!-- WHY DCS / CTA -->
+  <section class="cta-block wrap">
+    <h2>This is the gap DCS fills.</h2>
+    <p>Verifiable receipts for AI action — a layer that doesn't exist anywhere else on this page. Join the founding issuer beta and put it to work.</p>
+    <div class="hero-cta" style="justify-content:center">
+      <a class="btn primary" href="beta.html#apply">Apply for beta access →</a>
+      <a class="btn ghost" href="verify.html">Verify a real receipt</a>
+    </div>
+  </section>
+</main>
+
+<footer>
+  <div class="wrap">
+    <div>
+      <a class="brand" href="index.html" style="margin-bottom:14px"><img src="/brand/logo-mark-circle.png" alt="DCS Verify" style="height:36px;width:36px;vertical-align:middle;margin-right:8px;display:inline-block;"> DCS Verify</a>
+      <p class="foot-legal">DCS Verify, a product of DCS AI Technologies L.L.C. Built on the R-Series cryptographic standard. Verify without trusting us.</p>
+    </div>
+    <div class="cols">
+      <div>
+        <h5>Product</h5>
+        <a href="verify.html">Verify</a>
+        <a href="explorer.html">Explorer</a>
+        <a href="dashboard.html">Issuer console</a>
+        <a href="pricing.html">Pricing</a>
+      </div>
+      <div>
+        <h5>Learn</h5>
+        <a href="trust-landscape.html">Trust Landscape</a>
+        <a href="beta.html">Founding issuers</a>
+        <a href="index.html#how">How it works</a>
+      </div>
+      <div>
+        <h5>Verify</h5>
+        <a href="verify.html">Check a receipt</a>
+        <a href="explorer.html">Live network</a>
+        <a href="registry.html">Issuer registry</a>
+      </div>
+    </div>
+  </div>
+</footer>
+
+<script>
+(function(){
+  function mk(t){
+    if(t==='yes') return '<span class="mk"><svg width="18" height="18" viewBox="0 0 20 20"><path d="M5 10l3 3 7-7" stroke="#34d399" stroke-width="2.2" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg></span>';
+    if(t==='part')return '<span class="mk"><svg width="13" height="13" viewBox="0 0 20 20"><circle cx="10" cy="10" r="7" stroke="#fbbf24" stroke-width="2" fill="none"/></svg></span>';
+    return '<span class="mk"><svg width="16" height="16" viewBox="0 0 20 20"><path d="M6 6l8 8M14 6l-8 8" stroke="#5a5a66" stroke-width="2" fill="none" stroke-linecap="round"/></svg></span>';
+  }
+  var rows=[
+    ['AI action receipts','yes','no','no','no','no'],
+    ['Public verification','yes','no','part','yes','yes'],
+    ['Receipt chains','yes','no','no','no','part'],
+    ['Blockchain anchoring','yes','no','no','no','part'],
+    ['Certificate generation','yes','no','no','yes','part'],
+    ['Open receipt standard','yes','no','no','no','yes']
+  ];
+  document.getElementById('matrixBody').innerHTML = rows.map(function(r){
+    return '<tr><th>'+r[0]+'</th>'+
+      '<td class="dcs">'+mk(r[1])+'</td><td>'+mk(r[2])+'</td><td>'+mk(r[3])+'</td>'+
+      '<td>'+mk(r[4])+'</td><td>'+mk(r[5])+'</td></tr>';
+  }).join('');
+  document.querySelectorAll('.legend .mk').forEach(function(el){ el.outerHTML = mk(el.getAttribute('data-mk')); });
+
+  var focus=[
+    ['OpenAI','AI models'],['Anthropic','AI models'],
+    ['Microsoft Azure','Cloud infrastructure'],['Google Cloud','Cloud infrastructure'],
+    ['DocuSign','Document signatures'],['W3C VC ecosystem','Credential standards'],
+    ['DCS Verify','Verifiable AI action infrastructure']
+  ];
+  document.getElementById('focusList').innerHTML = focus.map(function(f,i){
+    var us = i===focus.length-1 ? ' us' : '';
+    return '<div class="fr'+us+'"><div class="org">'+f[0]+'</div><div class="pf">'+f[1]+'</div></div>';
+  }).join('');
+
+  // ---- live receipt workflow animation ----
+  var flow=document.getElementById('flow');
+  if(!flow) return;
+  var nodes=[].slice.call(flow.querySelectorAll('.fnode'));
+  var dot=flow.querySelector('.flow-dot');
+  var fill=flow.querySelector('.flow-fill');
+  var reduce = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  function center(n){ return n.offsetTop + n.offsetHeight/2; }
+  if(reduce){ nodes.forEach(function(n){n.classList.add('on');}); return; }
+  var i=0, t;
+  function step(){
+    if(i<nodes.length){
+      var n=nodes[i]; n.classList.add('on');
+      var c=center(n);
+      dot.style.opacity='1'; dot.style.top=c+'px'; fill.style.height=c+'px';
+      i++; t=setTimeout(step, 820);
+    } else {
+      t=setTimeout(reset, 1500);
+    }
+  }
+  function reset(){
+    nodes.forEach(function(n){n.classList.remove('on');});
+    dot.style.opacity='0'; dot.style.top='0px'; fill.style.height='0px';
+    i=0; t=setTimeout(step, 550);
+  }
+  function start(){ clearTimeout(t); i=0; t=setTimeout(step, 500); }
+  if(document.readyState==='complete') start();
+  else window.addEventListener('load', start);
+  window.addEventListener('resize', function(){ if(i>0 && i<=nodes.length){ var n=nodes[Math.min(i-1,nodes.length-1)]; var c=center(n); dot.style.top=c+'px'; fill.style.height=c+'px'; } });
+})();
+
+// ---- live trust-stack animation (rises bottom → top) ----
+(function(){
+  var stack=document.getElementById('stack');
+  if(!stack) return;
+  var layers=[].slice.call(stack.querySelectorAll('.layer')); // [04,03,02,01]
+  var seq=layers.slice().reverse();                            // [01,02,03,04]
+  var sdot=stack.querySelector('.stack-dot');
+  var sfill=stack.querySelector('.stack-rail .sfill');
+  var reduce = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  function center(n){ return n.offsetTop + n.offsetHeight/2; }
+  if(reduce){ layers.forEach(function(l){l.classList.add('lit');}); stack.classList.add('anim'); return; }
+  stack.classList.add('anim');
+  var j=0, tt;
+  function step(){
+    if(j<seq.length){
+      var l=seq[j]; l.classList.add('lit');
+      var c=center(l);
+      sdot.style.opacity='1'; sdot.style.top=c+'px';
+      sfill.style.height=(stack.clientHeight - c)+'px';   // grow up from bottom
+      j++; tt=setTimeout(step, 820);
+    } else {
+      tt=setTimeout(reset, 1600);
+    }
+  }
+  function reset(){
+    layers.forEach(function(l){l.classList.remove('lit');});
+    sdot.style.opacity='0'; sdot.style.top=stack.clientHeight+'px'; sfill.style.height='0px';
+    j=0; tt=setTimeout(step, 550);
+  }
+  function start(){ clearTimeout(tt); j=0; sdot.style.top=stack.clientHeight+'px'; tt=setTimeout(step, 700); }
+  if(document.readyState==='complete') start(); else window.addEventListener('load', start);
+})();
+</script>
+</body>
+</html>

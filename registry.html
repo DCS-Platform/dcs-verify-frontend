@@ -48,7 +48,7 @@
 <body>
 <nav><div class="wrap">
   <div class="brand"><img src="/brand/logo-mark-circle.png" alt="DCS Verify" style="height:34px;width:34px;vertical-align:middle;margin-right:8px;display:inline-block"> DCS Trust Registry</div>
-  <div class="navlinks"><a href="explorer.html">Explorer</a><a href="verify.html">Verify</a><a href="index.html">Home</a></div>
+  <div class="navlinks"><a href="explorer.html">Explorer</a><a href="verify.html">Verify</a><a href="trust-landscape.html">Trust Landscape</a><a href="beta.html">Beta</a><a href="index.html">Home</a></div>
 </div></nav>
 
 <div class="wrap">
@@ -107,10 +107,19 @@
     $("breakdown").innerHTML = `<div class="brow"><span class="reason" style="padding-left:0">${msg}</span></div>`;
   }
 
+  // A build session is a UUID (verify.dcsai.ai/?id=<session>), NOT an issuer.
+  // If someone lands here with a session UUID as ?issuer=, the per-issuer lookup
+  // would always 404 — point them at the build-verify page instead of showing a
+  // misleading "unavailable" card.
+  const isSessionUuid = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(issuer);
+
   (async () => {
     const meta = NAMES[issuer] || [issuer, "did:web:"+issuer, issuer[0]?.toUpperCase() || "?"];
     $("p-name").textContent = meta[0]; $("p-did").textContent = meta[1];
     document.querySelector(".logo").textContent = meta[2];
+    if (isSessionUuid) {
+      return honestUnavailable(`"${issuer}" is a build session, not an issuer. To verify a built site, open verify.dcsai.ai/?id=${issuer} — this page is for issuer profiles (e.g. ?issuer=dcslabs).`);
+    }
     try {
       const r = await fetch(`${API}/registry/${issuer}`, { headers: { "accept":"application/json" } });
       if (!r.ok) return honestUnavailable(`No public profile for "${issuer}" yet.`);
