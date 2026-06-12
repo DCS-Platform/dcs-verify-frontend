@@ -72,6 +72,11 @@
   .apply .row{display:grid;grid-template-columns:1fr 1fr;gap:14px}
   @media(max-width:560px){ .apply .row{grid-template-columns:1fr} }
   .apply .note{font-family:var(--mono);font-size:12px;color:var(--dim);margin-top:14px}
+  .apply .note.ok{color:var(--green)} .apply .note.err{color:var(--red)}
+  .apply .field.err input,.apply .field.err select,.apply .field.err textarea{border-color:var(--red)}
+  .apply .ok-panel{text-align:center;padding:14px 4px}
+  .apply .ok-panel .big{font-family:var(--display);font-size:22px;font-weight:600;margin:10px 0 6px}
+  .apply .ok-panel p{color:var(--muted);font-size:14.5px;line-height:1.6}
 
   /* faq */
   .faq{margin-top:40px;display:grid;gap:0;border:1px solid var(--line);border-radius:var(--radius);overflow:hidden}
@@ -96,6 +101,7 @@
       <a href="verify.html">Verify</a>
       <a href="explorer.html">Explorer</a>
       <a href="trust-landscape.html">Trust Landscape</a>
+      <a href="integrate.html">Integrate</a>
       <a class="cta" href="#apply">Apply for beta</a>
     </div>
   </div>
@@ -327,7 +333,7 @@
     <h2 class="sec">Become a founding issuer.</h2>
     <p class="sec-lede">The organizations that join during beta help shape the future of verifiable AI operations — and become the first issuers on the DCS Verify network. Tell us a little about what you'd verify.</p>
 
-    <form class="apply" id="applyForm">
+    <form class="apply" id="applyForm" novalidate>
       <div class="row">
         <div class="field">
           <label for="f-name">Your name</label>
@@ -344,6 +350,12 @@
           <input id="f-email" name="email" type="email" autocomplete="email" required placeholder="jane@acme.ai" />
         </div>
         <div class="field">
+          <label for="f-website">Website</label>
+          <input id="f-website" name="website" type="url" autocomplete="url" inputmode="url" placeholder="https://acme.ai" />
+        </div>
+      </div>
+      <div class="row">
+        <div class="field">
           <label for="f-type">Organization type</label>
           <select id="f-type" name="type">
             <option>AI startup</option>
@@ -356,13 +368,44 @@
             <option>Other</option>
           </select>
         </div>
+        <div class="field">
+          <label for="f-volume">Expected monthly volume</label>
+          <select id="f-volume" name="volume">
+            <option value="">Select a range…</option>
+            <option>Under 1,000 receipts</option>
+            <option>1,000 – 10,000</option>
+            <option>10,000 – 100,000</option>
+            <option>100,000 – 1M</option>
+            <option>Over 1M</option>
+            <option>Not sure yet</option>
+          </select>
+        </div>
+      </div>
+      <div class="row">
+        <div class="field">
+          <label for="f-tech">Technical contact <span style="color:var(--dim)">(optional)</span></label>
+          <input id="f-tech" name="tech" type="email" autocomplete="email" placeholder="dev@acme.ai" />
+        </div>
+        <div class="field">
+          <label for="f-ref">How did you hear about us?</label>
+          <select id="f-ref" name="referral">
+            <option value="">Select…</option>
+            <option>Search</option>
+            <option>Social / X</option>
+            <option>GitHub</option>
+            <option>Referral / word of mouth</option>
+            <option>Event or talk</option>
+            <option>DCS team contact</option>
+            <option>Other</option>
+          </select>
+        </div>
       </div>
       <div class="field">
         <label for="f-use">What actions would you want to make verifiable?</label>
-        <textarea id="f-use" name="use" placeholder="e.g. every time our agent approves a refund, sends a contract, or completes a workflow…"></textarea>
+        <textarea id="f-use" name="use" required placeholder="e.g. every time our agent approves a refund, sends a contract, or completes a workflow…"></textarea>
       </div>
-      <button class="btn primary" type="submit" style="width:100%;justify-content:center">Apply for beta access →</button>
-      <div class="note">No commitment. We read every application and reply personally. Verification is free and public regardless.</div>
+      <button class="btn primary" id="applyBtn" type="submit" style="width:100%;justify-content:center">Apply for beta access →</button>
+      <div class="note" id="applyNote">No commitment. We read every application and reply personally. Verification is free and public regardless.</div>
     </form>
   </section>
 
@@ -408,28 +451,107 @@
 </footer>
 
 <script>
-// Progressive, no-backend application handoff: compose a prefilled email the
-// founder can send from their own client. Swap BETA_EMAIL for a form endpoint
-// (or wire to dashboard.html signup) whenever the backend is ready.
+// Beta application handler.
+// ── To capture submissions to a real backend, set BETA_FORM_ENDPOINT below to:
+//      • a Formspree form URL, e.g. 'https://formspree.io/f/xxxxxxxx', or
+//      • your own API, e.g. 'https://api.dcslabs.ai/v1/beta/apply'
+//    It receives a JSON POST of the fields. If left empty (or if the request
+//    fails), the form falls back to a prefilled email to BETA_EMAIL so no
+//    application is ever lost.
 (function(){
+  var BETA_FORM_ENDPOINT = ''; // <-- set this when the backend is ready
   var BETA_EMAIL = 'founders@dcslabs.ai';
+
   var form = document.getElementById('applyForm');
   if(!form) return;
+  var btn = document.getElementById('applyBtn');
+  var note = document.getElementById('applyNote');
+
+  function val(id){ return (document.getElementById(id).value||'').trim(); }
+  function setErr(id,on){ var el=document.getElementById(id); if(el&&el.parentNode) el.parentNode.classList.toggle('err',!!on); }
+  function isEmail(s){ return /^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(s); }
+
+  function collect(){
+    return {
+      name:    val('f-name'),
+      org:     val('f-org'),
+      email:   val('f-email'),
+      website: val('f-website'),
+      type:    document.getElementById('f-type').value,
+      volume:  document.getElementById('f-volume').value,
+      tech:    val('f-tech'),
+      referral:document.getElementById('f-ref').value,
+      use:     val('f-use'),
+      source:  'verify.dcslabs.ai/beta',
+      ts:      new Date().toISOString()
+    };
+  }
+
+  function validate(d){
+    var ok=true;
+    ['f-name','f-org','f-email','f-website','f-tech','f-use'].forEach(function(id){ setErr(id,false); });
+    if(!d.name){ setErr('f-name',true); ok=false; }
+    if(!d.org){ setErr('f-org',true); ok=false; }
+    if(!isEmail(d.email)){ setErr('f-email',true); ok=false; }
+    if(d.website && !/^https?:\/\/.+\..+/.test(d.website)){ setErr('f-website',true); ok=false; }
+    if(d.tech && !isEmail(d.tech)){ setErr('f-tech',true); ok=false; }
+    if(!d.use){ setErr('f-use',true); ok=false; }
+    return ok;
+  }
+
+  function mailtoFallback(d){
+    var subject='Founding Issuer Program — '+(d.org||'beta application');
+    var body=
+      'Name: '+d.name+'\n'+
+      'Organization: '+d.org+'\n'+
+      'Work email: '+d.email+'\n'+
+      'Website: '+(d.website||'—')+'\n'+
+      'Type: '+d.type+'\n'+
+      'Expected monthly volume: '+(d.volume||'—')+'\n'+
+      'Technical contact: '+(d.tech||'—')+'\n'+
+      'Heard about us via: '+(d.referral||'—')+'\n\n'+
+      'What we want to make verifiable:\n'+d.use+'\n';
+    window.location.href='mailto:'+BETA_EMAIL+
+      '?subject='+encodeURIComponent(subject)+'&body='+encodeURIComponent(body);
+  }
+
+  function showSuccess(){
+    form.innerHTML='<div class="ok-panel">'+
+      '<div style="font-size:30px">✓</div>'+
+      '<div class="big">Application received.</div>'+
+      '<p>Thanks — we read every application and reply personally, usually within a couple of business days. '+
+      'In the meantime you can <a href="integrate.html">read the integration guide</a> or '+
+      '<a href="verify.html">verify a credential</a> right now.</p></div>';
+  }
+
   form.addEventListener('submit', function(e){
     e.preventDefault();
-    var g = function(id){ return (document.getElementById(id).value||'').trim(); };
-    var name=g('f-name'), org=g('f-org'), email=g('f-email'),
-        type=document.getElementById('f-type').value, use=g('f-use');
-    var subject = 'Founding Issuer Program — '+(org||'beta application');
-    var body =
-      'Name: '+name+'\n'+
-      'Organization: '+org+'\n'+
-      'Work email: '+email+'\n'+
-      'Type: '+type+'\n\n'+
-      'What we want to make verifiable:\n'+use+'\n';
-    window.location.href = 'mailto:'+BETA_EMAIL+
-      '?subject='+encodeURIComponent(subject)+
-      '&body='+encodeURIComponent(body);
+    var d=collect();
+    if(!validate(d)){
+      note.className='note err';
+      note.textContent='Please complete the highlighted fields with a valid email / URL.';
+      return;
+    }
+    note.className='note';
+    note.textContent='No commitment. We read every application and reply personally. Verification is free and public regardless.';
+
+    if(!BETA_FORM_ENDPOINT){ mailtoFallback(d); return; } // no backend yet → email handoff
+
+    btn.disabled=true; var label=btn.textContent; btn.textContent='Sending…';
+    fetch(BETA_FORM_ENDPOINT,{
+      method:'POST',
+      headers:{'Content-Type':'application/json','Accept':'application/json'},
+      body:JSON.stringify(d)
+    }).then(function(r){
+      if(!r.ok) throw new Error('HTTP '+r.status);
+      showSuccess();
+    }).catch(function(){
+      // backend unreachable → don't lose the lead, hand off to email
+      btn.disabled=false; btn.textContent=label;
+      note.className='note err';
+      note.textContent='Couldn’t reach the server — opening your email client instead.';
+      mailtoFallback(d);
+    });
   });
 })();
 </script>

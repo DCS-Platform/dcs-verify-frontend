@@ -1,0 +1,206 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>DCS Verify — Integration Guide</title>
+<meta name="description" content="Install DCS Verify in minutes: get an issuer key, emit an Ed25519-signed receipt, anchor it on Base, let anyone verify it, and embed the Verify badge. The founding-issuer integration guide." />
+<meta property="og:title" content="DCS Verify — Integration Guide" />
+<meta property="og:description" content="From zero to a verifiable, independently checkable credential — signed, hash-chained, Base-anchored. The DCS Verify integration guide." />
+<meta property="og:image" content="https://verify.dcslabs.ai/icon-512.png" />
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="styles.css" />
+<style>
+  /* page-local: numbered steps + code blocks — everything else inherits styles.css */
+  .lede-row{display:flex;flex-wrap:wrap;gap:12px;margin-top:26px}
+  .step{position:relative;border:1px solid var(--line);background:var(--ink-2);border-radius:var(--radius);padding:26px 28px;margin-top:18px}
+  .step .num{position:absolute;left:-1px;top:-1px;background:var(--blue);color:#fff;font-family:var(--mono);font-size:12px;font-weight:700;padding:5px 12px;border-radius:var(--radius) 0 var(--radius-sm) 0}
+  .step h3{font-family:var(--display);font-weight:600;font-size:19px;margin:14px 0 8px}
+  .step p{color:var(--muted);font-size:15px;line-height:1.65;margin:0 0 12px}
+  .step ul{color:var(--muted);font-size:14.5px;line-height:1.6;padding-left:20px;margin:0 0 12px}
+  .step li{margin:5px 0}
+  pre{background:var(--ink);border:1px solid var(--line-2);border-radius:9px;padding:16px 18px;overflow-x:auto;margin:12px 0}
+  pre code{font-family:var(--mono);font-size:12.5px;line-height:1.7;color:var(--fg);white-space:pre}
+  code:not(pre code){font-family:var(--mono);font-size:12.5px;background:var(--ink-3);padding:2px 6px;border-radius:5px;color:var(--blue-2)}
+  .tok-c{color:var(--dim)}            /* comments  */
+  .tok-k{color:var(--green-2)}        /* commands  */
+  .tok-s{color:var(--amber)}          /* strings   */
+  .callout{border-left:2px solid var(--blue);background:rgba(30,126,255,.06);border-radius:0 9px 9px 0;padding:12px 18px;color:var(--muted);font-size:14px;line-height:1.6;margin:14px 0}
+  .pill-free{display:inline-flex;align-items:center;gap:8px;font-family:var(--mono);font-size:12.5px;letter-spacing:.04em;color:var(--green);border:1px solid rgba(52,211,153,.35);background:rgba(52,211,153,.07);padding:6px 14px;border-radius:999px}
+</style>
+</head>
+<body>
+<div class="glow g1"></div><div class="glow g2"></div>
+
+<nav>
+  <div class="wrap">
+    <a class="brand" href="index.html"><img src="/brand/logo-mark-circle.png" alt="DCS Verify" style="height:36px;width:36px;vertical-align:middle;margin-right:8px;display:inline-block;"> DCS Verify</a>
+    <div class="navlinks">
+      <a href="index.html#features">Features</a>
+      <a href="index.html#how">How it works</a>
+      <a href="verify.html">Verify</a>
+      <a href="explorer.html">Explorer</a>
+      <a href="integrate.html">Integrate</a>
+      <a class="cta" href="beta.html#apply">Apply for beta</a>
+    </div>
+  </div>
+</nav>
+
+<main>
+  <!-- HERO -->
+  <section class="hero wrap">
+    <div class="eyebrow"><span class="dot"></span> Integration guide · R+2 standard</div>
+    <h1>Install DCS Verify in minutes.</h1>
+    <p class="lede">Emit an Ed25519-signed receipt the moment something happens, anchor it on Base, and let anyone verify it — without trusting your servers or ours. This is the end-to-end path from API key to an embeddable trust badge.</p>
+    <div class="lede-row">
+      <span class="pill-free">Verification is free &amp; public</span>
+      <span class="pill-free" style="color:var(--blue);border-color:rgba(30,126,255,.35);background:rgba(30,126,255,.07)">~5 minutes to first receipt</span>
+    </div>
+  </section>
+
+  <!-- WHAT YOU'LL BUILD -->
+  <section class="block wrap">
+    <div class="eyebrow">Overview</div>
+    <h2 class="sec">Five steps, each independently provable.</h2>
+    <p class="sec-lede">Signing, RFC&nbsp;8785 canonicalization, SHA-256 content addressing, hash-chaining, Filecoin storage, and Base anchoring all happen automatically when you emit a receipt. Your job is three API calls and one <code>&lt;script&gt;</code> tag.</p>
+  </section>
+
+  <!-- STEPS -->
+  <section class="block wrap" style="padding-top:0">
+
+    <div class="step">
+      <span class="num">01</span>
+      <h3>Get your issuer key</h3>
+      <p>Create an issuer in the <a href="dashboard.html">issuer console</a> and copy your API key. Your Ed25519 <strong>public</strong> key is published to an on-chain identity layer (a soul-bound token on Base mainnet), so verifiers confirm your signatures without ever contacting DCS.</p>
+      <pre><code><span class="tok-c"># keep the secret key server-side only — never ship it to a browser</span>
+<span class="tok-k">export</span> DCS_API_KEY=<span class="tok-s">"dcs_sk_live_xxxxxxxxxxxxxxxxxxxxxxxxxxxx"</span>
+<span class="tok-k">export</span> DCS_AGENT_ID=<span class="tok-s">"0348"</span>   <span class="tok-c"># your issuer / agent id</span></code></pre>
+    </div>
+
+    <div class="step">
+      <span class="num">02</span>
+      <h3>Emit a signed receipt</h3>
+      <p>Call the API at the moment an action occurs. The response is a portable receipt: canonicalized (RFC&nbsp;8785), hashed to a content ID (SHA-256), Ed25519-signed, hash-chained to your previous receipt, Filecoin-stored, and queued for the next Base anchor — all server-side.</p>
+      <pre><code><span class="tok-k">curl</span> -X POST https://api.dcslabs.ai/v1/receipts/issue \
+  -H <span class="tok-s">"Authorization: Bearer $DCS_API_KEY"</span> \
+  -H <span class="tok-s">"Content-Type: application/json"</span> \
+  -d <span class="tok-s">'{
+    "agent_id": "0348",
+    "kind": "agent_action",
+    "payload": { "action": "refund_approved", "order_id": "A-1029", "amount": 49.00 }
+  }'</span></code></pre>
+      <pre><code><span class="tok-c">// → response</span>
+{
+  <span class="tok-s">"receipt_id"</span>: <span class="tok-s">"r2_a83f12cd"</span>,
+  <span class="tok-s">"cid"</span>:        <span class="tok-s">"sha256:9f3c1b2a…ddee"</span>,
+  <span class="tok-s">"signed"</span>:     true,
+  <span class="tok-s">"prev_receipt_cid"</span>: null,
+  <span class="tok-s">"anchor"</span>:     <span class="tok-s">"pending"</span>,
+  <span class="tok-s">"issued_at"</span>:  <span class="tok-s">"2026-06-11T15:42:08.123Z"</span>
+}</code></pre>
+      <div class="callout">The exact request schema for your plan — and ready-made snippets in JS, Python and Go — are shown in your <a href="dashboard.html">issuer console</a>. The receipt shape itself follows the open <a href="https://dcslabs.ai/standard">R+2 standard</a>.</div>
+    </div>
+
+    <div class="step">
+      <span class="num">03</span>
+      <h3>Verify it — independently</h3>
+      <p>Anyone can re-check a receipt with nothing but the receipt and your public key. No DCS account, no vendor trust. Fetch the receipt, resolve the issuer key (from the API or directly from the on-chain SBT), and run the open-source reference verifier.</p>
+      <pre><code><span class="tok-c"># 1. fetch the receipt</span>
+<span class="tok-k">curl</span> https://api.dcslabs.ai/v1/receipts/r2_a83f12cd &gt; receipt.json
+
+<span class="tok-c"># 2. get the issuer's public key (trustless: read it from Base directly)</span>
+<span class="tok-k">cast</span> call 0x0A0e824bcA178669C9453c5d72B7AE9120e1985d \
+  <span class="tok-s">"agentPubkey(string)"</span> <span class="tok-s">"0348"</span> --rpc-url https://mainnet.base.org
+
+<span class="tok-c"># 3. verify — no install needed</span>
+<span class="tok-k">npx</span> dcslabs-r2-verify --receipt receipt.json --pubkey $AGENT_PUBKEY</code></pre>
+      <pre><code>✓ Schema
+✓ Spec version  r2/v0.1
+✓ Pubkey match  u4yK_lH8Z6vJ…
+✓ Signature
+✓ Chain pointer
+✓ Timestamp     within window
+
+Receipt verified.</code></pre>
+    </div>
+
+    <div class="step">
+      <span class="num">04</span>
+      <h3>Embed the Verify badge</h3>
+      <p>Drop a one-line script on any page to show live verification status — an SSL-padlock equivalent for credentials. It renders the current state and links to the public verify page.</p>
+      <pre><code>&lt;script src=<span class="tok-s">"https://verify.dcslabs.ai/badge.js"</span>
+        data-cid=<span class="tok-s">"sha256:9f3c1b2a…ddee"</span>&gt;&lt;/script&gt;</code></pre>
+    </div>
+
+    <div class="step">
+      <span class="num">05</span>
+      <h3>Manage status over time</h3>
+      <p>Revoke, suspend, reactivate, or renew a credential. Status lives in a privacy-preserving Bitstring list anyone can read — revocation is permanent, suspension reversible. Verifiers see five honest states: valid, expired, suspended, revoked, renewed.</p>
+      <pre><code><span class="tok-k">curl</span> -X POST https://api.dcslabs.ai/v1/receipts/r2_a83f12cd/status \
+  -H <span class="tok-s">"Authorization: Bearer $DCS_API_KEY"</span> \
+  -H <span class="tok-s">"Content-Type: application/json"</span> \
+  -d <span class="tok-s">'{ "status": "revoked", "reason": "superseded" }'</span></code></pre>
+    </div>
+
+  </section>
+
+  <!-- WHAT YOU'RE TRUSTING -->
+  <section class="block wrap">
+    <div class="eyebrow">The guarantee</div>
+    <h2 class="sec">What a verifier trusts — and what they don't.</h2>
+    <p class="sec-lede">Every receipt carries its own proof. A skeptic re-runs the math from the raw materials: recompute the CID (RFC&nbsp;8785 + SHA-256), check the Ed25519 signature against the on-chain key, read the status bit, and confirm the anchor on Basescan. None of that requires DCS to be online or honest.</p>
+    <div class="chips" style="display:flex;flex-wrap:wrap;gap:10px;margin-top:24px">
+      <span class="pill-free" style="color:var(--muted);border-color:var(--line-2);background:var(--ink-2)">Ed25519 signed</span>
+      <span class="pill-free" style="color:var(--muted);border-color:var(--line-2);background:var(--ink-2)">RFC 8785 canonical</span>
+      <span class="pill-free" style="color:var(--muted);border-color:var(--line-2);background:var(--ink-2)">SHA-256 hash-chain</span>
+      <span class="pill-free" style="color:var(--muted);border-color:var(--line-2);background:var(--ink-2)">Bitstring status</span>
+      <span class="pill-free" style="color:var(--muted);border-color:var(--line-2);background:var(--ink-2)">Base anchored</span>
+      <span class="pill-free" style="color:var(--muted);border-color:var(--line-2);background:var(--ink-2)">MIT open standard</span>
+    </div>
+  </section>
+
+  <!-- CLOSING -->
+  <section class="cta-block wrap">
+    <h2>Ready to issue?</h2>
+    <p>Founding issuers get priority onboarding support and 60 days free. Verification is always free and public.</p>
+    <div class="hero-cta" style="justify-content:center">
+      <a class="btn primary" href="beta.html#apply">Apply for beta access →</a>
+      <a class="btn ghost" href="dashboard.html">Open the issuer console</a>
+    </div>
+  </section>
+</main>
+
+<footer>
+  <div class="wrap">
+    <div>
+      <a class="brand" href="index.html" style="margin-bottom:14px"><img src="/brand/logo-mark-circle.png" alt="DCS Verify" style="height:36px;width:36px;vertical-align:middle;margin-right:8px;display:inline-block;"> DCS Verify</a>
+      <p class="foot-legal">DCS Verify, a product of DCS AI Technologies L.L.C. Built on the R-Series cryptographic standard. Verify without trusting us.</p>
+    </div>
+    <div class="cols">
+      <div>
+        <h5>Product</h5>
+        <a href="verify.html">Verify</a>
+        <a href="explorer.html">Explorer</a>
+        <a href="dashboard.html">Issuer console</a>
+        <a href="pricing.html">Pricing</a>
+      </div>
+      <div>
+        <h5>Developers</h5>
+        <a href="integrate.html">Integration guide</a>
+        <a href="https://dcslabs.ai/standard">R+2 standard</a>
+        <a href="https://dcslabs.ai/tutorials">Tutorials</a>
+      </div>
+      <div>
+        <h5>Program</h5>
+        <a href="beta.html#program">Founding issuers</a>
+        <a href="beta.html#apply">Apply for beta</a>
+        <a href="index.html#how">How it works</a>
+      </div>
+    </div>
+  </div>
+</footer>
+
+</body>
+</html>
