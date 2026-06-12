@@ -1,0 +1,45 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<meta name="theme-color" content="#0a0a0f">
+<title>You're offline — DCS Verify</title>
+<meta name="robots" content="noindex">
+<link rel="icon" href="favicon-32.png" sizes="32x32" type="image/png">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root{--bg:#0a0a0f;--surface:#13131a;--border:#1f1f29;--text:#e8e8ec;--dim:#9c9ca8;--dimmer:#6a6a78;--accent:#1e7eff;--accent-2:#4aa3ff;--mono:"JetBrains Mono",monospace;--sans:"Inter",-apple-system,system-ui,sans-serif}
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{background:var(--bg);color:var(--text);font-family:var(--sans);min-height:100vh;display:flex;align-items:center;justify-content:center;padding:24px;text-align:center}
+  .box{max-width:480px}
+  .code{font-family:var(--mono);font-size:13px;letter-spacing:.2em;color:var(--accent-2);text-transform:uppercase;margin-bottom:16px}
+  h1{font-size:30px;font-weight:800;letter-spacing:-.02em;margin-bottom:12px}
+  p{color:var(--dim);font-size:15px;line-height:1.6;margin-bottom:24px}
+  .btns{display:flex;gap:12px;justify-content:center;flex-wrap:wrap}
+  a.btn{display:inline-flex;align-items:center;gap:8px;padding:12px 22px;border-radius:10px;font-weight:700;font-size:14px;text-decoration:none}
+  a.primary{background:var(--accent);color:#fff}
+  a.ghost{border:1px solid var(--border);color:var(--text)}
+  .note{font-family:var(--mono);font-size:11px;color:var(--dimmer);margin-top:22px}
+</style>
+<style id="a11y-deep">.skip-link{position:absolute;left:-9999px;top:0;z-index:1000;background:#1e7eff;color:#fff;padding:10px 16px;border-radius:0 0 8px 0;font:600 14px system-ui,sans-serif;text-decoration:none}.skip-link:focus{left:0}:focus-visible{outline:2px solid #4aa3ff;outline-offset:2px;border-radius:3px}</style>
+</head>
+<body>
+<a class="skip-link" href="#main-content">Skip to content</a>
+  <div class="box" id="main-content">
+    <div class="code">Offline</div>
+    <h1>You're offline</h1>
+    <p>This page isn't available offline.</p>
+    <div class="btns">
+      <a class="btn primary" href="/index.html">Go to homepage</a>
+      <a class="btn ghost" href="/verify.html">Verify a credential</a>
+    </div>
+    <p class="note" id="conn">You appear to be offline. Verification needs a network connection — the result is never served from cache.</p>
+    <script>
+      function upd(){document.getElementById('conn').textContent = navigator.onLine ? 'Back online — reload to continue.' : 'You appear to be offline. Verification needs a network connection — the result is never served from cache.';}
+      addEventListener('online',upd);addEventListener('offline',upd);upd();
+    </script>
+  </div>
+</body>
+</html>

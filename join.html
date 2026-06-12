@@ -1,0 +1,126 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Become an issuer — DCS Verify</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{--bg:#0a0a0f;--surface:#13131a;--surface-2:#181820;--border:#1f1f29;--border-2:#2a2a36;--text:#e8e8ec;--dim:#9c9ca8;--dimmer:#6a6a78;--accent:#1e7eff;--accent-2:#4aa3ff;--green:#34d399;--purple:#a78bfa;--radius:14px;--mono:"JetBrains Mono",monospace;--sans:"Inter",-apple-system,system-ui,sans-serif}
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{background:var(--bg);color:var(--text);font-family:var(--sans);line-height:1.55}
+  .wrap{max-width:860px;margin:0 auto;padding:0 24px}
+  nav{border-bottom:1px solid var(--border);position:sticky;top:0;background:rgba(10,10,15,.8);backdrop-filter:blur(12px);z-index:10}
+  nav .wrap{display:flex;align-items:center;justify-content:space-between;height:62px}
+  .brand{display:flex;gap:9px;align-items:center;font-weight:700;font-size:16px}
+  .brand .mk{width:24px;height:24px;border:1.5px solid var(--accent);border-radius:7px;display:grid;place-items:center;color:var(--accent);font-size:12px}
+  .navlinks{display:flex;gap:24px;font-size:14px;color:var(--dim)}.navlinks a{color:inherit;text-decoration:none}
+  .hero{text-align:center;padding:54px 0 12px}
+  .eyebrow{font-family:var(--mono);font-size:11px;letter-spacing:.16em;text-transform:uppercase;color:var(--dim);display:inline-flex;align-items:center;gap:8px;margin-bottom:16px}
+  .eyebrow .gd{width:7px;height:7px;border-radius:50%;background:var(--green);box-shadow:0 0 10px rgba(52,211,153,.6)}
+  h1{font-size:36px;font-weight:800;letter-spacing:-.03em}
+  .hero p{color:var(--dim);margin-top:10px;max-width:560px;margin-left:auto;margin-right:auto}
+  .steps{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin:36px 0}
+  .step{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:20px}
+  .step .n{font-family:var(--mono);font-size:11px;color:var(--accent-2);letter-spacing:.1em}
+  .step h3{font-size:15px;margin:8px 0 6px}
+  .step p{font-size:13px;color:var(--dim)}
+  .card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:24px;margin:14px 0}
+  .card h2{font-size:18px;margin-bottom:6px}
+  .card .sub{color:var(--dim);font-size:13.5px;margin-bottom:14px}
+  input[type=email]{width:100%;padding:13px 15px;border:1px solid var(--border-2);border-radius:11px;background:var(--surface-2);color:var(--text);font-size:14px;font-family:var(--mono)}
+  input:focus{outline:none;border-color:var(--accent)}
+  .btn{display:inline-block;padding:13px 22px;border:none;border-radius:12px;background:var(--accent);color:#fff;font-weight:700;font-size:14px;cursor:pointer;margin-top:12px}
+  .keybox{font-family:var(--mono);font-size:12px;word-break:break-all;background:var(--surface-2);border:1px solid var(--green);border-radius:10px;padding:14px;margin-top:14px;display:none}
+  .err{color:#f87171;font-family:var(--mono);font-size:12px;margin-top:10px}
+  .note{font-family:var(--mono);font-size:11.5px;color:var(--dimmer);border:1px dashed var(--border-2);border-radius:12px;padding:14px 16px;margin-top:14px}
+  .note b{color:var(--green)}
+  footer{border-top:1px solid var(--border);margin-top:50px;padding:30px 0;color:var(--dimmer);font-family:var(--mono);font-size:12px}
+  @media(max-width:680px){.steps{grid-template-columns:1fr}.navlinks{display:none}}
+</style>
+<link rel="manifest" href="manifest.json">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<link rel="icon" href="favicon-32.png" sizes="32x32" type="image/png">
+<meta name="theme-color" content="#0a0a0f">
+<!-- BEGIN R4-2 SEO (managed; regenerate via meta-build.py) -->
+<meta name="description" content="Make every certificate, result, or licence your organisation issues independently verifiable with DCS Verify.">
+<link rel="canonical" href="https://verify.dcsai.ai/join.html">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="DCS Verify">
+<meta property="og:title" content="Become an issuer — DCS Verify">
+<meta property="og:description" content="Make every certificate, result, or licence your organisation issues independently verifiable with DCS Verify.">
+<meta property="og:url" content="https://verify.dcsai.ai/join.html">
+<meta property="og:image" content="https://verify.dcslabs.ai/icon-512.png">
+<meta property="og:locale" content="en_US">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:site" content="@DCSAILabs">
+<meta name="twitter:title" content="Become an issuer — DCS Verify">
+<meta name="twitter:description" content="Make every certificate, result, or licence your organisation issues independently verifiable with DCS Verify.">
+<meta name="twitter:image" content="https://verify.dcslabs.ai/icon-512.png">
+<!-- END R4-2 SEO -->
+<style id="a11y-deep">.skip-link{position:absolute;left:-9999px;top:0;z-index:1000;background:#1e7eff;color:#fff;padding:10px 16px;border-radius:0 0 8px 0;font:600 14px system-ui,sans-serif;text-decoration:none}.skip-link:focus{left:0}:focus-visible{outline:2px solid #4aa3ff;outline-offset:2px;border-radius:3px}</style>
+</head>
+<body>
+<nav><div class="wrap">
+  <a class="brand" href="index.html" style="text-decoration:none;color:inherit"><span class="mk">◆</span> DCS Verify</a>
+  <div class="navlinks"><a href="verify.html">Verify</a><a href="explorer.html">Explorer</a><a href="registry.html">Registry</a><a href="trust-landscape.html">Trust Landscape</a><a href="index.html">Home</a></div>
+</div></nav>
+
+
+<span id="main-content" tabindex="-1"></span>
+<div class="wrap">
+  <div class="hero">
+    <div class="eyebrow"><span class="gd"></span> Early network · founding issuers shape the standard</div>
+    <h1>Become an issuer.</h1>
+    <p>If your organisation issues certificates, results, licenses, or documents today, DCS Verify makes each one independently verifiable — recipients and employers confirm authenticity in seconds, with no account and no call back to you.</p>
+  </div>
+
+  <div class="steps">
+    <div class="step"><div class="n">STEP 01</div><h3>Get an API key</h3><p>Free, instant, below. Test issuance and verification against the live API immediately.</p></div>
+    <div class="step"><div class="n">STEP 02</div><h3>Issue signed credentials</h3><p>One POST per credential. Each returns a portable Ed25519-signed receipt — optionally anchored on Base.</p></div>
+    <div class="step"><div class="n">STEP 03</div><h3>Appear in the public registry</h3><p>Your issuer profile gets a transparent, reproducible trust score that grows with real activity. No pay-to-rank.</p></div>
+  </div>
+
+  <div class="card">
+    <h2>Get your API key</h2>
+    <div class="sub">Free tier — enough to integrate and test. The key is shown once; store it safely.</div>
+    <input type="email" id="email" placeholder="you@organisation.org" autocomplete="email" />
+    <button class="btn" id="signup">Create key →</button>
+    <div class="keybox" id="keybox"></div>
+    <div class="err" id="err"></div>
+    <div class="note"><b>Honest onboarding.</b> The free key lets you test the full issue → verify → revoke flow today. Issuing under your organisation's own issuer ID (with your name in the public registry) is enabled after a short onboarding check — so the registry only ever lists real, accountable issuers. Start with the key; we take it from there.</div>
+  </div>
+
+  <div class="card">
+    <h2>Why founding issuers join now</h2>
+    <div class="sub" style="margin-bottom:0">
+      Your trust score's longevity component starts counting from your first credential — early issuers compound it.
+      Verification is free and public forever, so your recipients never hit a paywall to prove what you gave them.
+      And the standard is open (MIT): no lock-in, the reference verifier runs anywhere, and your receipts stay valid even without us.
+    </div>
+  </div>
+</div>
+
+
+
+<script type="module">
+  const API = "https://api.dcslabs.ai/v1";
+  const $ = (id) => document.getElementById(id);
+  $("signup").addEventListener("click", async () => {
+    $("err").textContent = ""; const email = $("email").value.trim();
+    if (!/.+@.+\..+/.test(email)) return ($("err").textContent = "Enter a valid email.");
+    try {
+      const r = await fetch(`${API}/auth/signup`, { method: "POST",
+        headers: { "content-type": "application/json" }, body: JSON.stringify({ email }) });
+      const j = await r.json();
+      if (!r.ok) return ($("err").textContent = j.error || "Signup failed — try again shortly.");
+      const key = j.api_key || j.key || JSON.stringify(j);
+      const kb = $("keybox"); kb.style.display = "block";
+      kb.textContent = "Your API key (shown once — store it now): " + key;
+    } catch { $("err").textContent = "Could not reach the API — try again shortly."; }
+  });
+</script>
+<footer><div class="wrap">DCS Verify, a product of DCS AI Technologies L.L.C · <a href="privacy.html">Privacy</a> · <a href="terms.html">Terms</a> · <a href="verify.html">Verify</a> · <a href="explorer.html">Explorer</a></div></footer>
+</body>
+</html>

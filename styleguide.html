@@ -1,0 +1,123 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<meta name="theme-color" content="#0a0a0f">
+<title>Styleguide — DCS Verify (internal)</title>
+<meta name="robots" content="noindex, nofollow">
+<meta name="description" content="Internal design-system reference for DCS Verify. Not indexed.">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  /* ── DESIGN TOKENS (the single source — mirror these into every page) ── */
+  :root{
+    --bg:#0a0a0f; --surface:#13131a; --surface-2:#181820; --border:#1f1f29; --border-2:#2a2a36;
+    --text:#e8e8ec; --dim:#9c9ca8; --dimmer:#6a6a78;
+    --accent:#1e7eff; --accent-2:#4aa3ff; --green:#34d399; --red:#f87171; --amber:#fbbf24; --purple:#a78bfa;
+    --mono:"JetBrains Mono",monospace; --sans:"Inter",-apple-system,system-ui,sans-serif;
+    --radius:12px; --radius-sm:10px; --radius-lg:14px;
+    --space-1:6px; --space-2:12px; --space-3:18px; --space-4:24px; --space-5:36px;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{background:var(--bg);color:var(--text);font-family:var(--sans);line-height:1.5;padding:0 0 80px}
+  .wrap{max-width:920px;margin:0 auto;padding:0 24px}
+  header{padding:44px 0 20px;border-bottom:1px solid var(--border)}
+  .eyebrow{font-family:var(--mono);font-size:11px;letter-spacing:.16em;text-transform:uppercase;color:var(--dim);margin-bottom:10px}
+  h1{font-size:30px;font-weight:800;letter-spacing:-.02em}
+  h2{font-size:18px;font-weight:700;margin:40px 0 14px;padding-top:18px;border-top:1px solid var(--border)}
+  .sub{color:var(--dim);font-size:14px;margin-bottom:14px}
+  .row{display:flex;flex-wrap:wrap;gap:14px;align-items:center}
+  .swatch{width:104px}
+  .chip{height:56px;border-radius:var(--radius-sm);border:1px solid var(--border)}
+  .swatch .label{font-family:var(--mono);font-size:10.5px;color:var(--dim);margin-top:6px;line-height:1.5}
+  /* components, defined exactly as the site uses them */
+  .btn{display:inline-flex;align-items:center;gap:8px;padding:12px 22px;border-radius:var(--radius-sm);font-weight:700;font-size:14px;border:none;cursor:pointer;font-family:var(--sans);text-decoration:none}
+  .btn.primary{background:var(--accent);color:#fff}
+  .btn.ghost{border:1px solid var(--border);color:var(--text);background:transparent}
+  .card{border:1px solid var(--border);border-radius:var(--radius-lg);background:var(--surface);padding:20px;max-width:380px}
+  .card h3{font-size:15px;margin-bottom:6px}
+  .card p{color:var(--dim);font-size:13.5px}
+  .pill{font-family:var(--mono);font-size:11px;padding:5px 11px;border-radius:99px;border:1px solid var(--border);color:var(--dim)}
+  .pill.ok{color:var(--green);border-color:rgba(52,211,153,.35);background:rgba(52,211,153,.10)}
+  .pill.warn{color:var(--amber);border-color:rgba(251,191,36,.35);background:rgba(251,191,36,.10)}
+  .pill.bad{color:var(--red);border-color:rgba(248,113,113,.35);background:rgba(248,113,113,.10)}
+  .field{width:280px;padding:12px 14px;border-radius:var(--radius-sm);border:1px solid var(--border);background:var(--surface-2);color:var(--text);font-family:var(--mono);font-size:13px}
+  .tabs{display:flex;gap:8px;flex-wrap:wrap}
+  .tabs a{padding:8px 14px;border-radius:99px;border:1px solid var(--border);color:var(--dim);font-size:13px;text-decoration:none}
+  pre{font-family:var(--mono);font-size:12px;background:#0f1620;border:1px solid var(--border);border-radius:var(--radius-sm);padding:14px;color:var(--text);overflow:auto}
+  code{font-family:var(--mono);font-size:12.5px;color:var(--accent-2)}
+  .type-sample{font-weight:800;letter-spacing:-.02em}
+</style>
+<style id="a11y-deep">.skip-link{position:absolute;left:-9999px;top:0;z-index:1000;background:#1e7eff;color:#fff;padding:10px 16px;border-radius:0 0 8px 0;font:600 14px system-ui,sans-serif;text-decoration:none}.skip-link:focus{left:0}:focus-visible{outline:2px solid #4aa3ff;outline-offset:2px;border-radius:3px}</style>
+</head>
+<body>
+<div class="wrap" id="main-content">
+  <header>
+    <div class="eyebrow">Internal · design system · not indexed</div>
+    <h1>DCS Verify — Styleguide</h1>
+    <p class="sub">The single reference for every future page. Copy these tokens and component
+    patterns rather than re-inventing them. This page is <code>noindex</code> and not linked from
+    public nav.</p>
+  </header>
+
+  <h2>Color tokens</h2>
+  <div class="sub">Use the CSS variable, never the raw hex, so a token change propagates.</div>
+  <div class="row">
+    <div class="swatch"><div class="chip" style="background:var(--bg)"></div><div class="label">--bg<br>#0a0a0f</div></div>
+    <div class="swatch"><div class="chip" style="background:var(--surface)"></div><div class="label">--surface<br>#13131a</div></div>
+    <div class="swatch"><div class="chip" style="background:var(--surface-2)"></div><div class="label">--surface-2<br>#181820</div></div>
+    <div class="swatch"><div class="chip" style="background:var(--border)"></div><div class="label">--border<br>#1f1f29</div></div>
+    <div class="swatch"><div class="chip" style="background:var(--accent)"></div><div class="label">--accent<br>#1e7eff</div></div>
+    <div class="swatch"><div class="chip" style="background:var(--accent-2)"></div><div class="label">--accent-2<br>#4aa3ff</div></div>
+    <div class="swatch"><div class="chip" style="background:var(--green)"></div><div class="label">--green<br>#34d399</div></div>
+    <div class="swatch"><div class="chip" style="background:var(--amber)"></div><div class="label">--amber<br>#fbbf24</div></div>
+    <div class="swatch"><div class="chip" style="background:var(--red)"></div><div class="label">--red<br>#f87171</div></div>
+    <div class="swatch"><div class="chip" style="background:var(--purple)"></div><div class="label">--purple<br>#a78bfa</div></div>
+  </div>
+
+  <h2>Typography</h2>
+  <div class="sub">Sans: Inter. Mono: JetBrains Mono. Both loaded with <code>display=swap</code>.</div>
+  <div class="type-sample" style="font-size:30px">Aa — 30px / 800 heading</div>
+  <div class="type-sample" style="font-size:18px;font-weight:700;margin-top:8px">Aa — 18px / 700 subhead</div>
+  <div style="font-size:15px;color:var(--dim);margin-top:8px">Aa — 15px / 400 body (var(--dim) for secondary text)</div>
+  <div style="font-family:var(--mono);font-size:12px;color:var(--dimmer);margin-top:8px">Aa — 12px mono / labels &amp; code</div>
+
+  <h2>Buttons</h2>
+  <div class="row">
+    <a class="btn primary">Primary action</a>
+    <a class="btn ghost">Ghost action</a>
+  </div>
+
+  <h2>Status pills</h2>
+  <div class="row">
+    <span class="pill">neutral</span>
+    <span class="pill ok">verified</span>
+    <span class="pill warn">suspended</span>
+    <span class="pill bad">revoked</span>
+  </div>
+
+  <h2>Card</h2>
+  <div class="card">
+    <h3>Card title</h3>
+    <p>Standard content card — <code>--surface</code> fill, <code>--border</code> hairline,
+    <code>--radius-lg</code> corners. Used for docs sections, services, panels.</p>
+  </div>
+
+  <h2>Form field</h2>
+  <div class="row"><input class="field" placeholder="sha256:9f3c…" aria-label="example field" /></div>
+
+  <h2>Tabs / in-page nav</h2>
+  <div class="tabs"><a>Quickstart</a><a>Receipt format</a><a>Badge embed</a><a>Troubleshooting</a></div>
+
+  <h2>Spacing &amp; radius scale</h2>
+  <pre>--space-1:6px  --space-2:12px  --space-3:18px  --space-4:24px  --space-5:36px
+--radius-sm:10px  --radius:12px  --radius-lg:14px</pre>
+
+  <h2>Usage rule</h2>
+  <p class="sub">New pages start from these tokens + the shared-header contract
+  (<code>&lt;div id="dcs-header-root"&gt;&lt;/div&gt;</code> + <code>shared-header.js</code>). Run
+  <code>site-ci.mjs</code> (lands R6-12) before any deploy.</p>
+</div>
+</body>
+</html>

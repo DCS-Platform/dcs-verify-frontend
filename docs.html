@@ -1,0 +1,311 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Docs — DCS Verify</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{--bg:#0a0a0f;--surface:#13131a;--surface-2:#181820;--border:#1f1f29;--border-2:#2a2a36;--text:#e8e8ec;--dim:#9c9ca8;--dimmer:#6a6a78;--accent:#1e7eff;--accent-2:#4aa3ff;--green:#34d399;--amber:#fbbf24;--radius:14px;--mono:"JetBrains Mono",monospace;--sans:"Inter",-apple-system,system-ui,sans-serif}
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{background:var(--bg);color:var(--text);font-family:var(--sans);line-height:1.6}
+  .wrap{max-width:880px;margin:0 auto;padding:0 24px}
+  nav.top{border-bottom:1px solid var(--border);position:sticky;top:0;background:rgba(10,10,15,.8);backdrop-filter:blur(12px);z-index:10}
+  nav.top .wrap{display:flex;align-items:center;justify-content:space-between;height:62px}
+  .brand{display:flex;gap:9px;align-items:center;font-weight:700;font-size:16px}
+  .brand .mk{width:24px;height:24px;border:1.5px solid var(--accent);border-radius:7px;display:grid;place-items:center;color:var(--accent);font-size:12px}
+  .navlinks{display:flex;gap:24px;font-size:14px;color:var(--dim)}.navlinks a{color:inherit;text-decoration:none}
+  .hero{padding:46px 0 8px}
+  .eyebrow{font-family:var(--mono);font-size:11px;letter-spacing:.16em;text-transform:uppercase;color:var(--dim);display:inline-flex;align-items:center;gap:8px;margin-bottom:14px}
+  .eyebrow .gd{width:7px;height:7px;border-radius:50%;background:var(--green);box-shadow:0 0 10px rgba(52,211,153,.6)}
+  h1{font-size:34px;font-weight:800;letter-spacing:-.03em}
+  .hero p{color:var(--dim);margin-top:8px;max-width:640px}
+  .tabs{display:flex;gap:8px;margin:26px 0 22px;flex-wrap:wrap}
+  .tabs a{font-family:var(--mono);font-size:12px;color:var(--dim);border:1px solid var(--border-2);border-radius:999px;padding:8px 16px;text-decoration:none}
+  .tabs a:hover{color:var(--accent-2);border-color:var(--accent)}
+  .card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:24px;margin:14px 0}
+  .card h2{font-size:19px;margin-bottom:4px}
+  .card .sub{color:var(--dim);font-size:13.5px;margin-bottom:14px}
+  h3{font-size:14.5px;margin:18px 0 8px;color:var(--accent-2)}
+  p,li{color:var(--dim);font-size:14px;margin-bottom:8px}
+  ol,ul{padding-left:22px;margin-bottom:10px}
+  b{color:var(--text)}
+  pre{font-family:var(--mono);font-size:11.5px;color:#c8d4e8;background:var(--surface-2);border:1px solid var(--border);border-radius:10px;padding:14px;overflow-x:auto;margin:10px 0;line-height:1.55}
+  .dl{display:inline-flex;align-items:center;gap:10px;background:var(--accent);color:#fff;font-weight:700;font-size:14px;padding:13px 22px;border-radius:12px;text-decoration:none;margin-top:8px}
+  .dl.ghost{background:var(--surface-2);color:var(--text);border:1px solid var(--border-2)}
+  .pill{font-family:var(--mono);font-size:10px;color:var(--green);border:1px solid var(--border-2);border-radius:999px;padding:3px 10px;margin-left:8px;vertical-align:middle}
+  table{width:100%;border-collapse:collapse;margin:10px 0;font-size:12.5px}
+  th,td{text-align:left;padding:8px 10px;border-bottom:1px solid var(--border);color:var(--dim);vertical-align:top}
+  th{font-family:var(--mono);font-size:10px;letter-spacing:.08em;text-transform:uppercase;color:var(--dimmer)}
+  td code{font-family:var(--mono);font-size:11px;color:var(--accent-2)}
+  .note{font-family:var(--mono);font-size:11.5px;color:var(--dim);background:var(--surface-2);border:1px dashed var(--border-2);border-radius:12px;padding:13px 15px;margin:12px 0}
+  .closing-cta{text-align:center;padding:48px 0 8px;margin-top:34px;border-top:1px solid var(--border)}
+  .closing-cta h2{font-size:26px;font-weight:800;letter-spacing:-.02em}
+  .closing-cta p{color:var(--dim);max-width:620px;margin:10px auto 0}
+  .closing-cta .cta-row{display:flex;gap:12px;justify-content:center;flex-wrap:wrap;margin-top:20px}
+  .closing-cta .dl{margin-top:0;border-radius:999px}
+  footer{border-top:1px solid var(--border);margin-top:54px;padding:28px 0;color:var(--dimmer);font-family:var(--mono);font-size:12px}
+  footer a{color:var(--dim);text-decoration:none}
+  @media(max-width:680px){.navlinks{display:none}}
+</style>
+<link rel="manifest" href="manifest.json">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<link rel="icon" href="favicon-32.png" sizes="32x32" type="image/png">
+<meta name="theme-color" content="#0a0a0f">
+<!-- BEGIN R4-2 SEO (managed; regenerate via meta-build.py) -->
+<meta name="description" content="Developer documentation for DCS Verify — issue and verify Ed25519-signed credential receipts on the open R+2 standard.">
+<link rel="canonical" href="https://verify.dcsai.ai/docs.html">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="DCS Verify">
+<meta property="og:title" content="Docs — DCS Verify">
+<meta property="og:description" content="Developer documentation for DCS Verify — issue and verify Ed25519-signed credential receipts on the open R+2 standard.">
+<meta property="og:url" content="https://verify.dcsai.ai/docs.html">
+<meta property="og:image" content="https://verify.dcslabs.ai/icon-512.png">
+<meta property="og:locale" content="en_US">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:site" content="@DCSAILabs">
+<meta name="twitter:title" content="Docs — DCS Verify">
+<meta name="twitter:description" content="Developer documentation for DCS Verify — issue and verify Ed25519-signed credential receipts on the open R+2 standard.">
+<meta name="twitter:image" content="https://verify.dcslabs.ai/icon-512.png">
+<!-- END R4-2 SEO -->
+<style id="a11y-deep">.skip-link{position:absolute;left:-9999px;top:0;z-index:1000;background:#1e7eff;color:#fff;padding:10px 16px;border-radius:0 0 8px 0;font:600 14px system-ui,sans-serif;text-decoration:none}.skip-link:focus{left:0}:focus-visible{outline:2px solid #4aa3ff;outline-offset:2px;border-radius:3px}</style>
+</head>
+<body>
+<nav><div class="wrap">
+  <a class="brand" href="index.html" style="text-decoration:none;color:inherit"><span class="mk">◆</span> DCS Verify</a>
+  <div class="navlinks"><a href="verify.html">Verify</a><a href="explorer.html">Explorer</a><a href="registry.html">Registry</a><a href="trust-landscape.html">Trust Landscape</a><a href="index.html">Home</a></div>
+</div></nav>
+
+
+<span id="main-content" tabindex="-1"></span>
+<div class="wrap">
+  <div class="hero">
+    <div class="eyebrow"><span class="gd"></span> Documentation · everything needed to verify or issue</div>
+    <h1>Docs</h1>
+    <p>The whitepaper, step-by-step guides for verifying and issuing, and the API at a glance. Everything here describes what is live — nothing aspirational.</p>
+  </div>
+
+  <div class="tabs">
+    <a href="#quickstart">Quickstart</a>
+    <a href="#receipt-format">Receipt format</a>
+    <a href="#badge-embed">Badge embed</a>
+    <a href="#trust-sku">Trust SKU</a>
+    <a href="#whitepaper">Whitepaper</a>
+    <a href="#verify-guide">How to verify</a>
+    <a href="#issue-guide">How to issue</a>
+    <a href="#api">API reference</a>
+    <a href="#troubleshooting">Troubleshooting</a>
+    <a href="#info">Info &amp; links</a>
+  </div>
+
+  <!-- ============ QUICKSTART ============ -->
+  <div class="card" id="quickstart">
+    <h2>Quickstart <span class="pill">curl &rarr; verify in 5 min</span></h2>
+    <div class="sub">Verification needs no account. Paste a receipt or a CID and get the four-state result. (Endpoints are exact and live at api.dcslabs.ai.)</div>
+    <p style="margin:10px 0 4px;font-weight:600">1. Verify a credential you already have</p>
+    <pre>curl -s -X POST https://api.dcslabs.ai/v1/credentials/verify \
+  -H "Content-Type: application/json" \
+  -d '{"cid":"sha256:&lt;your-cid&gt;"}'</pre>
+    <p style="margin:10px 0 4px;font-weight:600">2. Or verify by full receipt + original document (checks the hash too)</p>
+    <pre>curl -s -X POST https://api.dcslabs.ai/v1/credentials/verify \
+  -H "Content-Type: application/json" \
+  -d '{"receipt":{ ... }, "document":{ ... }}'</pre>
+    <p style="margin:10px 0 4px;font-weight:600">3. Issuers: get a free key, then issue</p>
+    <pre>curl -s -X POST https://api.dcslabs.ai/v1/auth/signup -H "Content-Type: application/json" -d '{"email":"you@org.com"}'
+curl -s -X POST https://api.dcslabs.ai/v1/credentials/issue \
+  -H "Authorization: Bearer &lt;key&gt;" -H "Content-Type: application/json" \
+  -d '{"subject":{ ... }}'</pre>
+    <div class="sub">The verify response is a four-state result (verified / invalid / revoked-or-suspended / unknown). No format guessing — unsupported inputs are refused, never faked.</div>
+  </div>
+
+  <!-- ============ RECEIPT FORMAT ============ -->
+  <div class="card" id="receipt-format">
+    <h2>Receipt format <span class="pill">R+2 · RFC 8785</span></h2>
+    <div class="sub">A receipt is a small JSON object. The content ID (CID) is computed over the canonical <em>unsigned</em> form (RFC 8785 JCS + SHA-256), so the signature never affects the CID.</div>
+    <pre>{
+  "id": "&lt;issuer-scoped id&gt;",
+  "cid": "sha256:&lt;hash of the canonical unsigned form&gt;",
+  "issuer": "did:web:dcslabs.ai",
+  "subject": { ... },           // your credential payload
+  "status": { "listId": "...", "index": 42 },   // optional
+  "signature": "&lt;Ed25519 over the canonical bytes&gt;"
+}</pre>
+    <div class="sub">Verification recomputes the CID from the unsigned form, checks the Ed25519 signature against the issuer's did:web key, then checks the status list and any Base anchor. Fields you don't recognise are tolerated (forward-compatible).</div>
+  </div>
+
+  <!-- ============ BADGE EMBED ============ -->
+  <div class="card" id="badge-embed">
+    <h2>Badge embed <span class="pill">badge.js</span></h2>
+    <div class="sub">Drop a verifiable badge on any page. It links to the live verify view for the credential and reflects real status.</div>
+    <pre>&lt;script src="https://verify.dcslabs.ai/badge.js" defer&gt;&lt;/script&gt;
+&lt;span class="dcs-badge" data-cid="sha256:&lt;your-cid&gt;"&gt;&lt;/span&gt;</pre>
+    <div class="sub">The badge resolves the CID against the public verify endpoint and shows verified / revoked / unknown — clicking through opens <code>verify.html?cid=...</code> so anyone can re-check independently.</div>
+  </div>
+
+  <!-- ============ TRUST SKU ============ -->
+  <div class="card" id="trust-sku">
+    <h2>Trust SKU integration <span class="pill">issuer onboarding</span></h2>
+    <div class="sub">The Trust SKU is the issuer offering: sign your credentials as receipts, manage their lifecycle, and let anyone verify without trusting you.</div>
+    <ul>
+      <li><b>1. Entitlement:</b> your tenant is provisioned an issuer ID and an API key (Bearer).</li>
+      <li><b>2. Issue:</b> <code>POST /v1/credentials/issue</code> signs + stores, with an optional status slot and Base anchor.</li>
+      <li><b>3. Lifecycle:</b> <code>POST /v1/credentials/{cid}/revoke|suspend|reactivate</code> — revocation permanent, suspension reversible.</li>
+      <li><b>4. Embed:</b> put the badge (above) on certificates/portals so recipients verify in one click.</li>
+      <li><b>5. Registry:</b> your issuer appears in the public registry with a reproducible trust score (open formula, no pay-to-rank).</li>
+    </ul>
+    <div class="sub">Pricing and tiers are on the <a href="pricing.html" style="color:var(--accent-2)">pricing page</a>. Verification stays free and account-free for everyone.</div>
+  </div>
+
+
+  <!-- ============ WHITEPAPER ============ -->
+  <div class="card" id="whitepaper">
+    <h2>Technical whitepaper <span class="pill">v1.0 · PDF</span></h2>
+    <div class="sub">The complete technical reference: the R+2 receipt format, RFC 8785 canonicalization, the CID rule, Ed25519 signing and key rotation, Bitstring status lists, Base mainnet anchoring, the four-state verification algorithm, inbound W3C VC / Open Badges verification, the trust registry and open scoring formula, the security model, and full usage guides.</div>
+    <a class="dl" href="DCS_Verify_Whitepaper.pdf" download>↓ Download whitepaper (PDF)</a>
+    <a class="dl ghost" href="DCS_Verify_Whitepaper.pdf" target="_blank" rel="noopener">Open in browser</a>
+  </div>
+
+  <!-- ============ HOW TO VERIFY ============ -->
+  <div class="card" id="verify-guide">
+    <h2>How to verify a credential</h2>
+    <div class="sub">Free, no account, four ways — pick whichever fits.</div>
+
+    <h3>1 · On the website</h3>
+    <ol>
+      <li>Open <a href="verify.html" style="color:var(--accent-2)">verify.html</a>.</li>
+      <li>Paste the credential ID (<code style="font-family:var(--mono);font-size:12px">sha256:…</code>) or the full receipt JSON you were given.</li>
+      <li>Optional: paste the original document JSON to also prove the file matches.</li>
+      <li>Press <b>Verify</b>. You get one of four states — valid · expired · suspended/revoked · renewed — plus the three checks (signature, document hash, Base anchor) and the raw materials to re-check everything yourself.</li>
+    </ol>
+
+    <h3>2 · On your phone (app)</h3>
+    <ol>
+      <li>Open <a href="app.html" style="color:var(--accent-2)">app.html</a> — installable via "Add to Home Screen".</li>
+      <li>Tap <b>⌖ Scan QR</b> and point the camera at a credential QR (works on Android and iPhone), or paste the CID.</li>
+    </ol>
+
+    <h3>3 · By API (one call, no key)</h3>
+    <pre>curl -s -X POST https://api.dcslabs.ai/v1/credentials/verify \
+  -H 'Content-Type: application/json' \
+  -d '{"cid":"sha256:..."}'
+
+→ {"validity_status":"valid","signature_valid":true,
+   "hash_match":null,"anchor_present":true,"latest_cid":null}</pre>
+
+    <h3>4 · Fully independently — no DCS servers at all</h3>
+    <ol>
+      <li>Take the receipt JSON; remove the <b>signature</b> field.</li>
+      <li>Canonicalize it with RFC 8785 (JCS) and hash with SHA-256 → must equal the receipt's <b>cid</b>.</li>
+      <li>Verify the Ed25519 signature against the receipt's <b>pubkey</b> with any crypto library.</li>
+      <li>Confirm the key belongs to the issuer at <a href="https://dcslabs.ai/.well-known/did.json" style="color:var(--accent-2)">dcslabs.ai/.well-known/did.json</a>.</li>
+      <li>Confirm the anchor on <a href="https://basescan.org" style="color:var(--accent-2)" rel="noopener">basescan.org</a> — the transaction's input data is the CID.</li>
+    </ol>
+    <div class="note">The MIT reference verifier implements all of this: <a href="https://github.com/DCS-LabsAI/r2-standard" style="color:var(--accent-2)" rel="noopener">github.com/DCS-LabsAI/r2-standard</a>. Steps 1–5 work even if every DCS server is offline — that is the design.</div>
+
+    <h3>Verifying other formats</h3>
+    <p>W3C Verifiable Credentials (eddsa-jcs-2022) and Open Badges 3.0 verify through <code style="font-family:var(--mono);font-size:12px">POST /v1/verify/universal</code> — keys resolved via did:key or did:web. Unsupported formats get an honest "not yet verifiable", never a fake valid.</p>
+  </div>
+
+  <!-- ============ HOW TO ISSUE ============ -->
+  <div class="card" id="issue-guide">
+    <h2>How to issue credentials</h2>
+    <div class="sub">From zero to your first signed, anchored credential in four steps.</div>
+
+    <h3>Step 1 · Get a free API key</h3>
+    <p>Self-serve at <a href="join.html" style="color:var(--accent-2)">join.html</a> — instant, shown once, store it safely.</p>
+
+    <h3>Step 2 · Request your issuer ID</h3>
+    <pre>curl -s -X POST https://api.dcslabs.ai/v1/issuers/request \
+  -H "Authorization: Bearer $KEY" -H 'Content-Type: application/json' \
+  -d '{"issuer_id":"your-org","display_name":"Your Organisation",
+       "contact_email":"registrar@your-org.com","profile":"r2-education"}'</pre>
+    <p>Requests are reviewed (the public registry lists real, accountable organisations only). Once approved, your profile and trust score appear in the <a href="explorer.html" style="color:var(--accent-2)">Explorer</a> automatically.</p>
+
+    <h3>Step 3 · Issue</h3>
+    <pre>curl -s -X POST https://api.dcslabs.ai/v1/credentials/issue \
+  -H "Authorization: Bearer $KEY" -H 'Content-Type: application/json' \
+  -d '{
+    "issuer": "your-org",
+    "credential_type": "certificate",
+    "subject": { "subject_name": "Asha Verma",
+                 "issuer_institution": "Your Organisation",
+                 "credential_title": "Full-Stack Diploma",
+                 "issued_date": "2026-06-04" },
+    "status_enabled": true,
+    "anchor": true
+  }'</pre>
+    <p>Returns the signed receipt. Give the holder the receipt JSON, or simply the link / QR:</p>
+    <pre>https://verify.dcslabs.ai/verify.html?cid=sha256:...</pre>
+
+    <h3>Step 4 · Manage over time</h3>
+    <pre>POST /v1/credentials/{cid}/revoke       # permanent — cannot be undone
+POST /v1/credentials/{cid}/suspend      # temporary
+POST /v1/credentials/{cid}/reactivate   # clears suspension only</pre>
+    <div class="note">Sector profiles (r2-education, r2-gov, r2-health, r2-finance) enforce required claims at issue time — pass <b>"profile"</b> in the issue body. Education credentials are permanent by default, revocable on fraud.</div>
+  </div>
+
+  <!-- ============ API REFERENCE ============ -->
+  <div class="card" id="api">
+    <h2>API at a glance <span class="pill">api.dcslabs.ai</span></h2>
+    <table>
+      <tr><th>Endpoint</th><th>Auth</th><th>What it does</th></tr>
+      <tr><td><code>POST /v1/credentials/verify</code></td><td>none</td><td>Verify by cid or receipt (+ optional document) → four-state result</td></tr>
+      <tr><td><code>GET /v1/credentials/{id|cid}</code></td><td>none</td><td>Fetch a receipt (<code>?format=w3c</code> for the VC envelope)</td></tr>
+      <tr><td><code>GET /v1/status/{listId}</code></td><td>none</td><td>Public status bitstring · <code>/v1/status/cid/{cid}</code> for one credential</td></tr>
+      <tr><td><code>POST /v1/verify/universal</code></td><td>none</td><td>Any format → verify or honest refusal · <code>GET …/formats</code> for the matrix</td></tr>
+      <tr><td><code>GET /v1/registry</code></td><td>none</td><td>All issuers + reproducible trust scores · <code>/{issuer}</code> for one profile</td></tr>
+      <tr><td><code>GET /v1/explorer/stats</code></td><td>none</td><td>Real network counts</td></tr>
+      <tr><td><code>POST /v1/portal/check</code></td><td>none</td><td>Anti-clone advisory for a portal URL</td></tr>
+      <tr><td><code>POST /v1/auth/signup</code></td><td>none</td><td>{email} → free API key (rate-limited)</td></tr>
+      <tr><td><code>POST /v1/credentials/issue</code></td><td>Bearer</td><td>Sign + store + optional status slot and Base anchor</td></tr>
+      <tr><td><code>POST /v1/credentials/{cid}/revoke|suspend|reactivate</code></td><td>Bearer</td><td>Lifecycle management</td></tr>
+      <tr><td><code>POST /v1/issuers/request</code></td><td>Bearer</td><td>Request your own issuer ID</td></tr>
+    </table>
+  </div>
+
+  <!-- ============ TROUBLESHOOTING ============ -->
+  <div class="card" id="troubleshooting">
+    <h2>Troubleshooting</h2>
+    <table>
+      <tr><th>Symptom</th><th>Likely cause</th><th>Fix</th></tr>
+      <tr><td>Result is <code>unknown</code></td><td>CID not found / never issued by a known issuer</td><td>Confirm the CID is exact; check the issuer is in <code>/v1/registry</code></td></tr>
+      <tr><td>Result is <code>invalid</code> after editing the document</td><td>The document no longer hashes to the receipt CID</td><td>Verify against the original unmodified document JSON</td></tr>
+      <tr><td>Signature check fails</td><td>Issuer key rotated, or wrong did:web</td><td>Re-fetch the issuer key from <code>dcslabs.ai/.well-known/did.json</code></td></tr>
+      <tr><td>Badge shows nothing</td><td>badge.js blocked or wrong <code>data-cid</code></td><td>Check the script loads over HTTPS and the CID attribute is set</td></tr>
+      <tr><td><code>401</code> on issue</td><td>Missing/expired Bearer key</td><td>Re-issue a key via <code>/v1/auth/signup</code> (verification never needs a key)</td></tr>
+      <tr><td><code>429</code></td><td>Rate limit on the free tier</td><td>Back off per the <code>Retry-After</code> header; upgrade for higher limits</td></tr>
+    </table>
+  </div>
+
+  <!-- ============ INFO ============ -->
+  <div class="card" id="info">
+    <h2>Info &amp; links</h2>
+    <ul>
+      <li><b>The standard:</b> R+2 is open and MIT-licensed — spec, conformance vectors, and reference verifier at <a href="https://github.com/DCS-LabsAI/r2-standard" style="color:var(--accent-2)" rel="noopener">github.com/DCS-LabsAI/r2-standard</a>.</li>
+      <li><b>Issuer identity:</b> the DCS signing key is publicly bound to the domain at <a href="https://dcslabs.ai/.well-known/did.json" style="color:var(--accent-2)">dcslabs.ai/.well-known/did.json</a> (did:web).</li>
+      <li><b>Trust scores:</b> open formula — reliability 30 · longevity 20 · volume 20 · audit 20 · federation 10. Every registry response includes the inputs so you can recompute the number yourself. No pay-to-rank.</li>
+      <li><b>Honesty rules:</b> network counts are real or shown as absent; advisory signals (portal risk, AI, fraud) are never blended into the cryptographic verdict; unsupported formats are refused, never faked.</li>
+      <li><b>Status semantics:</b> revocation is permanent by design; suspension is reversible; status lists are anonymous public bitstrings.</li>
+      <li><b>Legal:</b> <a href="terms.html" style="color:var(--accent-2)">Terms of Service</a> · <a href="privacy.html" style="color:var(--accent-2)">Privacy Policy</a>.</li>
+      <li><b>Anchoring:</b> credentials can be anchored as a hash in Base mainnet calldata — check any anchor on <a href="https://basescan.org" style="color:var(--accent-2)" rel="noopener">basescan.org</a>.</li>
+    </ul>
+  </div>
+
+  <!-- ============ CLOSING CTA ============ -->
+  <div class="closing-cta" id="check-it">
+    <h2>Don't trust us. Check.</h2>
+    <p>Every claim in these docs resolves to something you can run, curl, or read — a public repo, a live endpoint, an on-chain transaction. If a claim doesn't check out, tell us and we'll fix it or remove it. That's the deal.</p>
+    <div class="cta-row">
+      <a class="dl" href="verify.html">Verify a receipt &rarr;</a>
+      <a class="dl ghost" href="https://github.com/DCS-LabsAI/r2-standard" target="_blank" rel="noopener">Clone the standard (GitHub)</a>
+      <a class="dl ghost" href="https://github.com/DCS-LabsAI/r2-standard/actions" target="_blank" rel="noopener">Run the conformance vectors</a>
+      <a class="dl ghost" href="status.html">Live service status</a>
+    </div>
+  </div>
+</div>
+
+
+<footer><div class="wrap">DCS Verify, a product of DCS AI Technologies L.L.C · <a href="privacy.html">Privacy</a> · <a href="terms.html">Terms</a> · <a href="verify.html">Verify</a> · <a href="explorer.html">Explorer</a></div></footer>
+</body>
+</html>
