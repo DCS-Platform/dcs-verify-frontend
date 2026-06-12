@@ -43,6 +43,7 @@
       </div>
     </div>
     <div class="hero-cta reveal" id="bvActions" style="margin-top:18px"></div>
+    <div id="bvReceipts" style="display:none;max-width:680px;margin:18px auto 0"></div>
     <div class="hero-note reveal" style="margin-top:14px">no account needed · re-check the signature yourself · <a href="verify.html" style="color:inherit">verify another →</a></div>
   </section>
 
@@ -230,11 +231,59 @@
       : row('Anchor','· Base · anchoring…');
     body += row('Status', d.status==='valid' ? '✓ not revoked' : esc(d.status), d.status==='valid'?'ok':'');
     body += row('Receipts', esc(d.receipt_count||1)+' in chain');
+    if(d.signature && d.signature.key_id) body += row('Signing key', esc(d.signature.key_id));
+    if(anchored && d.anchor.root) body += row('Merkle root', '<span style="word-break:break-all">'+esc(d.anchor.root)+'</span>', 'ok');
     document.getElementById('bvBody').innerHTML = body;
     var acts='';
+    acts += '<button class="btn ghost" id="bvViewReceipts" style="cursor:pointer">View all '+esc(d.receipt_count||1)+' receipts ↓</button>';
     if(d.cert_url) acts += '<a class="btn primary" href="'+esc(d.cert_url)+'" target="_blank" rel="noopener">Download certificate (PDF) ↓</a>';
     if(anchored)  acts += '<a class="btn ghost" href="'+esc(d.anchor.explorer)+'" target="_blank" rel="noopener">View on Basescan ↗</a>';
     document.getElementById('bvActions').innerHTML = acts;
+    var vb=document.getElementById('bvViewReceipts');
+    if(vb) vb.onclick=toggleReceipts;
+  }
+  // ---- All-receipts table: every per-receipt hash that feeds the Merkle root ----
+  // Auditor view. Pulls the full chain from /unified-chain and lists each receipt's
+  // hash (CID), kind, and signature status. These N hashes → 1 Merkle root → 1 Base anchor.
+  function toggleReceipts(){
+    var box=document.getElementById('bvReceipts');
+    if(box.style.display==='none'){ box.style.display=''; if(!box.getAttribute('data-loaded')) loadReceipts(); }
+    else box.style.display='none';
+  }
+  function rcptRow(i, r){
+    var hash = r.cid || r.this_cid || '';
+    var sig = (r.signature && r.signature.value) ? '✓' : '—';
+    var gw='https://gateway.lighthouse.storage/ipfs/';
+    var hc = hash ? '<a href="'+gw+encodeURIComponent(hash)+'" target="_blank" rel="noopener" style="color:#4aa3ff;text-decoration:none;word-break:break-all">'+esc(hash)+'</a>' : '—';
+    var bt='1px solid #1f1f29';
+    return '<tr>'
+      +'<td style="color:#6a6a78;padding:7px 10px;border-top:'+bt+';font-variant-numeric:tabular-nums">'+(i+1)+'</td>'
+      +'<td style="padding:7px 10px;border-top:'+bt+';white-space:nowrap">'+esc(r.kind||r.product||'')+'</td>'
+      +'<td style="padding:7px 10px;border-top:'+bt+';font-family:monospace;font-size:11px">'+hc+'</td>'
+      +'<td style="padding:7px 10px;border-top:'+bt+';color:#34d399;text-align:center">'+sig+'</td>'
+      +'</tr>';
+  }
+  function loadReceipts(){
+    var box=document.getElementById('bvReceipts');
+    box.innerHTML='<div style="font-family:monospace;font-size:12px;color:#9c9ca8;padding:10px">Loading the full receipt chain…</div>';
+    fetch(STORAGE+'/api/storage/unified-chain/'+encodeURIComponent(id))
+      .then(function(r){ return r.json(); })
+      .then(function(d){
+        var rs=(d&&d.receipts)||[];
+        if(!rs.length){ box.innerHTML='<div style="font-family:monospace;font-size:12px;color:#9c9ca8;padding:10px">No individual receipts returned for this session.</div>'; return; }
+        var html='<div style="border:1px solid #1f1f29;border-radius:12px;overflow:hidden;background:#13131a;text-align:left">'
+          +'<div style="padding:12px 14px;font-family:monospace;font-size:11px;letter-spacing:.05em;color:#9c9ca8;border-bottom:1px solid #1f1f29">'
+          +esc(rs.length)+' RECEIPTS · EACH HASH FEEDS THE MERKLE ROOT · EACH IS INDEPENDENTLY VERIFIABLE</div>'
+          +'<div style="max-height:440px;overflow:auto"><table style="width:100%;border-collapse:collapse;font-size:13px">'
+          +'<thead><tr style="color:#6a6a78;font-family:monospace;font-size:10px;text-transform:uppercase;letter-spacing:.06em;position:sticky;top:0;background:#13131a">'
+          +'<th style="text-align:left;padding:9px 10px">#</th><th style="text-align:left;padding:9px 10px">Type</th>'
+          +'<th style="text-align:left;padding:9px 10px">Receipt hash (CID) — click for raw JSON</th><th style="padding:9px 10px">Sig</th></tr></thead><tbody>';
+        for(var i=0;i<rs.length;i++) html+=rcptRow(i, rs[i]);
+        html+='</tbody></table></div></div>';
+        box.innerHTML=html;
+        box.setAttribute('data-loaded','1');
+      })
+      .catch(function(){ box.innerHTML='<div style="font-family:monospace;font-size:12px;color:#f0b341;padding:10px">Couldn’t load the receipt list — retry shortly.</div>'; });
   }
   // Resilient load: a cold start / 5xx / network blip is transient, NOT "no receipt".
   // Retry up to 3x with backoff before settling on an honest message — so a real
