@@ -96,7 +96,7 @@
     <tbody id="matrix"></tbody>
   </table>
   <div class="muted" style="margin-top:12px">Results populate as tests are run. A row is marked <span style="color:var(--green)">Passed</span> only when it carries on-chain proof you can independently re-check.</div>
-  <div class="note" style="margin-top:14px"><b>Note on the two "58-receipt" rows.</b> They are different tests. The <span style="color:var(--green)">Passed</span> row is your real build: 58 receipts → <b>one</b> Merkle root → <b>one</b> Base transaction (Model A, production). The <span style="color:var(--amber)">Planned</span> row anchors each receipt in its <b>own</b> transaction — <b>58 separate</b> Base txns (Model B). That high-assurance mode is supported but not yet run, so it stays Planned until it carries real on-chain proof.</div>
+  <div class="note" style="margin-top:14px"><b>Note on the two "58-receipt" rows.</b> They are different tests, <b>both now passed with on-chain proof</b>. Model A (production) folds 58 receipts → <b>one</b> Merkle root → <b>one</b> Base transaction. Model B (high-assurance) anchors each receipt in its <b>own</b> transaction — <b>58 separate</b> Base txns. Same 58 receipts, two anchoring modes, both verified on Base mainnet. Production uses Model A for cost/scale; Model B is available on request.</div>
 
   <h2>Evidence — completed tests</h2>
   <div id="evidence"></div>
@@ -128,7 +128,12 @@
               note:'Every receipt commits to its predecessor (prev_receipt_cid = SHA-256 of prior). Re-walk the chain on the session page.' } },
     { name:'Independent verification', config:'no DCS account', model:'A', status:'pass',
       proof:{ note:'Receipts fetched from api.dcsai.ai and signatures re-checked client-side. Anyone can verify without our servers.' } },
-    { name:'Individual per-receipt anchoring', config:'58 receipts → 58 SEPARATE Base txns (one per receipt)', model:'B', status:'plan', proof:null },
+    { name:'Individual per-receipt anchoring', config:'58 receipts → 58 SEPARATE Base txns (one per receipt)', model:'B', status:'pass',
+      proof:{ session:'1e477d1d-abed-4248-86d6-bff63c41aa04', receipts:58, txns:58, chain:'base',
+              wallet:'0x57d932538c16c810969A8341BbABFE0A70Ae123c',
+              firstTx:'0x6d99646975f9faee99d5fadb0c6141e1da539d0c903e083875157274841e9d52',
+              lastTx:'0x7cfb47af9653ffaaaf9fe373319185738db38c8f4ce5b37a416e609b752f9bee',
+              report:'/proofs/individual-anchor-1e477d1d.json' } },
     { name:'Scale — large batch', config:'100 receipts → 1 Merkle root → 1 Base tx', model:'B', status:'plan', proof:null }
   ];
 
@@ -140,6 +145,9 @@
     var p=t.proof, out=[];
     if(p.anchor) out.push('Base anchor: <a href="'+BASESCAN+esc(p.anchor)+'" target="_blank" rel="noopener">'+shortTx(p.anchor)+' ↗</a>');
     if(p.merkle) out.push('Merkle root: '+esc(p.merkle.slice(0,18))+'…');
+    if(p.txns){ out.push('<b style="color:#34d399">'+esc(p.txns)+'/'+esc(p.receipts)+' separate Base txns</b>');
+      if(p.firstTx) out.push('First tx: <a href="'+BASESCAN+esc(p.firstTx)+'" target="_blank" rel="noopener">'+shortTx(p.firstTx)+' ↗</a>');
+      if(p.report) out.push('<a href="'+esc(p.report)+'" target="_blank" rel="noopener">full 58-tx report ↗</a>'); }
     if(p.session) out.push('Session: <a href="/?id='+esc(p.session)+'" target="_blank" rel="noopener">verify chain ↗</a>');
     if(!out.length && p.note) out.push(esc(p.note));
     return out.join('<br>');
@@ -152,19 +160,26 @@
       +'<td>'+pill+'</td></tr>';
   }).join('');
 
-  // Evidence cards for passed tests that carry full anchor proof.
-  var ev = TESTS.filter(function(t){ return t.status==='pass' && t.proof && t.proof.anchor; });
+  // Evidence cards for passed tests that carry on-chain proof (Model A anchor or Model B txns).
+  var ev = TESTS.filter(function(t){ return t.status==='pass' && t.proof && (t.proof.anchor || t.proof.txns); });
   document.getElementById('evidence').innerHTML = ev.map(function(t){
-    var p=t.proof;
-    return '<div class="card"><div class="ch"><span class="dot"></span><h3>'+esc(t.name)+' — PASSED</h3></div>'
-      +'<div class="kv">'
-      +'<span class="k">Test</span><span class="v">'+esc(t.name)+' ('+esc(t.config)+')</span>'
-      +'<span class="k">Receipts</span><span class="v">'+esc(p.receipts)+' in chain · '+esc(p.compute)+' compute + lifecycle</span>'
-      +'<span class="k">Signing key</span><span class="v">'+esc(p.key||'dcs-labs-receipt-key-2026')+'</span>'
-      +'<span class="k">Merkle root</span><span class="v g">'+esc(p.merkle)+'</span>'
-      +'<span class="k">Base anchor</span><span class="v"><a href="'+BASESCAN+esc(p.anchor)+'" target="_blank" rel="noopener">'+esc(p.anchor)+' ↗</a></span>'
-      +'<span class="k">Verify yourself</span><span class="v"><a href="/?id='+esc(p.session)+'" target="_blank" rel="noopener">verify.dcsai.ai/?id='+esc(p.session.slice(0,8))+'… ↗</a></span>'
-      +'</div></div>';
+    var p=t.proof, kv='';
+    kv += '<span class="k">Test</span><span class="v">'+esc(t.name)+' ('+esc(t.config)+')</span>';
+    kv += '<span class="k">Receipts</span><span class="v">'+esc(p.receipts)+(p.compute?(' in chain · '+esc(p.compute)+' compute + lifecycle'):' in chain')+'</span>';
+    if(p.merkle){
+      kv += '<span class="k">Signing key</span><span class="v">'+esc(p.key||'dcs-labs-receipt-key-2026')+'</span>';
+      kv += '<span class="k">Merkle root</span><span class="v g">'+esc(p.merkle)+'</span>';
+      kv += '<span class="k">Base anchor</span><span class="v"><a href="'+BASESCAN+esc(p.anchor)+'" target="_blank" rel="noopener">'+esc(p.anchor)+' ↗</a></span>';
+    }
+    if(p.txns){
+      kv += '<span class="k">On-chain</span><span class="v g">'+esc(p.txns)+' / '+esc(p.receipts)+' receipts anchored in their own Base transaction</span>';
+      kv += '<span class="k">Anchor wallet</span><span class="v">'+esc(p.wallet)+'</span>';
+      kv += '<span class="k">First tx</span><span class="v"><a href="'+BASESCAN+esc(p.firstTx)+'" target="_blank" rel="noopener">'+esc(p.firstTx)+' ↗</a></span>';
+      kv += '<span class="k">Last tx</span><span class="v"><a href="'+BASESCAN+esc(p.lastTx)+'" target="_blank" rel="noopener">'+esc(p.lastTx)+' ↗</a></span>';
+      kv += '<span class="k">Full report</span><span class="v"><a href="'+esc(p.report)+'" target="_blank" rel="noopener">all '+esc(p.txns)+' transactions (JSON) ↗</a></span>';
+    }
+    if(p.session) kv += '<span class="k">Verify yourself</span><span class="v"><a href="/?id='+esc(p.session)+'" target="_blank" rel="noopener">verify.dcsai.ai/?id='+esc(p.session.slice(0,8))+'… ↗</a></span>';
+    return '<div class="card"><div class="ch"><span class="dot"></span><h3>'+esc(t.name)+' — PASSED</h3></div><div class="kv">'+kv+'</div></div>';
   }).join('') || '<div class="muted">Evidence cards appear here as anchored tests complete.</div>';
 })();
 </script>

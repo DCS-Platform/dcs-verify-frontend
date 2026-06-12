@@ -1,0 +1,535 @@
+{
+  "test": "individual-per-receipt-anchoring",
+  "model": "B",
+  "session_id": "1e477d1d-abed-4248-86d6-bff63c41aa04",
+  "chain": "base",
+  "wallet": "0x57d932538c16c810969A8341BbABFE0A70Ae123c",
+  "receipts": 58,
+  "transactions": 58,
+  "calldata_format": "0x523301<sha256(cid)>",
+  "generated_at": "2026-06-12T19:47:31.617Z",
+  "anchors": [
+    {
+      "index": 1,
+      "kind": "compute_inference",
+      "cid": "bafkreielsgj5xdcha2pxizo5f7iss776kkd4hadbugwnf5jla7xtj44cv4",
+      "leaf_sha256": "6f13681ec6e92afe6d7d57967558d814a9891c18638f4b592f03541506833b3b",
+      "tx_hash": "0x6d99646975f9faee99d5fadb0c6141e1da539d0c903e083875157274841e9d52",
+      "block": 47252106,
+      "basescan": "https://basescan.org/tx/0x6d99646975f9faee99d5fadb0c6141e1da539d0c903e083875157274841e9d52"
+    },
+    {
+      "index": 2,
+      "kind": "compute_inference",
+      "cid": "bafkreiayvshv62bjfzeftybhgmqckrwbktxwestdbiokqdtuxfnodtcfze",
+      "leaf_sha256": "a390b72dc742118f5608b494bdf538cbd7698f6b3fd8f0b4706ede1755faba57",
+      "tx_hash": "0xfd6776a1e4b6f6c2dbb7d995c396d2fb205ee632820e5be977e81f561c4a266b",
+      "block": 47252107,
+      "basescan": "https://basescan.org/tx/0xfd6776a1e4b6f6c2dbb7d995c396d2fb205ee632820e5be977e81f561c4a266b"
+    },
+    {
+      "index": 3,
+      "kind": "compute_inference",
+      "cid": "bafkreicwwrdvesgz2shjgpola6ryap7zrywgwqiig6346zeew5jzoejg6y",
+      "leaf_sha256": "68d416a5ff4826803594f934a987f8864fe69587dd308a3a7ef69cadbfc545cd",
+      "tx_hash": "0xce4d8288d66af9b24736d6f7cd77695f35cc51e044f82ac626722c961f913480",
+      "block": 47252108,
+      "basescan": "https://basescan.org/tx/0xce4d8288d66af9b24736d6f7cd77695f35cc51e044f82ac626722c961f913480"
+    },
+    {
+      "index": 4,
+      "kind": "compute_inference",
+      "cid": "bafkreigzmtshnbunxvfbzu3ijo7fcxclysp44ftdq4hzggu334xekyon3u",
+      "leaf_sha256": "92e917ee691f5a0cc8777fd8567fea50ea33ef4675a165d7417f6a44e1b98975",
+      "tx_hash": "0x0e74d6e228ec834a51077e4147db0c14377cd65be32b28a919d6a660930ff46b",
+      "block": 47252109,
+      "basescan": "https://basescan.org/tx/0x0e74d6e228ec834a51077e4147db0c14377cd65be32b28a919d6a660930ff46b"
+    },
+    {
+      "index": 5,
+      "kind": "compute_inference",
+      "cid": "bafkreif37mt6bbgmy7niuqwefhsvawvtpfavffkgjbsruikjpdph3dc6ha",
+      "leaf_sha256": "4cc4a8862bdcc0f194a2da3ce1e38ca371bb0de38059f778a4b31b1a90a170bd",
+      "tx_hash": "0xfd29d56d8d5b0b07ac7f945d8336f1ec0a947bb0c758f9e9c09f6c19b5f9a961",
+      "block": 47252110,
+      "basescan": "https://basescan.org/tx/0xfd29d56d8d5b0b07ac7f945d8336f1ec0a947bb0c758f9e9c09f6c19b5f9a961"
+    },
+    {
+      "index": 6,
+      "kind": "compute_inference",
+      "cid": "bafkreih5444c7f4xe3x7zhkl2yagmyoeihooyjmd4yc4o2wi5btk4pzdoi",
+      "leaf_sha256": "81083e2773976bfaf1ffb825de14a089a10e2999cb1d54cd0e168023d0992eb1",
+      "tx_hash": "0xcd1ec51b7ebb5cc9548d8de53017a10538dc0c89e3caf144043d1d5d780a6ee4",
+      "block": 47252110,
+      "basescan": "https://basescan.org/tx/0xcd1ec51b7ebb5cc9548d8de53017a10538dc0c89e3caf144043d1d5d780a6ee4"
+    },
+    {
+      "index": 7,
+      "kind": "compute_inference",
+      "cid": "bafkreihec5frdngv5kzijjibssh5ba25pvloq7nk3wcqbihs6h4bgnsge4",
+      "leaf_sha256": "7c1dc364de911d07469d45b837f3081dced4d6bff4ad75009d9f46788b321d54",
+      "tx_hash": "0x1197bdd993fc959351b2b81303e8fc397673bc3f74ee52336dfea5e167456b32",
+      "block": 47252111,
+      "basescan": "https://basescan.org/tx/0x1197bdd993fc959351b2b81303e8fc397673bc3f74ee52336dfea5e167456b32"
+    },
+    {
+      "index": 8,
+      "kind": "compute_inference",
+      "cid": "bafkreiduse6pfvnzuah6wrgu7e236bntdzmxwei6mhl2banki2vrphbqya",
+      "leaf_sha256": "aa8cb8c2fcc7defd3ef1b3417f84e3a97047137d6b3a7c2345fc36842d2b4923",
+      "tx_hash": "0xe9089ef0cad8992cca21b742831c48ec0325a34da13ae7e0aa04877bfa5b43ba",
+      "block": 47252112,
+      "basescan": "https://basescan.org/tx/0xe9089ef0cad8992cca21b742831c48ec0325a34da13ae7e0aa04877bfa5b43ba"
+    },
+    {
+      "index": 9,
+      "kind": "compute_inference",
+      "cid": "bafkreibyr3vzlacab64u4e543wftbwlvvbspanodwpyctwwszb7afhzv3m",
+      "leaf_sha256": "93dcedf5d5cb073ea6377149317a21a17e65f2dce73778213ab51d369de2c18c",
+      "tx_hash": "0x2f0fb4ab139050533a6960319d14f6a242d591d55c68a49bcb278940311e10b8",
+      "block": 47252112,
+      "basescan": "https://basescan.org/tx/0x2f0fb4ab139050533a6960319d14f6a242d591d55c68a49bcb278940311e10b8"
+    },
+    {
+      "index": 10,
+      "kind": "compute_inference",
+      "cid": "bafkreibfa3g27sfwz2dqwlycocpkm3nij3a7pffvqxtwwdcwivd2bjkfvy",
+      "leaf_sha256": "bc7ec5d395b1caca79ce7cec1d70c5969a66cdc2a9fc7c9002728f9c30571d29",
+      "tx_hash": "0x049b6718a34424709a094399ce6c0f09733d3ea543d050698fb560120832476e",
+      "block": 47252113,
+      "basescan": "https://basescan.org/tx/0x049b6718a34424709a094399ce6c0f09733d3ea543d050698fb560120832476e"
+    },
+    {
+      "index": 11,
+      "kind": "compute_inference",
+      "cid": "bafkreigqnijogggc4bvxtef3wcbxymnungbabd2ur64dgrscmbxknlc5na",
+      "leaf_sha256": "98636722ce09b26a2ee7310cfc5b5f235c166ca3af7869325467eca654aa387c",
+      "tx_hash": "0xca49b9a6f7e0352e81599f263631e509163b8cc9aa060b82fdff0883bae51ef3",
+      "block": 47252114,
+      "basescan": "https://basescan.org/tx/0xca49b9a6f7e0352e81599f263631e509163b8cc9aa060b82fdff0883bae51ef3"
+    },
+    {
+      "index": 12,
+      "kind": "compute_inference",
+      "cid": "bafkreid5fdlbtcbudu4d7dv7srezssw5rhobjwu52tbwmcacapjixcppgm",
+      "leaf_sha256": "abc237c3ca7492df882da62392ad789ea9f5b5755e34267b437512b7d524ebbd",
+      "tx_hash": "0x4fd9cc728c88168468bf6208acdf5560190b09a0aa44652e1db3492cf52d3222",
+      "block": 47252115,
+      "basescan": "https://basescan.org/tx/0x4fd9cc728c88168468bf6208acdf5560190b09a0aa44652e1db3492cf52d3222"
+    },
+    {
+      "index": 13,
+      "kind": "compute_inference",
+      "cid": "bafkreiebo66j4bsymqdlihgaceej2zldqxvzv24j2ncnxcarniaan7v2jy",
+      "leaf_sha256": "c5b11e86b7b35879851e37f72a9d738683f6b102a06371789c40971972797ec1",
+      "tx_hash": "0x49f300a97e15e044bbab37382d3f22196bac7ef25c19af573530232629f8db4b",
+      "block": 47252116,
+      "basescan": "https://basescan.org/tx/0x49f300a97e15e044bbab37382d3f22196bac7ef25c19af573530232629f8db4b"
+    },
+    {
+      "index": 14,
+      "kind": "compute_inference",
+      "cid": "bafkreihy7ftdzeh3lvp53yyhp45ksjewclz3krskmcpa2zc53p7iec7h4u",
+      "leaf_sha256": "bf587be3138ca030897dc60e2689b6bbdde35b915bb5b025df3c1d829d65ab8e",
+      "tx_hash": "0x1c21f855f2391164d9894c8a07e41680b0f337c04f203d1b6c30ee855a18d63e",
+      "block": 47252117,
+      "basescan": "https://basescan.org/tx/0x1c21f855f2391164d9894c8a07e41680b0f337c04f203d1b6c30ee855a18d63e"
+    },
+    {
+      "index": 15,
+      "kind": "compute_inference",
+      "cid": "bafkreiefwd25uhlmt6wm3l2m4bstlvmlvuodvh2jc45v3bxrpd4glkakcu",
+      "leaf_sha256": "5ef3f0d4e2cbac92c3af9139ee5ebf104c609ceffe92a6d63e94814cb0bb8645",
+      "tx_hash": "0x811ee083a238d8be118bd8ad5862130bce24d30d44b7616b92ad54dff8f56cad",
+      "block": 47252117,
+      "basescan": "https://basescan.org/tx/0x811ee083a238d8be118bd8ad5862130bce24d30d44b7616b92ad54dff8f56cad"
+    },
+    {
+      "index": 16,
+      "kind": "compute_inference",
+      "cid": "bafkreiefdflorkstcbwqi2iw724g4vuauiaqphcx7u56dx4kmxkvnvn6wu",
+      "leaf_sha256": "6b985d605ec495c6b1eac2b8ce3c1d161ee68eb04cc10cced68324624a1abb39",
+      "tx_hash": "0x2fc74d801936bd0f2336752e1d7821022fc3e1ec55560e923b4f2fa54c80a396",
+      "block": 47252118,
+      "basescan": "https://basescan.org/tx/0x2fc74d801936bd0f2336752e1d7821022fc3e1ec55560e923b4f2fa54c80a396"
+    },
+    {
+      "index": 17,
+      "kind": "compute_inference",
+      "cid": "bafkreid3bux5eshzow7je4o7pnlamz22kop7ckpf5elqwancefhpdnwrhy",
+      "leaf_sha256": "7fda7a45563bd050a338c428541ba2a022137ef1eb1731286a64b2bf6698dcbc",
+      "tx_hash": "0xfdccbde8912be55e15b59a696a149f238280275bf92002b4965504397a43e692",
+      "block": 47252119,
+      "basescan": "https://basescan.org/tx/0xfdccbde8912be55e15b59a696a149f238280275bf92002b4965504397a43e692"
+    },
+    {
+      "index": 18,
+      "kind": "compute_inference",
+      "cid": "bafkreicqnyglbki7fxwzf6qorlecyactazs7d3o24jeyv7o7bvwafr7cbu",
+      "leaf_sha256": "f76f9cfc1aa4be9096b5e1b45aaeb5f0bfe9808f136468c92086e3ca3da8a21f",
+      "tx_hash": "0xc3ecd15b36b87f68b5ce12ca3ebfddb9f943be4bffb0e582a013cb8c1c4819f1",
+      "block": 47252120,
+      "basescan": "https://basescan.org/tx/0xc3ecd15b36b87f68b5ce12ca3ebfddb9f943be4bffb0e582a013cb8c1c4819f1"
+    },
+    {
+      "index": 19,
+      "kind": "compute_inference",
+      "cid": "bafkreihzjwfrjk3ohyjhbpdga6qqe4bcd2ldkizcu5aaqdpgxjjabwni2a",
+      "leaf_sha256": "0605655b40e2103775b4622adc16829f6408b5d211f89d248f5d69d713c71067",
+      "tx_hash": "0xfef2d65787e0359b3c1cdaa727f9251b68422bf04d7c75e517ba04d22bbfdbce",
+      "block": 47252120,
+      "basescan": "https://basescan.org/tx/0xfef2d65787e0359b3c1cdaa727f9251b68422bf04d7c75e517ba04d22bbfdbce"
+    },
+    {
+      "index": 20,
+      "kind": "compute_inference",
+      "cid": "bafkreigwjnjndccbn64r25zzwhguwtp5772m5czn7w5ekr7fjybiukgro4",
+      "leaf_sha256": "a283c61096699e3f6d4c50dfa35cb3e74f5cc378ffccb6ec8aa0595d0374becf",
+      "tx_hash": "0x50b347899196ded845f61ca5c6c61f82bfd8cc6d9210ba91c14bb2a63ad505a3",
+      "block": 47252121,
+      "basescan": "https://basescan.org/tx/0x50b347899196ded845f61ca5c6c61f82bfd8cc6d9210ba91c14bb2a63ad505a3"
+    },
+    {
+      "index": 21,
+      "kind": "compute_inference",
+      "cid": "bafkreibbmrycqgkevjda5mzq6zrqylzg73eywoka62mymhpzocfe4rc2fu",
+      "leaf_sha256": "2d59a4996f21c7807a161a4eef1277249a27877ec00ce88d23c043c8f4f11a9c",
+      "tx_hash": "0x9368b1b152ef00d51fa39836ffcdec67c6ff21d175c3bb080797fd006fc3a716",
+      "block": 47252122,
+      "basescan": "https://basescan.org/tx/0x9368b1b152ef00d51fa39836ffcdec67c6ff21d175c3bb080797fd006fc3a716"
+    },
+    {
+      "index": 22,
+      "kind": "compute_inference",
+      "cid": "bafkreiaahagynw5qyv4p6no4yi6ql7srehkuwlrgasrbw35i6twfpytpkq",
+      "leaf_sha256": "d1af6df964747d582e6b71cdea0db28b30d03aa389eb7c042a8d312182d30241",
+      "tx_hash": "0x75daffb48adcb8d9fcec4cbda5ef86c9d352fe6e124ca87764e8bbc46f9cd922",
+      "block": 47252123,
+      "basescan": "https://basescan.org/tx/0x75daffb48adcb8d9fcec4cbda5ef86c9d352fe6e124ca87764e8bbc46f9cd922"
+    },
+    {
+      "index": 23,
+      "kind": "compute_inference",
+      "cid": "bafkreifqy3w6vw75gfokytkqe6zwxe5xvumk2xuo7ggmjlcwsk73delzby",
+      "leaf_sha256": "7829ad6d1f47bdc58d124296ab439a36f0c6af3dc0e13df0cbb1bf813f8695fa",
+      "tx_hash": "0x9e9137a5021b3dde52e026dc2b0b9d6bc4fc5e7dd5e3ef723f3e99f75d8a8363",
+      "block": 47252123,
+      "basescan": "https://basescan.org/tx/0x9e9137a5021b3dde52e026dc2b0b9d6bc4fc5e7dd5e3ef723f3e99f75d8a8363"
+    },
+    {
+      "index": 24,
+      "kind": "compute_inference",
+      "cid": "bafkreid6w7beimix7naajk3bl2iunfu6cige4afyj2yn6mjbt3kxe2wroe",
+      "leaf_sha256": "84f8be461614c834b3a58f99cbb434d1474765e4c317129a219d845d3a1c02ff",
+      "tx_hash": "0x96cd81d6f326135264961d961a7248b038c5ead967dc9a771fdb28e718e417bc",
+      "block": 47252124,
+      "basescan": "https://basescan.org/tx/0x96cd81d6f326135264961d961a7248b038c5ead967dc9a771fdb28e718e417bc"
+    },
+    {
+      "index": 25,
+      "kind": "compute_inference",
+      "cid": "bafkreidnbfmydbwkwnfcirkbohd5ufrgl7orz6brf2iiivn5oyzpc5xsam",
+      "leaf_sha256": "e26d973fd6ad0da735a9fd25d94df5f40031608cae3d951d72d1b91734793288",
+      "tx_hash": "0x4e361a7f091cca2cb112221f165360f59969b80212425c5b364191aa1430c5e2",
+      "block": 47252125,
+      "basescan": "https://basescan.org/tx/0x4e361a7f091cca2cb112221f165360f59969b80212425c5b364191aa1430c5e2"
+    },
+    {
+      "index": 26,
+      "kind": "compute_inference",
+      "cid": "bafkreieeddwhvkojhlx3x73diagna66dqwevpyzdaafawppcl72jnzlviq",
+      "leaf_sha256": "bbb671cc5db92bc895d17cce99d977125a8b6250b93eacad85a91816d3ee6ae8",
+      "tx_hash": "0x35ac143bce8f15c86346fbebfde8a15c3e5e3bfa51b10564aa6dc2db7b3f8168",
+      "block": 47252126,
+      "basescan": "https://basescan.org/tx/0x35ac143bce8f15c86346fbebfde8a15c3e5e3bfa51b10564aa6dc2db7b3f8168"
+    },
+    {
+      "index": 27,
+      "kind": "compute_inference",
+      "cid": "bafkreieejpzmhjzn4vg7pzbihxkkg22cfahgcm2crceqfzzc73xzbdrbi4",
+      "leaf_sha256": "df7c149ea2347a476712e529b40b51ddab0f563fb8ff6929c060c5edc82b3d7a",
+      "tx_hash": "0x46fa34666d36d91202258ae2a8db783737fe4d6dbfdce5b51c7fc3d65529fc28",
+      "block": 47252127,
+      "basescan": "https://basescan.org/tx/0x46fa34666d36d91202258ae2a8db783737fe4d6dbfdce5b51c7fc3d65529fc28"
+    },
+    {
+      "index": 28,
+      "kind": "compute_inference",
+      "cid": "bafkreiejx55e725cbi2izhipfqpkffzzl7y5bst3uqnjbkp5mvfb3tvl3a",
+      "leaf_sha256": "374f4b78e0aea447dc7e978ebed74dbdcdb99d896a53547ebae3289f01a184d2",
+      "tx_hash": "0xd75703b3e897d72aa7f2746d9693a25cb8a2805854ac08570f20a4b4bf1bac86",
+      "block": 47252127,
+      "basescan": "https://basescan.org/tx/0xd75703b3e897d72aa7f2746d9693a25cb8a2805854ac08570f20a4b4bf1bac86"
+    },
+    {
+      "index": 29,
+      "kind": "compute_inference",
+      "cid": "bafkreiaknesz5xkhxnruy4uk4cgvdelkeo2tdthziivebkm6mcceoyn7yq",
+      "leaf_sha256": "4692605b59472503f4d56ecbba12bbdae9220a13487ab3dacff50067429f6d2d",
+      "tx_hash": "0x85d70bc72ee67bcd271cbc52d3fb934b50d1a5fdcacfc4a43fd94420f4c07147",
+      "block": 47252128,
+      "basescan": "https://basescan.org/tx/0x85d70bc72ee67bcd271cbc52d3fb934b50d1a5fdcacfc4a43fd94420f4c07147"
+    },
+    {
+      "index": 30,
+      "kind": "compute_inference",
+      "cid": "bafkreiaxevh5xldvqqxbwbz7bimcikbxtn3yttqgea3ok3uijonzlyrdra",
+      "leaf_sha256": "165c14686c94452825abf6ac4d514d5a9aa1767d8c76c8354c052663a3d35631",
+      "tx_hash": "0x23894150e9335d61f06c5b99803f5f7911bf70da51fb410321f4f25773c76a31",
+      "block": 47252129,
+      "basescan": "https://basescan.org/tx/0x23894150e9335d61f06c5b99803f5f7911bf70da51fb410321f4f25773c76a31"
+    },
+    {
+      "index": 31,
+      "kind": "compute_inference",
+      "cid": "bafkreicgxzsibl3xjbu64johtolbyc5nvto5cepeuilchsxsldrlp7cjla",
+      "leaf_sha256": "2efe74f4e17c2c0371d9646813de2f314b27c4d1ae2890843a9aeafe68ad662f",
+      "tx_hash": "0x2455b85874d6c05b6b200c9db67a85aca81b18559f8a0eb1d182c89ad06669b5",
+      "block": 47252130,
+      "basescan": "https://basescan.org/tx/0x2455b85874d6c05b6b200c9db67a85aca81b18559f8a0eb1d182c89ad06669b5"
+    },
+    {
+      "index": 32,
+      "kind": "compute_inference",
+      "cid": "bafkreifrqagdggilm5thoh3g3osk62v4ulyqfantzvm32mwwjavulkega4",
+      "leaf_sha256": "f6b986baa4240d0f5246373b5e6a470437d0af5d59eca5dd9b55117b444942e7",
+      "tx_hash": "0x235338f0461d49a8717608e6df6c14df1a49206171de407768a8034dd82d503f",
+      "block": 47252131,
+      "basescan": "https://basescan.org/tx/0x235338f0461d49a8717608e6df6c14df1a49206171de407768a8034dd82d503f"
+    },
+    {
+      "index": 33,
+      "kind": "compute_inference",
+      "cid": "bafkreibkgasiucynp6eforlft6upa3i5h7os7xkleaw255cdzslfwozzq4",
+      "leaf_sha256": "3c69670c67b93c88ee88f8d7983b72a5905fb3001fd32ebb69f186d630cbf2f8",
+      "tx_hash": "0x57b76ccb93d06223ea1c54dd4225da035972c8d707470074767dd154670b56f5",
+      "block": 47252132,
+      "basescan": "https://basescan.org/tx/0x57b76ccb93d06223ea1c54dd4225da035972c8d707470074767dd154670b56f5"
+    },
+    {
+      "index": 34,
+      "kind": "compute_inference",
+      "cid": "bafkreie2kmexvxlrwq6isnagwf3vdh56prwkkn3heavsbf4dnj7arm4h64",
+      "leaf_sha256": "570b8e7808497da8c405150f1b236aa7456e0817ecc573f05d1432d577cee622",
+      "tx_hash": "0x934168dfe052d706719004fdc29db9a50fadb6904ac52d132027760168b6da8f",
+      "block": 47252133,
+      "basescan": "https://basescan.org/tx/0x934168dfe052d706719004fdc29db9a50fadb6904ac52d132027760168b6da8f"
+    },
+    {
+      "index": 35,
+      "kind": "compute_inference",
+      "cid": "bafkreifypfownfu6jtgklcp3ey7rpdhq6sgqxyfs2daxclfcjrapetcw5u",
+      "leaf_sha256": "bfc0d1aff41cec54e1b3a622e426daab2abcd5f0ceaf0ed17a9cf4b3e5bccb97",
+      "tx_hash": "0x8208775d269804474e900a3c11aa1f263538bacbd2a1ed2db7794e1d7da807ba",
+      "block": 47252133,
+      "basescan": "https://basescan.org/tx/0x8208775d269804474e900a3c11aa1f263538bacbd2a1ed2db7794e1d7da807ba"
+    },
+    {
+      "index": 36,
+      "kind": "compute_inference",
+      "cid": "bafkreifrkf3qhxvdzm2og4au6vvvb7fnrrpc2l4t752sifd4gnu4f35n3e",
+      "leaf_sha256": "1dc2a36d22896a0f6d34ec49576e2ba4c028425eccab7bc58c4cb730986f64b2",
+      "tx_hash": "0xd7fb9d6883b02a7528b437cc87d4c156f84b9b5415f4e6d38e81c839ad3b40db",
+      "block": 47252134,
+      "basescan": "https://basescan.org/tx/0xd7fb9d6883b02a7528b437cc87d4c156f84b9b5415f4e6d38e81c839ad3b40db"
+    },
+    {
+      "index": 37,
+      "kind": "compute_inference",
+      "cid": "bafkreihn4bvsik27blrohbbgd6wt6arpyewri2likbuihwlz4eco64onpa",
+      "leaf_sha256": "ce3b5e96f9914baf74495073c470ac62c83a6381a2786fa353afe86fc513a849",
+      "tx_hash": "0x1454d7fe288807b9847a39b8694a7b82d14ba7fbc972ff09d013a96759160e20",
+      "block": 47252135,
+      "basescan": "https://basescan.org/tx/0x1454d7fe288807b9847a39b8694a7b82d14ba7fbc972ff09d013a96759160e20"
+    },
+    {
+      "index": 38,
+      "kind": "compute_inference",
+      "cid": "bafkreifz7l5twqkco3mdfpssa4lr5i6gp3s5ibfhi6oant3n6grihksmba",
+      "leaf_sha256": "e1a6e2d8119c5cb8166d34ca0e96b7ffdc56cc1400193c04a90b8e848e4d8010",
+      "tx_hash": "0x510b42e5cfcad9a86821377e488bbcf744a24af3787dc09626dcba425839a8e9",
+      "block": 47252136,
+      "basescan": "https://basescan.org/tx/0x510b42e5cfcad9a86821377e488bbcf744a24af3787dc09626dcba425839a8e9"
+    },
+    {
+      "index": 39,
+      "kind": "compute_inference",
+      "cid": "bafkreif7y5oqj3ercptojv73lmcrv2a2y35g7kylg5mvabzwwiu2zeguxe",
+      "leaf_sha256": "953f118258b2f91176fb2a318dc2c0cbab0528e433aebaece3f723bdb52aba26",
+      "tx_hash": "0xe5864c9c4e81bb47efd779e496ab3ba462ffeea8dc30f399837f05d2b6dcff34",
+      "block": 47252137,
+      "basescan": "https://basescan.org/tx/0xe5864c9c4e81bb47efd779e496ab3ba462ffeea8dc30f399837f05d2b6dcff34"
+    },
+    {
+      "index": 40,
+      "kind": "compute_inference",
+      "cid": "bafkreif7lkholib2op7ha5uz4hbhn3ndmgol4jk3nmavtahbjr7yasi5w4",
+      "leaf_sha256": "09d6faed7dfece21a5f85072b0f084bf42fe4e71d88020af69090fc54e54946f",
+      "tx_hash": "0xef0678732c74c9cc3afc44b39cad4536ae1455179b00ed359642afd8e30f7d18",
+      "block": 47252138,
+      "basescan": "https://basescan.org/tx/0xef0678732c74c9cc3afc44b39cad4536ae1455179b00ed359642afd8e30f7d18"
+    },
+    {
+      "index": 41,
+      "kind": "compute_inference",
+      "cid": "bafkreidhvim4crl264mu42othkoaqtqjj7w3vl7mlbrejdtloevp6dra6u",
+      "leaf_sha256": "2c3540e0c34cf0af1a5243b80a3e277c73869522f6431dc30feef7f2f188af4d",
+      "tx_hash": "0x442260a82d0982a610d90700a2aed3999940a09a767a25d8f8044e3dfa8f11c1",
+      "block": 47252139,
+      "basescan": "https://basescan.org/tx/0x442260a82d0982a610d90700a2aed3999940a09a767a25d8f8044e3dfa8f11c1"
+    },
+    {
+      "index": 42,
+      "kind": "compute_inference",
+      "cid": "bafkreifbx727vks5aifvhee5rvxh3fthtuc5tzgojusspz7ifkcjpehgr4",
+      "leaf_sha256": "3dab27f5605b33b9aaff01de44ed7155f036ce433cf20a9b0ff46b3a65c84e40",
+      "tx_hash": "0x1cf22e0002bc5bad3efa59faff87384dc6bc6bd50ce6746dec6184cf9c5719e0",
+      "block": 47252139,
+      "basescan": "https://basescan.org/tx/0x1cf22e0002bc5bad3efa59faff87384dc6bc6bd50ce6746dec6184cf9c5719e0"
+    },
+    {
+      "index": 43,
+      "kind": "compute_inference",
+      "cid": "bafkreibeeorsgmfqpeugao4zmlbezawjtjaqhudngz6wp5roitpjmbf4ym",
+      "leaf_sha256": "40b5e652d88a5a43dd1ad8d0a76678bbe4a2bc90c951619511588366e7490434",
+      "tx_hash": "0x8e5c70e4d1da3f68b8d458b3def71fc4ef863513241818e07b2f38c5b56e5e57",
+      "block": 47252140,
+      "basescan": "https://basescan.org/tx/0x8e5c70e4d1da3f68b8d458b3def71fc4ef863513241818e07b2f38c5b56e5e57"
+    },
+    {
+      "index": 44,
+      "kind": "compute_inference",
+      "cid": "bafkreiekdjpg5ogf3qnkrbz2jy7bjpdrpvepby6klkiqn253uifn2o6vpy",
+      "leaf_sha256": "f6b29518cd399ddd337c1a03c22d5e4533ea66439694963f857f5b2d8ccd2022",
+      "tx_hash": "0xaec281d0937c92ba56b2e43759c3a67a98e9a9f0c5677317ed87b05ebbd8f0fe",
+      "block": 47252141,
+      "basescan": "https://basescan.org/tx/0xaec281d0937c92ba56b2e43759c3a67a98e9a9f0c5677317ed87b05ebbd8f0fe"
+    },
+    {
+      "index": 45,
+      "kind": "compute_inference",
+      "cid": "bafkreib6lpjtpnsl3floopwd2uizeirnfjzvoh2wayy7knechjn6mkzu5q",
+      "leaf_sha256": "41b3804f618b554e1ae8b1ecdf6d6588d2d94e8344fa1799013107107b639283",
+      "tx_hash": "0xda11ce398e3de391eef40b77770b40b501561d0b9adba7231a8279d9ad267ae8",
+      "block": 47252142,
+      "basescan": "https://basescan.org/tx/0xda11ce398e3de391eef40b77770b40b501561d0b9adba7231a8279d9ad267ae8"
+    },
+    {
+      "index": 46,
+      "kind": "compute_inference",
+      "cid": "bafkreidrjwgzxehzf55urimcxwkveqw3v7746lwl6fcfvwguhk6ice2ixu",
+      "leaf_sha256": "28ace001226bf37f5a53ddf94ad649abff8e5984d785cd8f3ff6cb06dac70a78",
+      "tx_hash": "0x3acc63ecc0443f6fbf6322e3d7a85c41a92e69ec9f15e9a7b1ae4059e43e4793",
+      "block": 47252143,
+      "basescan": "https://basescan.org/tx/0x3acc63ecc0443f6fbf6322e3d7a85c41a92e69ec9f15e9a7b1ae4059e43e4793"
+    },
+    {
+      "index": 47,
+      "kind": "compute_inference",
+      "cid": "bafkreiegbla7xbdr6h6qidwuyjc3lh6fbwqwijji7obk3ifks4pzeigewa",
+      "leaf_sha256": "084c8f175f1ff8308b3c8b2d862bd32161d563b5051b4ca85ae697bf1e33f5c5",
+      "tx_hash": "0x0a5d4916de88d56bad2d2d43892bb8c144da467dac25cf8f689b1ee5ac6701bd",
+      "block": 47252144,
+      "basescan": "https://basescan.org/tx/0x0a5d4916de88d56bad2d2d43892bb8c144da467dac25cf8f689b1ee5ac6701bd"
+    },
+    {
+      "index": 48,
+      "kind": "compute_inference",
+      "cid": "bafkreidwujg5z6irreu7aovmdmce624ojbfh2rmmq5s75qsacozkmeyoau",
+      "leaf_sha256": "c22092a35ceb5e532daa1218ed552a49d604068ed44d01d70d54dbbde0437ba3",
+      "tx_hash": "0x500f3f14a7ae89847e957326e98d05dd20df3ee83846f83dafee99858645411a",
+      "block": 47252145,
+      "basescan": "https://basescan.org/tx/0x500f3f14a7ae89847e957326e98d05dd20df3ee83846f83dafee99858645411a"
+    },
+    {
+      "index": 49,
+      "kind": "compute_inference",
+      "cid": "bafkreiagwseyoxetfsca5744t6gs2gocgnglm6vkfh6nopcdesbtqcnefi",
+      "leaf_sha256": "7e96cdab2deacb47fc26ea23555cb1d51b5577ab4ba0877b35c4108ce59c10ec",
+      "tx_hash": "0x1cb935723a4e5c3be20b293db6b26567f2318bbd2a188047ce55f32dd6043855",
+      "block": 47252146,
+      "basescan": "https://basescan.org/tx/0x1cb935723a4e5c3be20b293db6b26567f2318bbd2a188047ce55f32dd6043855"
+    },
+    {
+      "index": 50,
+      "kind": "compute_inference",
+      "cid": "bafkreicxyfqvlafwu4sq5h6qbpr4r4uddzf6tz7rrp54goiicdcpockiie",
+      "leaf_sha256": "2bbad737eebb5459ac7286d8db6ef17d9b730fef1ee43deaadc515cc8baed15b",
+      "tx_hash": "0x0444b524817789993a73f258061ba1bea1910a3e5dbc7a6fca512433838010d8",
+      "block": 47252146,
+      "basescan": "https://basescan.org/tx/0x0444b524817789993a73f258061ba1bea1910a3e5dbc7a6fca512433838010d8"
+    },
+    {
+      "index": 51,
+      "kind": "compute_inference",
+      "cid": "bafkreidiwcto5o7ajuvckr4j4fexizo2gzgbwtxli3k6m3balnavyfqpfe",
+      "leaf_sha256": "1229f55caf8a0193114d26b154b7d3004282baef5e0ca8c0842fd7a4b6a235b3",
+      "tx_hash": "0xa19d335001a0358afe4cc1315103acbb81826924bc1c3943349b788bc5d17796",
+      "block": 47252147,
+      "basescan": "https://basescan.org/tx/0xa19d335001a0358afe4cc1315103acbb81826924bc1c3943349b788bc5d17796"
+    },
+    {
+      "index": 52,
+      "kind": "compute_inference",
+      "cid": "bafkreid7vyop4tnxqalfyjqs54n3qebwdqalc4tahiuub74mdix5tdjwsm",
+      "leaf_sha256": "9375f7993c4a1fa8aba64b9e72f0cd47f38def1ea1f4eebf66f8cbdee72d9bae",
+      "tx_hash": "0x4caeab9068136ffa5cc33db0d80b92b281fca646d909de251bc3a693880d5d7c",
+      "block": 47252148,
+      "basescan": "https://basescan.org/tx/0x4caeab9068136ffa5cc33db0d80b92b281fca646d909de251bc3a693880d5d7c"
+    },
+    {
+      "index": 53,
+      "kind": "compute_inference",
+      "cid": "bafkreieeiod5esflm6ajf5kmf4k25hqcsblmus2mmgtlo4a3sratle7vpe",
+      "leaf_sha256": "e7f18a2bed7d0c7de8e73024cfce89c9b15352bb43165678831f444fdc512eff",
+      "tx_hash": "0xee7b299cb350532be88022cffa384abf17dc9c0dd56bffd52863a08c86ad34b3",
+      "block": 47252149,
+      "basescan": "https://basescan.org/tx/0xee7b299cb350532be88022cffa384abf17dc9c0dd56bffd52863a08c86ad34b3"
+    },
+    {
+      "index": 54,
+      "kind": "compute_inference",
+      "cid": "bafkreigatgnwombxtvrxij6febxbu6ivqsuuabsa7qmpsawveh7fjnyjr4",
+      "leaf_sha256": "1b6ed39e6684ffd43cd0f4d4c02e0715db5f742c4354a5a19eb9fcc0b1611976",
+      "tx_hash": "0xd3ab668f79f598fa564719e280a9ce39b7b4a296562d7aae3ec59c13f6f3d3f5",
+      "block": 47252150,
+      "basescan": "https://basescan.org/tx/0xd3ab668f79f598fa564719e280a9ce39b7b4a296562d7aae3ec59c13f6f3d3f5"
+    },
+    {
+      "index": 55,
+      "kind": "compute_inference",
+      "cid": "bafkreie2xezlwxgfhyem3d3bivtbpxqe3542nycbxk3ida4h23itckuxs4",
+      "leaf_sha256": "ef56ef3dbb2b6a12609bc59c7a5950049002f8294bfc7852a010b08accfc1cbd",
+      "tx_hash": "0xfea74721acfd5dfbbfec603517aefb30422ab47eb2d2877d89c324ea34b72b16",
+      "block": 47252151,
+      "basescan": "https://basescan.org/tx/0xfea74721acfd5dfbbfec603517aefb30422ab47eb2d2877d89c324ea34b72b16"
+    },
+    {
+      "index": 56,
+      "kind": "compute_inference",
+      "cid": "bafkreib7z2qefiifczu5g6yu2v4whkiby5i2olqap2kb7cj7oqgcbk6cmu",
+      "leaf_sha256": "068a95610ece2551bbd3a9a8c533fefd3c1b83925a6b58c9f5545b81d330b383",
+      "tx_hash": "0x707bc923a93840260ed1fd793c888c08a0bf3bda893c00a0af21f10f4ab781fe",
+      "block": 47252151,
+      "basescan": "https://basescan.org/tx/0x707bc923a93840260ed1fd793c888c08a0bf3bda893c00a0af21f10f4ab781fe"
+    },
+    {
+      "index": 57,
+      "kind": "build_complete",
+      "cid": "bafkreigdygiu7qgglx6qi6c3izcqkgyxwimft446utcvvg5n75ivy3fzau",
+      "leaf_sha256": "2f18993993bd92817954c8878186552a3e39c1aef0e87571b31719e69759af80",
+      "tx_hash": "0xf674ae422f723bbc0fb945ab3c05ac21ac7645b8bb23e7d52ef70ec39241f0e4",
+      "block": 47252152,
+      "basescan": "https://basescan.org/tx/0xf674ae422f723bbc0fb945ab3c05ac21ac7645b8bb23e7d52ef70ec39241f0e4"
+    },
+    {
+      "index": 58,
+      "kind": "memory_write",
+      "cid": "bafkreict5har2i4gksojj4rjgrozey24cvdzd4m6sh2suhhpopmln5toiy",
+      "leaf_sha256": "8b9b00e3bb7f295fcaadff8cbdd9c67135cffcff0e1d8e4ca1d33e05cf97ceaa",
+      "tx_hash": "0x7cfb47af9653ffaaaf9fe373319185738db38c8f4ce5b37a416e609b752f9bee",
+      "block": 47252153,
+      "basescan": "https://basescan.org/tx/0x7cfb47af9653ffaaaf9fe373319185738db38c8f4ce5b37a416e609b752f9bee"
+    }
+  ]
+}
